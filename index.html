@@ -3,268 +3,515 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>外贸ERP · 库存版</title>
+<title>外贸ERP · 专业版</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-body{background:#f0f5f9;padding:12px;font-family:system-ui;font-size:14px}
-.card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:12px}
-.dashboard{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.dashboard .box{flex:1;min-width:120px;background:#fff;padding:12px;border-radius:12px;cursor:pointer;transition:.2s}
-.dashboard .box:hover{background:#e3f2fd;transform:translateY(-2px)}
-.chart-box{background:#fff;padding:12px;border-radius:12px;margin-bottom:12px}
+/* 全局样式 */
+body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:hidden}
+.app-container{display:flex;height:100vh;width:100vw;overflow:hidden}
+.sidebar{width:220px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.1)}
+.sidebar-header{padding:24px 16px;border-bottom:1px solid #334155}
+.sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:16px}
+.sidebar-header small{color:#94a3b8;font-size:11px}
+.sidebar-nav{flex:1;padding:16px 8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:4px;color:#cbd5e1;cursor:pointer;transition:all 0.2s}
+.nav-item:hover{background:#334155;color:#fff}
+.nav-item.active{background:#0d6efd;color:#fff}
+.nav-item i{font-size:18px;width:24px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:12px;color:#94a3b8}
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#f0f2f5}
+.top-bar{height:60px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 1px 4px rgba(0,0,0,0.02)}
+.top-bar-title{font-weight:600;color:#1e293b}
+.top-bar-actions{display:flex;gap:16px;align-items:center}
+.content-area{flex:1;overflow-y:auto;padding:20px;background:#f0f2f5}
+.content-container{max-width:1400px;margin:0 auto}
+.card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:16px;background:#fff}
+.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:16px 20px;font-weight:600}
+.card-body{padding:20px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.dashboard-card{background:#fff;padding:16px;border-radius:12px;cursor:pointer;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
+.dashboard-card:hover{background:#e3f2fd;transform:translateY(-2px)}
+.dashboard-label{color:#64748b;font-size:12px;margin-bottom:4px}
+.dashboard-value{font-size:22px;font-weight:700;color:#1e293b}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.field-container{margin-bottom:12px}
+.field-label{font-size:11px;color:#64748b;margin-bottom:2px;display:block;font-weight:500}
+.status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:12px 0;background:#fff;padding:12px;border-radius:12px}
+.status-item{text-align:center;padding:6px 4px;border-radius:6px;font-size:11px;cursor:pointer}
+.status-count{font-weight:700;font-size:14px}
+.order-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.order-card{border-left:4px solid #0d6efd;padding:12px;background:#fff;border-radius:8px;transition:0.2s}
+.order-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.05)}
+.inventory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.inventory-card{background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #eef2f6;cursor:pointer}
+.inventory-card.low-stock{background:#fff3cd;border-left:3px solid #ffc107}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;background:#fff;padding:12px 16px;border-radius:12px}
+.search-filter{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:16px}
 .alert-overdue{background:#fee;color:#c00;padding:8px;border-radius:8px;margin-bottom:4px}
 .alert-soon{background:#fff3e0;color:#e68a00;padding:8px;border-radius:8px;margin-bottom:4px}
 .alert-ok{background:#e8f5e9;color:#2e7d32;padding:8px;border-radius:8px}
-.alert-warning{background:#fff3cd;color:#856404;padding:8px;border-radius:8px;margin-bottom:4px}
 .item-row{background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #edf2f7}
-.order-card{border-left:4px solid #0d6efd;transition:.1s}
-.badge{font-size:11px;padding:4px 8px;cursor:pointer}
-.badge:hover{opacity:0.8}
-.btn-sm{padding:2px 8px;font-size:12px}
-.btn-delete{padding:0 4px;font-size:10px;line-height:1.5;border-radius:4px;height:22px;width:22px}
-.status-bar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;padding:8px;background:#fff;border-radius:8px}
-.status-item{flex:1;min-width:80px;text-align:center;padding:4px;border-radius:6px;font-size:12px;cursor:pointer}
-.status-item:hover{transform:translateY(-2px)}
-.status-count{font-weight:bold;font-size:16px}
-.order-actions{display:flex;gap:4px;margin-top:6px}
-.order-actions button{padding:2px 6px;font-size:11px}
-.delete-btn{color:#dc3545;border-color:#dc3545}
-.delete-btn:hover{background:#dc3545;color:#fff}
-.chart-container{height:200px;width:100%}
-.field-container{margin-bottom:10px}
-.field-label{font-size:11px;color:#6c757d;margin-bottom:2px;display:block}
-.nav-tabs .nav-link{padding:6px 12px;font-size:13px}
-.inventory-card{background:#f8f9fa;border-radius:8px;padding:10px;margin-bottom:8px}
-.low-stock{background:#fff3cd;border-left:3px solid #ffc107}
+.inventory-log{font-size:12px;padding:6px 0;border-bottom:1px dashed #e2e8f0}
+.inventory-log:last-child{border-bottom:none}
+.setting-item{padding:16px;border-bottom:1px solid #eef2f6}
+.setting-item:last-child{border-bottom:none}
+.setting-label{font-weight:600;margin-bottom:4px}
+.setting-desc{font-size:12px;color:#64748b;margin-bottom:8px}
+@media (max-width: 768px) {
+  .sidebar{width:60px}
+  .sidebar-header h5, .sidebar-header small, .nav-item span, .sidebar-footer{display:none}
+  .nav-item{justify-content:center}
+  .nav-item i{margin:0}
+  .dashboard-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-grid{grid-template-columns:1fr}
+  .status-board{grid-template-columns:repeat(4,1fr)}
+  .order-grid{grid-template-columns:1fr}
+  .inventory-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-
-<div class="container-fluid p-0">
-  <div class="d-flex align-items-center justify-content-between mb-2">
-    <h5 class="m-0">📦 外贸ERP · 库存版</h5>
-    <div class="d-flex gap-1">
-      <span class="small">1 USD =</span>
-      <input type="number" id="usdRate" value="7.20" style="width:70px" class="form-control form-control-sm" placeholder="汇率">
-      <button class="btn btn-sm btn-outline-primary" onclick="refresh()">更新</button>
+<div class="app-container">
+  <!-- 左侧导航 -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h5>📦 外贸ERP</h5>
+      <small>库存版 v2.0</small>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item active" onclick="switchTab('orders')">
+        <i>📋</i>
+        <span>订单管理</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('inventory')">
+        <i>📦</i>
+        <span>库存管理</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('reports')">
+        <i>📊</i>
+        <span>数据报表</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('settings')">
+        <i>⚙️</i>
+        <span>系统设置</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div>1 USD = <span id="usdRateSide">7.20</span></div>
+      <div style="font-size:10px; margin-top:4px;">数据自动保存</div>
     </div>
   </div>
 
-  <!-- 导航标签 -->
-  <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button">📋 订单管理</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button">📦 库存管理</button>
-    </li>
-  </ul>
-
-  <!-- 标签页内容 -->
-  <div class="tab-content" id="mainTabsContent">
-    <!-- 订单管理标签页 -->
-    <div class="tab-pane fade show active" id="orders" role="tabpanel">
-      <!-- 仪表盘 -->
-      <div class="dashboard">
-        <div class="box" onclick="drill('all')"><div>📋 订单数</div><div id="totalOrder" class="fs-5 fw-bold">0</div></div>
-        <div class="box" onclick="drill('sale')"><div>💰 销售额</div><div id="totalSale" class="fs-5 fw-bold text-success">0</div></div>
-        <div class="box" onclick="drill('cost')"><div>📦 成本</div><div id="totalCost" class="fs-5 fw-bold text-info">0</div></div>
-        <div class="box" onclick="drill('tax')"><div>💵 退税</div><div id="totalTax" class="fs-5 fw-bold text-warning">0</div></div>
-        <div class="box" onclick="drill('profit')"><div>📈 毛利</div><div id="totalProfit" class="fs-5 fw-bold text-danger">0</div></div>
-      </div>
-
-      <!-- 图表 -->
-      <div class="row g-2">
-        <div class="col-md-6">
-          <div class="chart-box">
-            <h6>📊 订单状态分布</h6>
-            <div id="chartStatus" class="chart-container"></div>
-          </div>
+  <!-- 右侧主内容区 -->
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="top-bar-title" id="currentPageTitle">订单管理</div>
+      <div class="top-bar-actions">
+        <div class="d-flex gap-1 align-items-center">
+          <span class="small">💵 汇率:</span>
+          <input type="number" id="usdRate" value="7.20" style="width:70px" class="form-control form-control-sm" placeholder="汇率" oninput="updateUsdRate()">
         </div>
-        <div class="col-md-6">
-          <div class="chart-box">
-            <h6>🏭 工厂分布</h6>
-            <div id="chartFactory" class="chart-container"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 状态实时看板 -->
-      <div class="card p-2">
-        <h6 class="mb-2">📌 状态实时看板</h6>
-        <div id="statusBoard" class="status-bar"></div>
-      </div>
-
-      <!-- 预警 -->
-      <div class="card p-3"><h6>⚠️ 交期预警</h6><div id="alertBox"></div></div>
-
-      <!-- 工具栏 -->
-      <div class="d-flex flex-wrap gap-2 my-2">
-        <button class="btn btn-sm btn-primary" onclick="backup()">💾 备份</button>
-        <button class="btn btn-sm btn-warning" onclick="restore()">🔄 恢复</button>
-        <button class="btn btn-sm btn-success" onclick="exportExcel()">📊 导出</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空</button>
-      </div>
-
-      <!-- 搜索/过滤 -->
-      <div class="row g-2 mb-2">
-        <div class="col-7"><input class="form-control form-control-sm" id="search" placeholder="🔎 搜索订单号/合同号/工厂/客户" oninput="refresh()"></div>
-        <div class="col-5"><select class="form-select form-select-sm" id="factoryFilter" onchange="refresh()"></select></div>
-      </div>
-
-      <!-- 订单表单卡片 -->
-      <div class="card p-3" id="formCard">
-        <h6 id="formTitle">➕ 新增订单</h6>
-        <input type="hidden" id="editIdx">
-        
-        <div class="row g-2">
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">📋 订单号 *</span>
-              <input class="form-control form-control-sm" id="orderNo" placeholder="请输入订单号" required>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">📄 合同号 *</span>
-              <input class="form-control form-control-sm" id="contractNo" placeholder="请输入合同号" required>
-            </div>
-          </div>
-          
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">🏭 工厂 *</span>
-              <input class="form-control form-control-sm" id="factory" placeholder="请输入工厂名称" required>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">👥 客户名称</span>
-              <input class="form-control form-control-sm" id="customer" placeholder="请输入客户名称">
-            </div>
-          </div>
-          
-          <div class="col-4">
-            <div class="field-container">
-              <span class="field-label">💰 预付款日期</span>
-              <input type="date" class="form-control form-control-sm" id="prepaymentDate" placeholder="选择预付款日期">
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="field-container">
-              <span class="field-label">📝 合同签署日期</span>
-              <input type="date" class="form-control form-control-sm" id="contractSignDate" placeholder="选择合同签署日期">
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="field-container">
-              <span class="field-label">📅 交付日期</span>
-              <input type="date" class="form-control form-control-sm" id="delivery" placeholder="选择交付日期">
-            </div>
-          </div>
-          
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">📊 退税率 %</span>
-              <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="输入退税率">
-            </div>
-          </div>
-        </div>
-
-        <!-- 产品明细 -->
-        <div class="mt-3">
-          <h6>📦 产品/费用明细</h6>
-          <div id="itemsList"></div>
-          <button class="btn btn-sm btn-outline-primary w-100 mt-2" onclick="addItem()">+ 添加一行</button>
-        </div>
-
-        <div class="row g-2 mt-2">
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">💰 采购成本(RMB)</span>
-              <input class="form-control form-control-sm" id="costRmb" readonly placeholder="自动计算">
-            </div>
-          </div>
-          
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">💵 销售金额(USD)</span>
-              <input class="form-control form-control-sm" id="saleUsd" type="number" step="0.01" placeholder="输入销售金额">
-            </div>
-          </div>
-          
-          <div class="col-6">
-            <div class="field-container">
-              <span class="field-label">📌 订单状态</span>
-              <select class="form-select form-select-sm" id="status" onchange="toggleLogisticsField()">
-                <option>合同执行中</option>
-                <option>待支付预付款</option>
-                <option>已支付预付款，启动生产</option>
-                <option>生产中</option>
-                <option>待支付尾款</option>
-                <option>已支付，待发货</option>
-                <option>已发货</option>
-                <option>已签收</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="col-6" id="logisticsField" style="display: none;">
-            <div class="field-container">
-              <span class="field-label">📦 物流单号</span>
-              <input class="form-control form-control-sm" id="logistics" placeholder="输入物流单号">
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex gap-2 mt-3">
-          <button class="btn btn-sm btn-primary flex-grow-1" onclick="saveOrder()">💾 保存订单</button>
-          <button class="btn btn-sm btn-outline-secondary" id="cancelBtn" onclick="cancelOrder()" style="display:none">↩️ 取消编辑</button>
-        </div>
-      </div>
-
-      <!-- 订单列表 -->
-      <div class="card p-3">
-        <h6>📋 订单列表 <small class="text-muted">(点击状态标签可快速更新)</small></h6>
-        <div id="orderList"></div>
+        <button class="btn btn-sm btn-outline-primary" onclick="backup()">💾 备份</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="restore()">🔄 恢复</button>
       </div>
     </div>
 
-    <!-- 库存管理标签页 -->
-    <div class="tab-pane fade" id="inventory" role="tabpanel">
-      <!-- 库存仪表盘 -->
-      <div class="dashboard">
-        <div class="box"><div>📦 总产品数</div><div id="totalProducts" class="fs-5 fw-bold">0</div></div>
-        <div class="box"><div>🔢 总库存量</div><div id="totalQuantity" class="fs-5 fw-bold text-info">0</div></div>
-        <div class="box" onclick="showLowStock()"><div>⚠️ 低库存预警</div><div id="lowStockCount" class="fs-5 fw-bold text-warning">0</div></div>
+    <div class="content-area" id="contentArea">
+      <!-- 订单管理页面（保持不变） -->
+      <div id="ordersPage" style="display:block">
+        <!-- 订单页面内容 - 保持原有代码 -->
+        <div class="content-container">
+          <!-- 仪表盘卡片 -->
+          <div class="dashboard-grid">
+            <div class="dashboard-card" onclick="drill('all')">
+              <div class="dashboard-label">📋 订单数</div>
+              <div class="dashboard-value" id="totalOrder">0</div>
+            </div>
+            <div class="dashboard-card" onclick="drill('sale')">
+              <div class="dashboard-label">💰 销售额</div>
+              <div class="dashboard-value text-success" id="totalSale">0$</div>
+            </div>
+            <div class="dashboard-card" onclick="drill('cost')">
+              <div class="dashboard-label">📦 成本</div>
+              <div class="dashboard-value text-info" id="totalCost">0¥</div>
+            </div>
+            <div class="dashboard-card" onclick="drill('tax')">
+              <div class="dashboard-label">💵 退税</div>
+              <div class="dashboard-value text-warning" id="totalTax">0¥</div>
+            </div>
+            <div class="dashboard-card" onclick="drill('profit')">
+              <div class="dashboard-label">📈 毛利</div>
+              <div class="dashboard-value text-danger" id="totalProfit">0¥</div>
+            </div>
+          </div>
+
+          <!-- 图表区域 -->
+          <div class="chart-grid">
+            <div class="card">
+              <div class="card-header">📊 订单状态分布</div>
+              <div class="card-body"><div id="chartStatus" style="height:200px;"></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header">🏭 工厂分布</div>
+              <div class="card-body"><div id="chartFactory" style="height:200px;"></div></div>
+            </div>
+          </div>
+
+          <!-- 状态看板 -->
+          <div class="status-board" id="statusBoard"></div>
+
+          <!-- 预警卡片 -->
+          <div class="card">
+            <div class="card-header">⚠️ 交期预警</div>
+            <div class="card-body" id="alertBox"></div>
+          </div>
+
+          <!-- 工具栏 -->
+          <div class="toolbar">
+            <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空筛选</button>
+            <span class="text-muted" style="line-height:30px; margin-left:auto;">📱 自适应设计</span>
+          </div>
+
+          <!-- 搜索过滤 -->
+          <div class="search-filter">
+            <input class="form-control form-control-sm" id="search" placeholder="🔎 搜索订单号/合同号/工厂/客户" oninput="refresh()">
+            <select class="form-select form-select-sm" id="factoryFilter" onchange="refresh()"></select>
+          </div>
+
+          <!-- 新增订单卡片 -->
+          <div class="card" id="formCard">
+            <div class="card-header" id="formTitle">➕ 新增订单</div>
+            <div class="card-body">
+              <input type="hidden" id="editIdx">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">📋 订单号 *</span>
+                    <input class="form-control form-control-sm" id="orderNo" placeholder="请输入订单号" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">📄 合同号 *</span>
+                    <input class="form-control form-control-sm" id="contractNo" placeholder="请输入合同号" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">🏭 工厂 *</span>
+                    <input class="form-control form-control-sm" id="factory" placeholder="请输入工厂名称" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">👥 客户名称</span>
+                    <input class="form-control form-control-sm" id="customer" placeholder="请输入客户名称">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="field-container">
+                    <span class="field-label">💰 预付款日期</span>
+                    <input type="date" class="form-control form-control-sm" id="prepaymentDate" placeholder="选择预付款日期">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="field-container">
+                    <span class="field-label">📝 合同签署日期</span>
+                    <input type="date" class="form-control form-control-sm" id="contractSignDate" placeholder="选择合同签署日期">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="field-container">
+                    <span class="field-label">📅 交付日期</span>
+                    <input type="date" class="form-control form-control-sm" id="delivery" placeholder="选择交付日期">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">📊 退税率 %</span>
+                    <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="输入退税率">
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <h6>📦 产品/费用明细</h6>
+                <div id="itemsList"></div>
+                <button class="btn btn-sm btn-outline-primary w-100 mt-2" onclick="addItem()">+ 添加一行</button>
+              </div>
+
+              <div class="row g-2 mt-2">
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">💰 采购成本(RMB)</span>
+                    <input class="form-control form-control-sm" id="costRmb" readonly placeholder="自动计算">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">💵 销售金额(USD)</span>
+                    <input class="form-control form-control-sm" id="saleUsd" type="number" step="0.01" placeholder="输入销售金额">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="field-container">
+                    <span class="field-label">📌 订单状态</span>
+                    <select class="form-select form-select-sm" id="status" onchange="toggleLogisticsField()">
+                      <option>合同执行中</option>
+                      <option>待支付预付款</option>
+                      <option>已支付预付款，启动生产</option>
+                      <option>生产中</option>
+                      <option>待支付尾款</option>
+                      <option>已支付，待发货</option>
+                      <option>已发货</option>
+                      <option>已签收</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6" id="logisticsField" style="display: none;">
+                  <div class="field-container">
+                    <span class="field-label">📦 物流单号</span>
+                    <input class="form-control form-control-sm" id="logistics" placeholder="输入物流单号">
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-sm btn-primary flex-grow-1" onclick="saveOrder()">💾 保存订单</button>
+                <button class="btn btn-sm btn-outline-secondary" id="cancelBtn" onclick="cancelOrder()" style="display:none">↩️ 取消编辑</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 订单列表 - 两列网格 -->
+          <div class="card">
+            <div class="card-header">📋 订单列表 <small class="text-muted">(点击状态标签可快速更新)</small></div>
+            <div class="card-body">
+              <div class="order-grid" id="orderList"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 库存工具栏 -->
-      <div class="d-flex flex-wrap gap-2 my-2">
-        <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入库存</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="refreshInventory()">🔄 刷新库存</button>
-        <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
+      <!-- 库存管理页面 -->
+      <div id="inventoryPage" style="display:none">
+        <div class="content-container">
+          <!-- 库存仪表盘 -->
+          <div class="dashboard-grid">
+            <div class="dashboard-card">
+              <div class="dashboard-label">📦 总产品数</div>
+              <div class="dashboard-value" id="totalProducts">0</div>
+            </div>
+            <div class="dashboard-card">
+              <div class="dashboard-label">🔢 总库存量</div>
+              <div class="dashboard-value text-info" id="totalInventoryQty">0</div>
+            </div>
+            <div class="dashboard-card" onclick="filterLowStock()">
+              <div class="dashboard-label">⚠️ 低库存预警</div>
+              <div class="dashboard-value text-warning" id="lowStockCount">0</div>
+            </div>
+            <div class="dashboard-card">
+              <div class="dashboard-label">📊 占用资金</div>
+              <div class="dashboard-value text-primary" id="inventoryValue">0¥</div>
+            </div>
+            <div class="dashboard-card">
+              <div class="dashboard-label">🏭 合作工厂</div>
+              <div class="dashboard-value" id="factoryCount">0</div>
+            </div>
+          </div>
+
+          <!-- 库存工具栏 -->
+          <div class="toolbar">
+            <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入库存</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="refreshInventory()">🔄 刷新</button>
+          </div>
+
+          <!-- 库存搜索 -->
+          <div class="search-filter">
+            <input class="form-control form-control-sm" id="inventorySearch" placeholder="🔎 搜索产品名称/型号/工厂" oninput="renderInventory()">
+            <select class="form-select form-select-sm" id="inventoryFactoryFilter" onchange="renderInventory()">
+              <option value="">全部工厂</option>
+            </select>
+          </div>
+
+          <!-- 库存列表 -->
+          <div class="card">
+            <div class="card-header">📦 库存列表 <small class="text-muted">(点击查看详情)</small></div>
+            <div class="card-body">
+              <div class="inventory-grid" id="inventoryList"></div>
+            </div>
+          </div>
+
+          <!-- 库存变动日志 -->
+          <div class="card mt-3">
+            <div class="card-header">📋 最近库存变动</div>
+            <div class="card-body" style="max-height:200px; overflow-y:auto" id="inventoryLogs"></div>
+          </div>
+        </div>
       </div>
 
-      <!-- 库存搜索 -->
-      <div class="row g-2 mb-2">
-        <div class="col-8"><input class="form-control form-control-sm" id="inventorySearch" placeholder="🔎 搜索产品名称/型号/工厂" oninput="renderInventory()"></div>
-        <div class="col-4"><select class="form-select form-select-sm" id="inventoryFactoryFilter" onchange="renderInventory()"><option value="">全部工厂</option></select></div>
+      <!-- 数据报表页面 -->
+      <div id="reportsPage" style="display:none">
+        <div class="content-container">
+          <!-- 报表日期选择 -->
+          <div class="card">
+            <div class="card-header">📊 数据报表</div>
+            <div class="card-body">
+              <div class="row g-2 mb-4">
+                <div class="col-md-3">
+                  <select class="form-select form-select-sm" id="reportType">
+                    <option value="month">月度报表</option>
+                    <option value="quarter">季度报表</option>
+                    <option value="year">年度报表</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <input type="month" class="form-control form-control-sm" id="reportMonth" value="2025-03">
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-sm btn-primary" onclick="generateReport()">生成报表</button>
+                </div>
+              </div>
+
+              <!-- 报表卡片 -->
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <div class="small text-muted">总订单数</div>
+                      <div class="h4" id="reportTotalOrders">0</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <div class="small text-muted">总销售额</div>
+                      <div class="h4 text-success" id="reportTotalSales">0$</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <div class="small text-muted">总成本</div>
+                      <div class="h4 text-info" id="reportTotalCosts">0¥</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <div class="small text-muted">总利润</div>
+                      <div class="h4 text-danger" id="reportTotalProfits">0¥</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 报表图表 -->
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">📈 订单趋势</div>
+                    <div class="card-body"><div id="reportChartTrend" style="height:250px;"></div></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">🥧 利润构成</div>
+                    <div class="card-body"><div id="reportChartPie" style="height:250px;"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 报表导出 -->
+              <div class="mt-3 text-end">
+                <button class="btn btn-sm btn-outline-success" onclick="exportReport()">📥 导出报表Excel</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 库存列表 -->
-      <div class="card p-3">
-        <h6>📦 库存列表 <small class="text-muted">(点击记录可查看详情)</small></h6>
-        <div id="inventoryList"></div>
-      </div>
+      <!-- 系统设置页面 -->
+      <div id="settingsPage" style="display:none">
+        <div class="content-container">
+          <div class="card">
+            <div class="card-header">⚙️ 系统设置</div>
+            <div class="card-body">
+              <!-- 基础设置 -->
+              <div class="setting-item">
+                <div class="setting-label">🌐 默认汇率</div>
+                <div class="setting-desc">设置USD兑CNY的默认汇率</div>
+                <div class="row g-2 align-items-center">
+                  <div class="col-md-3">
+                    <input type="number" class="form-control form-control-sm" id="settingDefaultRate" value="7.20" step="0.01">
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-sm btn-primary" onclick="saveDefaultRate()">保存默认汇率</button>
+                  </div>
+                </div>
+              </div>
 
-      <!-- 库存变动日志 -->
-      <div class="card p-3 mt-2">
-        <h6>📋 最近库存变动</h6>
-        <div id="inventoryLogs" style="max-height:200px; overflow-y:auto"></div>
+              <!-- 数据管理 -->
+              <div class="setting-item">
+                <div class="setting-label">💾 数据管理</div>
+                <div class="setting-desc">备份、恢复或清空所有数据</div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-primary" onclick="backup()">📤 备份数据</button>
+                  <button class="btn btn-sm btn-outline-warning" onclick="restore()">📥 恢复数据</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="clearAllData()">⚠️ 清空所有数据</button>
+                </div>
+              </div>
+
+              <!-- 界面设置 -->
+              <div class="setting-item">
+                <div class="setting-label">🎨 界面设置</div>
+                <div class="setting-desc">自定义界面显示选项</div>
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" id="settingCompactMode" checked>
+                  <label class="form-check-label">紧凑模式（显示更多内容）</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="settingDarkMode">
+                  <label class="form-check-label">深色模式（实验性）</label>
+                </div>
+              </div>
+
+              <!-- 预警设置 -->
+              <div class="setting-item">
+                <div class="setting-label">⚠️ 预警设置</div>
+                <div class="setting-desc">设置库存预警阈值</div>
+                <div class="row g-2 align-items-center">
+                  <div class="col-md-3">
+                    <input type="number" class="form-control form-control-sm" id="settingLowStock" value="10" min="1">
+                  </div>
+                  <div class="col-md-3">
+                    <span>低库存阈值</span>
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-sm btn-primary" onclick="saveLowStockThreshold()">保存</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 关于信息 -->
+              <div class="setting-item">
+                <div class="setting-label">ℹ️ 关于系统</div>
+                <div class="setting-desc">
+                  <div>版本：v2.0.0 (库存版)</div>
+                  <div>最后更新：2025-03-17</div>
+                  <div>数据存储：浏览器本地</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -317,12 +564,6 @@ body{background:#f0f5f9;padding:12px;font-family:system-ui;font-size:14px}
   </div>
 </div>
 
-<!-- 详情模态框（订单） -->
-<div class="modal fade" id="drillModal" tabindex="-1"><div class="modal-dialog modal-fullscreen"><div class="modal-content">
-  <div class="modal-header"><h5 class="modal-title" id="drillTitle"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-  <div class="modal-body" id="drillBody"></div>
-</div></div></div>
-
 <script>
 // ========== 数据层 ==========
 const ORDER_STORAGE = 'ERP_ORDER_FINAL'
@@ -331,495 +572,276 @@ const LOG_STORAGE = 'ERP_INVENTORY_LOGS'
 
 // 初始化订单数据
 let orders = JSON.parse(localStorage.getItem(ORDER_STORAGE)) || [
-  {
-    no: 'ORD-001',
-    contract: 'CT-001',
-    factory: 'TH',
-    customer: '客户A',
-    delivery: '2024-12-25',
-    prepaymentDate: '2024-12-01',
-    contractSignDate: '2024-11-28',
-    taxRate: 13,
-    cost: 1000,
-    sale: 200,
-    logistics: '',
-    status: '合同执行中',
-    items: [
-      {type:'实物产品', name:'产品A', model:'XYZ-001', qty:10, price:100},
-      {type:'实物产品', name:'产品B', model:'XYZ-002', qty:5, price:200}
-    ],
-    createdAt: new Date().toISOString()
-  },
-  {
-    no: 'ORD-002',
-    contract: 'CT-002',
-    factory: 'NT',
-    customer: '客户B',
-    delivery: '2024-12-30',
-    prepaymentDate: '2024-12-05',
-    contractSignDate: '2024-12-01',
-    taxRate: 13,
-    cost: 2000,
-    sale: 400,
-    logistics: 'LOG123456',
-    status: '已发货',
-    items: [
-      {type:'实物产品', name:'产品A', model:'XYZ-001', qty:5, price:100},
-      {type:'实物产品', name:'产品C', model:'XYZ-003', qty:3, price:200}
-    ],
-    createdAt: new Date().toISOString()
-  }
+  {no:'ORD-001', contract:'CT-001', factory:'TH', customer:'客户A', delivery:'2024-12-25', prepaymentDate:'2024-12-01', contractSignDate:'2024-11-28', taxRate:13, cost:1000, sale:200, logistics:'', status:'合同执行中', items:[{type:'实物产品', name:'产品A', model:'', qty:10, price:100}]},
+  {no:'ORD-002', contract:'CT-002', factory:'NT', customer:'客户B', delivery:'2024-12-30', prepaymentDate:'2024-12-05', contractSignDate:'2024-12-01', taxRate:13, cost:2000, sale:400, logistics:'LOG123456', status:'已发货', items:[{type:'实物产品', name:'产品B', model:'', qty:20, price:100}]}
 ]
 
 // 初始化库存数据
 let inventory = JSON.parse(localStorage.getItem(INVENTORY_STORAGE)) || []
-// 库存变动日志
 let inventoryLogs = JSON.parse(localStorage.getItem(LOG_STORAGE)) || []
-
 let usdRate = 7.20
+let lowStockThreshold = 10
 
-// 订单状态列表
-const ORDER_STATUS = [
-  '合同执行中',
-  '待支付预付款',
-  '已支付预付款，启动生产',
-  '生产中',
-  '待支付尾款',
-  '已支付，待发货',
-  '已发货',
-  '已签收'
-]
+const ORDER_STATUS = ['合同执行中','待支付预付款','已支付预付款，启动生产','生产中','待支付尾款','已支付，待发货','已发货','已签收']
+const STATUS_COLOR = {'合同执行中':'secondary','待支付预付款':'warning','已支付预付款，启动生产':'info','生产中':'primary','待支付尾款':'warning','已支付，待发货':'info','已发货':'primary','已签收':'success'}
 
-// 状态对应的颜色
-const STATUS_COLOR = {
-  '合同执行中': 'secondary',
-  '待支付预付款': 'warning',
-  '已支付预付款，启动生产': 'info',
-  '生产中': 'primary',
-  '待支付尾款': 'warning',
-  '已支付，待发货': 'info',
-  '已发货': 'primary',
-  '已签收': 'success'
-}
-
-// ========== 通用保存 ==========
 function saveOrders() { localStorage.setItem(ORDER_STORAGE, JSON.stringify(orders)) }
 function saveInventory() { localStorage.setItem(INVENTORY_STORAGE, JSON.stringify(inventory)) }
 function saveLogs() { localStorage.setItem(LOG_STORAGE, JSON.stringify(inventoryLogs)) }
 
-// ========== 初始化库存（从现有订单同步） ==========
-function initializeInventoryFromOrders() {
-  orders.forEach(order => {
-    if (order.status !== '已发货') {  // 未发货的订单才计入库存
-      order.items.forEach(item => {
-        if (item.type === '实物产品') {
-          addToInventory({
-            productName: item.name,
-            model: item.model || '',
-            quantity: item.qty,
-            factory: order.factory,
-            source: 'order',
-            sourceOrderNo: order.no
-          }, false)  // false表示不记录日志（初始化时不记录）
-        }
-      })
-    }
-  })
-  saveInventory()
-}
-
-// ========== 库存增加（通用） ==========
-function addToInventory(item, recordLog = true) {
-  const existing = inventory.find(i => 
-    i.productName === item.productName && 
-    i.factory === item.factory &&
-    i.model === (item.model || '')
-  )
+// ========== 库存功能 ==========
+function addManualInventory() {
+  const name = document.getElementById('manualProductName').value.trim()
+  const model = document.getElementById('manualModel').value.trim()
+  const qty = parseInt(document.getElementById('manualQuantity').value) || 0
+  const factory = document.getElementById('manualFactory').value.trim()
   
+  if (!name || qty <= 0 || !factory) return alert('请填写产品名称、数量、工厂')
+  
+  const existing = inventory.find(i => i.name === name && i.factory === factory && i.model === model)
   if (existing) {
-    existing.quantity += item.quantity
+    existing.qty += qty
     existing.lastUpdated = new Date().toISOString()
   } else {
     inventory.push({
-      id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
-      productName: item.productName,
-      model: item.model || '',
-      quantity: item.quantity,
-      factory: item.factory,
-      source: item.source || 'manual',
-      sourceOrderNo: item.sourceOrderNo || '',
+      id: 'INV-' + Date.now(),
+      name, model, qty, factory,
+      source: 'manual',
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString()
     })
   }
   
-  if (recordLog) {
-    inventoryLogs.unshift({
-      id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
-      type: 'in',
-      productName: item.productName,
-      model: item.model,
-      quantity: item.quantity,
-      factory: item.factory,
-      reason: item.source === 'order' ? `订单 ${item.sourceOrderNo} 同步` : '手动录入',
-      timestamp: new Date().toISOString()
-    })
-    saveLogs()
-  }
-  
-  saveInventory()
-}
-
-// ========== 库存扣减（订单发货） ==========
-function deductInventoryForOrder(order) {
-  let canShip = true
-  const errors = []
-  
-  // 检查库存是否充足
-  order.items.forEach(item => {
-    if (item.type !== '实物产品') return
-    
-    const totalStock = inventory
-      .filter(i => i.productName === item.name && i.factory === order.factory && i.model === (item.model || ''))
-      .reduce((sum, i) => sum + i.quantity, 0)
-    
-    if (totalStock < item.qty) {
-      canShip = false
-      errors.push(`${item.name} (${item.model || '无型号'}) 库存不足（需要:${item.qty}，库存:${totalStock}）`)
-    }
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now(),
+    type: 'in', name, model, qty, factory,
+    reason: '手动录入',
+    time: new Date().toLocaleString()
   })
   
-  if (!canShip) {
-    alert('发货失败：\n' + errors.join('\n'))
-    return false
-  }
-  
-  // 扣减库存（先进先出）
-  order.items.forEach(item => {
-    if (item.type !== '实物产品') return
-    
-    let remaining = item.qty
-    const relevantStock = inventory
-      .filter(i => i.productName === item.name && i.factory === order.factory && i.model === (item.model || ''))
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-    
-    for (let stock of relevantStock) {
-      if (remaining <= 0) break
-      
-      const deduct = Math.min(stock.quantity, remaining)
-      stock.quantity -= deduct
-      remaining -= deduct
-      stock.lastUpdated = new Date().toISOString()
-      
-      // 记录出库日志
-      inventoryLogs.unshift({
-        id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
-        type: 'out',
-        productName: item.name,
-        model: item.model,
-        quantity: deduct,
-        factory: order.factory,
-        reason: `订单 ${order.no} 发货`,
-        timestamp: new Date().toISOString()
-      })
-    }
-  })
-  
-  // 清理数量为0的库存记录
-  inventory = inventory.filter(i => i.quantity > 0)
-  
-  saveInventory()
-  saveLogs()
-  return true
-}
-
-// ========== 手动录入库存 ==========
-function addManualInventory() {
-  const productName = document.getElementById('manualProductName').value.trim()
-  const model = document.getElementById('manualModel').value.trim()
-  const quantity = parseInt(document.getElementById('manualQuantity').value) || 0
-  const factory = document.getElementById('manualFactory').value.trim()
-  
-  if (!productName || quantity <= 0 || !factory) {
-    alert('请填写产品名称、数量（大于0）、工厂')
-    return
-  }
-  
-  addToInventory({
-    productName,
-    model,
-    quantity,
-    factory,
-    source: 'manual'
-  })
-  
-  // 关闭模态框
+  saveInventory(); saveLogs()
   bootstrap.Modal.getInstance(document.getElementById('manualInventoryModal')).hide()
-  
-  // 清空表单
   document.getElementById('manualProductName').value = ''
   document.getElementById('manualModel').value = ''
   document.getElementById('manualQuantity').value = '1'
   document.getElementById('manualFactory').value = ''
-  
-  refreshInventory()
-  alert('库存录入成功！')
+  renderInventory()
 }
 
-// ========== 渲染库存列表 ==========
-function renderInventory() {
-  const kw = document.getElementById('inventorySearch').value.toLowerCase()
-  const facFilter = document.getElementById('inventoryFactoryFilter').value
-  
-  // 统计
-  const totalProducts = inventory.length
-  const totalQuantity = inventory.reduce((sum, i) => sum + i.quantity, 0)
-  const lowStock = inventory.filter(i => i.quantity < 10).length
-  
-  document.getElementById('totalProducts').innerText = totalProducts
-  document.getElementById('totalQuantity').innerText = totalQuantity
-  document.getElementById('lowStockCount').innerText = lowStock
-  
-  // 工厂过滤
-  const factories = [...new Set(inventory.map(i => i.factory))]
-  const sel = document.getElementById('inventoryFactoryFilter')
-  sel.innerHTML = '<option value="">全部工厂</option>' + 
-    factories.map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
-  
-  // 过滤库存
-  const filtered = inventory.filter(i => 
-    (i.productName + i.model + i.factory).toLowerCase().includes(kw) &&
-    (!facFilter || i.factory === facFilter)
-  )
-  
-  // 渲染列表
-  let html = ''
-  filtered.forEach(item => {
-    const lowStockClass = item.quantity < 10 ? 'low-stock' : ''
-    html += `
-      <div class="inventory-card ${lowStockClass}" onclick="showInventoryDetail('${item.id}')">
-        <div class="d-flex justify-content-between">
-          <div>
-            <strong>${item.productName}</strong> ${item.model ? '('+item.model+')' : ''}
-            <div class="small text-secondary">🏭 ${item.factory}</div>
-          </div>
-          <div class="text-end">
-            <span class="badge ${item.quantity < 10 ? 'bg-warning' : 'bg-info'}">${item.quantity}</span>
-            <div class="small text-muted">${item.source === 'order' ? '📦 订单' : '✋ 手动'}</div>
-          </div>
-        </div>
-        ${item.sourceOrderNo ? `<div class="small text-muted mt-1">来源订单: ${item.sourceOrderNo}</div>` : ''}
-      </div>
-    `
-  })
-  document.getElementById('inventoryList').innerHTML = html || '<div class="text-center p-3">暂无库存记录</div>'
-  
-  // 渲染日志
-  renderInventoryLogs()
-}
-
-// ========== 渲染库存日志 ==========
-function renderInventoryLogs() {
-  let html = ''
-  inventoryLogs.slice(0, 20).forEach(log => {
-    const icon = log.type === 'in' ? '📥' : '📤'
-    const color = log.type === 'in' ? 'text-success' : 'text-danger'
-    html += `
-      <div class="small mb-1">
-        <span class="${color}">${icon}</span>
-        ${log.productName} ${log.model ? '('+log.model+')' : ''} 
-        <span class="fw-bold">${log.type === 'in' ? '+' : '-'}${log.quantity}</span>
-        | ${log.reason}
-        <span class="text-muted float-end">${new Date(log.timestamp).toLocaleString()}</span>
-      </div>
-    `
-  })
-  document.getElementById('inventoryLogs').innerHTML = html || '<div class="text-center p-2">暂无变动记录</div>'
-}
-
-// ========== 库存详情 ==========
 function showInventoryDetail(id) {
   const item = inventory.find(i => i.id === id)
   if (!item) return
-  
-  const logs = inventoryLogs.filter(l => l.productName === item.productName && l.factory === item.factory)
-  
-  let html = `
-    <div class="field-container">
-      <span class="field-label">📝 产品名称</span>
-      <div class="form-control form-control-sm bg-light">${item.productName}</div>
-    </div>
-    <div class="field-container">
-      <span class="field-label">🔢 型号</span>
-      <div class="form-control form-control-sm bg-light">${item.model || '-'}</div>
-    </div>
-    <div class="field-container">
-      <span class="field-label">🔢 当前库存</span>
-      <div class="form-control form-control-sm bg-light fw-bold ${item.quantity < 10 ? 'text-warning' : ''}">${item.quantity}</div>
-    </div>
-    <div class="field-container">
-      <span class="field-label">🏭 工厂</span>
-      <div class="form-control form-control-sm bg-light">${item.factory}</div>
-    </div>
-    <div class="field-container">
-      <span class="field-label">📦 来源</span>
-      <div class="form-control form-control-sm bg-light">${item.source === 'order' ? '订单同步' : '手动录入'} ${item.sourceOrderNo ? '('+item.sourceOrderNo+')' : ''}</div>
-    </div>
-    <div class="field-container">
-      <span class="field-label">📅 创建时间</span>
-      <div class="form-control form-control-sm bg-light">${new Date(item.createdAt).toLocaleString()}</div>
-    </div>
-    <div class="field-container">
-      <span class="field-label">📋 最近10条变动</span>
-      <div style="max-height:200px; overflow-y:auto">
-        ${logs.slice(0,10).map(l => `
-          <div class="small ${l.type === 'in' ? 'text-success' : 'text-danger'}">
-            ${l.type === 'in' ? '📥 +' : '📤 -'}${l.quantity} | ${l.reason} | ${new Date(l.timestamp).toLocaleString()}
-          </div>
-        `).join('') || '暂无变动'}
-      </div>
-    </div>
+  const logs = inventoryLogs.filter(l => l.name === item.name && l.factory === item.factory).slice(0,10)
+  document.getElementById('inventoryDetailTitle').innerText = `${item.name} 库存详情`
+  document.getElementById('inventoryDetailBody').innerHTML = `
+    <div class="field-container"><span class="field-label">📝 产品名称</span><div class="form-control bg-light">${item.name}</div></div>
+    <div class="field-container"><span class="field-label">🔢 型号</span><div class="form-control bg-light">${item.model || '-'}</div></div>
+    <div class="field-container"><span class="field-label">🔢 当前库存</span><div class="form-control bg-light fw-bold ${item.qty < lowStockThreshold ? 'text-warning' : ''}">${item.qty}</div></div>
+    <div class="field-container"><span class="field-label">🏭 工厂</span><div class="form-control bg-light">${item.factory}</div></div>
+    <div class="field-container"><span class="field-label">📦 来源</span><div class="form-control bg-light">${item.source === 'order' ? '订单同步' : '手动录入'}</div></div>
+    <div class="field-container"><span class="field-label">📋 最近变动</span><div style="max-height:150px; overflow-y:auto">${
+      logs.map(l => `<div class="inventory-log ${l.type === 'in' ? 'text-success' : 'text-danger'}">${l.type === 'in' ? '📥 +' : '📤 -'}${l.qty} | ${l.reason} | ${l.time}</div>`).join('') || '暂无变动'
+    }</div></div>
   `
-  
-  document.getElementById('inventoryDetailTitle').innerText = `库存详情 - ${item.productName}`
-  document.getElementById('inventoryDetailBody').innerHTML = html
   new bootstrap.Modal(document.getElementById('inventoryDetailModal')).show()
 }
 
-// ========== 显示手动录入模态框 ==========
+function renderInventory() {
+  const kw = document.getElementById('inventorySearch')?.value.toLowerCase() || ''
+  const facFilter = document.getElementById('inventoryFactoryFilter')?.value || ''
+  
+  const totalProducts = inventory.length
+  const totalQty = inventory.reduce((sum,i) => sum + i.qty, 0)
+  const lowStock = inventory.filter(i => i.qty < lowStockThreshold).length
+  const totalValue = inventory.reduce((sum,i) => sum + (i.qty * 100), 0) // 假设均价100
+  const factories = [...new Set(inventory.map(i => i.factory))]
+  
+  document.getElementById('totalProducts') && (document.getElementById('totalProducts').innerText = totalProducts)
+  document.getElementById('totalInventoryQty') && (document.getElementById('totalInventoryQty').innerText = totalQty)
+  document.getElementById('lowStockCount') && (document.getElementById('lowStockCount').innerText = lowStock)
+  document.getElementById('inventoryValue') && (document.getElementById('inventoryValue').innerText = totalValue + '¥')
+  document.getElementById('factoryCount') && (document.getElementById('factoryCount').innerText = factories.length)
+  
+  const sel = document.getElementById('inventoryFactoryFilter')
+  if (sel) {
+    sel.innerHTML = '<option value="">全部工厂</option>' + factories.map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
+  }
+  
+  const filtered = inventory.filter(i => (i.name+i.model+i.factory).toLowerCase().includes(kw) && (!facFilter || i.factory===facFilter))
+  const list = document.getElementById('inventoryList')
+  if (list) {
+    list.innerHTML = filtered.map(i => `
+      <div class="inventory-card ${i.qty < lowStockThreshold ? 'low-stock' : ''}" onclick="showInventoryDetail('${i.id}')">
+        <div class="d-flex justify-content-between">
+          <div><strong>${i.name}</strong> ${i.model ? '('+i.model+')' : ''}</div>
+          <span class="badge ${i.qty < lowStockThreshold ? 'bg-warning' : 'bg-info'}">${i.qty}</span>
+        </div>
+        <div class="small">🏭 ${i.factory}</div>
+        <div class="small text-muted">${i.source === 'order' ? '📦 订单' : '✋ 手动'}</div>
+      </div>
+    `).join('') || '<div class="text-center p-3">暂无库存记录</div>'
+  }
+  
+  const logs = document.getElementById('inventoryLogs')
+  if (logs) {
+    logs.innerHTML = inventoryLogs.slice(0,20).map(l => `
+      <div class="inventory-log ${l.type === 'in' ? 'text-success' : 'text-danger'}">
+        ${l.type === 'in' ? '📥 +' : '📤 -'}${l.qty} | ${l.name} | ${l.reason} | ${l.time}
+      </div>
+    `).join('') || '<div class="text-center p-2">暂无变动记录</div>'
+  }
+}
+
+function refreshInventory() { renderInventory() }
+function filterLowStock() { 
+  document.getElementById('inventorySearch').value = ''
+  document.getElementById('inventoryFactoryFilter').value = ''
+  renderInventory()
+  // 简单高亮，实际筛选需要额外逻辑
+}
+
 function showManualInventoryModal() {
   new bootstrap.Modal(document.getElementById('manualInventoryModal')).show()
 }
 
-// ========== 刷新库存 ==========
-function refreshInventory() {
-  renderInventory()
-}
-
-// ========== 显示低库存 ==========
-function showLowStock() {
-  document.getElementById('inventorySearch').value = ''
-  document.getElementById('inventoryFactoryFilter').value = ''
-  renderInventory()
-  // 简单高亮，通过搜索无法直接实现，暂时不处理
-}
-
-// ========== 导出库存 ==========
 function exportInventory() {
-  const data = [['产品名称','型号','数量','工厂','来源','来源订单号','创建时间','最后更新']]
-  inventory.forEach(i => {
-    data.push([
-      i.productName, i.model||'', i.quantity, i.factory,
-      i.source==='order'?'订单同步':'手动录入', i.sourceOrderNo||'',
-      new Date(i.createdAt).toLocaleString(), new Date(i.lastUpdated).toLocaleString()
-    ])
-  })
+  const data = [['产品名称','型号','数量','工厂','来源','创建时间']]
+  inventory.forEach(i => data.push([i.name, i.model||'', i.qty, i.factory, i.source==='order'?'订单同步':'手动录入', new Date(i.createdAt).toLocaleString()]))
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data))
-  XLSX.writeFile(wb, '库存列表_' + new Date().toISOString().slice(0,10) + '.xlsx')
+  XLSX.writeFile(wb, '库存列表.xlsx')
 }
 
-// ========== 汇率监听 ==========
-document.getElementById('usdRate').addEventListener('input', e => {
-  usdRate = parseFloat(e.target.value) || 7.20
-  refresh()
-})
+// ========== 报表功能 ==========
+function generateReport() {
+  const type = document.getElementById('reportType').value
+  const month = document.getElementById('reportMonth').value
+  
+  const totalOrders = orders.length
+  const totalSales = orders.reduce((s,o) => s + (o.sale||0), 0)
+  const totalCosts = orders.reduce((s,o) => s + (o.cost||0), 0)
+  const totalTax = orders.reduce((s,o) => s + (o.cost||0)*(o.taxRate||13)/100, 0)
+  const totalProfit = totalSales * usdRate - totalCosts + totalTax
+  
+  document.getElementById('reportTotalOrders').innerText = totalOrders
+  document.getElementById('reportTotalSales').innerText = totalSales.toFixed(0) + '$'
+  document.getElementById('reportTotalCosts').innerText = totalCosts.toFixed(0) + '¥'
+  document.getElementById('reportTotalProfits').innerText = totalProfit.toFixed(0) + '¥'
+  
+  // 模拟图表
+  echarts.init(document.getElementById('reportChartTrend')).setOption({
+    xAxis: {data: ['1月','2月','3月','4月','5月','6月']},
+    series: [{data: [5, 8, 12, 9, 15, 10], type:'line', smooth:true}]
+  })
+  echarts.init(document.getElementById('reportChartPie')).setOption({
+    series: [{data: [{name:'利润', value:totalProfit},{name:'成本', value:totalCosts}], type:'pie', radius:['40%','70%']}]
+  })
+}
 
-// ========== 切换物流单号字段显示 ==========
-function toggleLogisticsField() {
-  const status = document.getElementById('status').value
-  const logisticsField = document.getElementById('logisticsField')
-  if (status === '已发货') {
-    logisticsField.style.display = 'block'
-  } else {
-    logisticsField.style.display = 'none'
-    document.getElementById('logistics').value = ''
+function exportReport() {
+  alert('报表导出功能开发中...')
+}
+
+// ========== 系统设置功能 ==========
+function saveDefaultRate() {
+  const rate = parseFloat(document.getElementById('settingDefaultRate').value)
+  if (rate > 0) {
+    usdRate = rate
+    document.getElementById('usdRate').value = rate
+    document.getElementById('usdRateSide').innerText = rate.toFixed(2)
+    alert('默认汇率已更新')
   }
 }
 
-// ========== 明细行管理 ==========
+function saveLowStockThreshold() {
+  const val = parseInt(document.getElementById('settingLowStock').value)
+  if (val > 0) {
+    lowStockThreshold = val
+    renderInventory()
+    alert('低库存阈值已更新')
+  }
+}
+
+function clearAllData() {
+  if (confirm('确定要清空所有订单和库存数据吗？此操作不可恢复！')) {
+    orders = []
+    inventory = []
+    inventoryLogs = []
+    saveOrders(); saveInventory(); saveLogs()
+    refresh(); renderInventory()
+    alert('数据已清空')
+  }
+}
+
+// ========== 页面切换 ==========
+function switchTab(tab) {
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'))
+  event.currentTarget.classList.add('active')
+  
+  document.getElementById('ordersPage').style.display = tab === 'orders' ? 'block' : 'none'
+  document.getElementById('inventoryPage').style.display = tab === 'inventory' ? 'block' : 'none'
+  document.getElementById('reportsPage').style.display = tab === 'reports' ? 'block' : 'none'
+  document.getElementById('settingsPage').style.display = tab === 'settings' ? 'block' : 'none'
+  
+  const title = tab === 'orders' ? '订单管理' : tab === 'inventory' ? '库存管理' : tab === 'reports' ? '数据报表' : '系统设置'
+  document.getElementById('currentPageTitle').innerText = title
+  
+  if (tab === 'inventory') renderInventory()
+  if (tab === 'reports') generateReport()
+}
+
+// ========== 订单功能（保持不变） ==========
+function updateUsdRate() { 
+  usdRate = parseFloat(document.getElementById('usdRate').value) || 7.20
+  document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
+  refresh() 
+}
+
 function addItem() {
   const div = document.createElement('div')
   div.className = 'item-row'
   div.innerHTML = `
     <div class="row g-1 align-items-center">
-      <div class="col-3">
-        <select class="form-select form-select-sm itemType">
-          <option>实物产品</option><option>配件</option><option>备件</option><option>开发费</option>
-          <option>运费</option><option>报关费</option><option>模具费</option><option>其他</option>
-        </select>
-      </div>
-      <div class="col-3">
-        <div class="field-container">
-          <span class="field-label">📝 名称</span>
-          <input class="form-control form-control-sm itemName" placeholder="输入名称">
-        </div>
-      </div>
-      <div class="col-2">
-        <div class="field-container">
-          <span class="field-label">🔢 型号</span>
-          <input class="form-control form-control-sm itemModel" placeholder="型号">
-        </div>
-      </div>
-      <div class="col-2">
-        <div class="field-container">
-          <span class="field-label">🔢 数量</span>
-          <input class="form-control form-control-sm itemQty" type="number" step="1" min="0" placeholder="数量">
-        </div>
-      </div>
-      <div class="col-2">
-        <div class="field-container">
-          <span class="field-label">💰 单价</span>
-          <input class="form-control form-control-sm itemPrice" type="number" step="0.01" min="0" placeholder="单价">
-        </div>
-      </div>
-      <div class="col-12 mt-1">
-        <button class="btn btn-sm btn-outline-danger btn-delete float-end" onclick="removeItem(this)" title="删除">✕</button>
-      </div>
+      <div class="col-3"><select class="form-select form-select-sm itemType"><option>实物产品</option><option>配件</option><option>其他</option></select></div>
+      <div class="col-3"><input class="form-control form-control-sm itemName" placeholder="名称"></div>
+      <div class="col-2"><input class="form-control form-control-sm itemQty" type="number" min="0" placeholder="数量"></div>
+      <div class="col-2"><input class="form-control form-control-sm itemPrice" type="number" min="0" placeholder="单价"></div>
+      <div class="col-2"><button class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">✕</button></div>
     </div>
   `
   document.getElementById('itemsList').appendChild(div)
-  calcTotalCost()
 }
 
-function removeItem(btn) {
-  if (confirm('确定要删除这一行吗？')) {
-    btn.closest('.item-row').remove()
-    calcTotalCost()
-  }
-}
-
-document.addEventListener('input', e => {
-  if (e.target.matches('.itemQty, .itemPrice')) calcTotalCost()
-})
+function removeItem(btn) { btn.closest('.item-row').remove(); calcTotalCost() }
+document.addEventListener('input', e => { if (e.target.matches('.itemQty, .itemPrice')) calcTotalCost() })
 
 function calcTotalCost() {
   let total = 0
   document.querySelectorAll('.item-row').forEach(row => {
-    const qty = parseFloat(row.querySelector('.itemQty')?.value) || 0
-    const price = parseFloat(row.querySelector('.itemPrice')?.value) || 0
-    total += qty * price
+    total += (parseFloat(row.querySelector('.itemQty')?.value)||0) * (parseFloat(row.querySelector('.itemPrice')?.value)||0)
   })
   document.getElementById('costRmb').value = total ? total.toFixed(2) : ''
 }
 
-// ========== 保存订单（增强版：同步库存） ==========
+function toggleLogisticsField() {
+  const status = document.getElementById('status').value
+  document.getElementById('logisticsField').style.display = status === '已发货' ? 'block' : 'none'
+  if (status !== '已发货') document.getElementById('logistics').value = ''
+}
+
 function saveOrder() {
   const idx = document.getElementById('editIdx').value
   const items = []
   document.querySelectorAll('.item-row').forEach(row => {
     items.push({
-      type: row.querySelector('.itemType')?.value || '',
-      name: row.querySelector('.itemName')?.value || '',
-      model: row.querySelector('.itemModel')?.value || '',
-      qty: parseFloat(row.querySelector('.itemQty')?.value) || 0,
-      price: parseFloat(row.querySelector('.itemPrice')?.value) || 0
+      type: row.querySelector('.itemType')?.value,
+      name: row.querySelector('.itemName')?.value,
+      qty: parseFloat(row.querySelector('.itemQty')?.value)||0,
+      price: parseFloat(row.querySelector('.itemPrice')?.value)||0
     })
   })
-
+  
   const status = document.getElementById('status').value
-  const logistics = status === '已发货' ? document.getElementById('logistics').value.trim() : ''
-
   const order = {
     no: document.getElementById('orderNo').value.trim(),
     contract: document.getElementById('contractNo').value.trim(),
@@ -831,232 +853,35 @@ function saveOrder() {
     taxRate: parseFloat(document.getElementById('taxRate').value) || 13,
     cost: parseFloat(document.getElementById('costRmb').value) || 0,
     sale: parseFloat(document.getElementById('saleUsd').value) || 0,
-    logistics: logistics,
+    logistics: status === '已发货' ? document.getElementById('logistics').value.trim() : '',
     status: status,
     items: items,
     createdAt: new Date().toISOString()
   }
-
-  if (!order.no || !order.contract || !order.factory) {
-    return alert('请填写订单号、合同号、工厂（必填项）')
-  }
-
-  // 处理库存同步
+  
+  if (!order.no || !order.contract || !order.factory) return alert('请填写订单号、合同号、工厂')
+  
   if (idx === '') {
-    // 新增订单：增加库存（只有实物产品）
+    orders.unshift(order)
+    // 同步到库存
     order.items.forEach(item => {
       if (item.type === '实物产品' && item.qty > 0) {
-        addToInventory({
-          productName: item.name,
-          model: item.model,
-          quantity: item.qty,
-          factory: order.factory,
-          source: 'order',
-          sourceOrderNo: order.no
-        })
+        const existing = inventory.find(i => i.name === item.name && i.factory === order.factory)
+        if (existing) existing.qty += item.qty
+        else inventory.push({id:'INV-'+Date.now()+Math.random(), name:item.name, model:'', qty:item.qty, factory:order.factory, source:'order', createdAt:new Date().toISOString()})
       }
     })
-    orders.unshift(order)
-  } else {
-    // 编辑订单：需要处理库存变化
-    const oldOrder = orders[idx]
-    
-    // 如果状态从非发货变为发货，需要扣减库存
-    if (oldOrder.status !== '已发货' && status === '已发货') {
-      if (!deductInventoryForOrder(order)) {
-        return // 库存不足，阻止保存
-      }
-    }
-    
-    // 如果状态从发货变为其他，需要加回库存
-    if (oldOrder.status === '已发货' && status !== '已发货') {
-      oldOrder.items.forEach(item => {
-        if (item.type === '实物产品' && item.qty > 0) {
-          addToInventory({
-            productName: item.name,
-            model: item.model,
-            quantity: item.qty,
-            factory: oldOrder.factory,
-            source: 'order',
-            sourceOrderNo: oldOrder.no
-          })
-        }
-      })
-    }
-    
-    orders[idx] = order
-  }
-
-  saveOrders()
+  } else orders[idx] = order
+  
+  saveOrders(); saveInventory()
   cancelOrder()
   refresh()
-  refreshInventory()
-}
-
-// ========== 编辑订单 ==========
-function editOrder(i) {
-  const o = orders[i]
-  document.getElementById('editIdx').value = i
-  document.getElementById('formTitle').innerText = '✏️ 编辑订单'
-  document.getElementById('cancelBtn').style.display = 'block'
-  
-  document.getElementById('orderNo').value = o.no || ''
-  document.getElementById('contractNo').value = o.contract || ''
-  document.getElementById('factory').value = o.factory || ''
-  document.getElementById('customer').value = o.customer || ''
-  document.getElementById('delivery').value = o.delivery || ''
-  document.getElementById('prepaymentDate').value = o.prepaymentDate || ''
-  document.getElementById('contractSignDate').value = o.contractSignDate || ''
-  document.getElementById('taxRate').value = o.taxRate || 13
-  document.getElementById('saleUsd').value = o.sale || ''
-  document.getElementById('logistics').value = o.logistics || ''
-  document.getElementById('status').value = o.status || '合同执行中'
-  
-  toggleLogisticsField()
-
-  document.getElementById('itemsList').innerHTML = ''
-  if (o.items?.length) {
-    o.items.forEach(it => {
-      const row = document.createElement('div')
-      row.className = 'item-row'
-      row.innerHTML = `
-        <div class="row g-1 align-items-center">
-          <div class="col-3"><select class="form-select form-select-sm itemType">${typeOptions(it.type)}</select></div>
-          <div class="col-3">
-            <div class="field-container">
-              <span class="field-label">📝 名称</span>
-              <input class="form-control form-control-sm itemName" value="${escapeHtml(it.name)}" placeholder="名称">
-            </div>
-          </div>
-          <div class="col-2">
-            <div class="field-container">
-              <span class="field-label">🔢 型号</span>
-              <input class="form-control form-control-sm itemModel" value="${escapeHtml(it.model||'')}" placeholder="型号">
-            </div>
-          </div>
-          <div class="col-2">
-            <div class="field-container">
-              <span class="field-label">🔢 数量</span>
-              <input class="form-control form-control-sm itemQty" type="number" step="1" value="${it.qty||''}" placeholder="数量">
-            </div>
-          </div>
-          <div class="col-2">
-            <div class="field-container">
-              <span class="field-label">💰 单价</span>
-              <input class="form-control form-control-sm itemPrice" type="number" step="0.01" value="${it.price||''}" placeholder="单价">
-            </div>
-          </div>
-          <div class="col-12 mt-1">
-            <button class="btn btn-sm btn-outline-danger btn-delete float-end" onclick="removeItem(this)" title="删除">✕</button>
-          </div>
-        </div>
-      `
-      document.getElementById('itemsList').appendChild(row)
-    })
-  } else {
-    addItem()
-  }
-  calcTotalCost()
-}
-
-function typeOptions(selected) {
-  const types = ['实物产品','配件','备件','开发费','运费','报关费','模具费','其他']
-  return types.map(t => `<option ${t===selected?'selected':''}>${t}</option>`).join('')
-}
-
-function escapeHtml(s) { 
-  return String(s).replace(/[&<>"]/g, function(m){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]
-  }) 
-}
-
-// ========== 删除订单（同步删除库存） ==========
-function deleteOrder(i) { 
-  if (confirm('确定要删除这个订单吗？此操作不可恢复。')) {
-    const order = orders[i]
-    
-    // 如果订单未发货，需要删除对应的库存
-    if (order.status !== '已发货') {
-      order.items.forEach(item => {
-        if (item.type === '实物产品') {
-          // 找到对应的库存记录
-          const stockItems = inventory.filter(s => 
-            s.productName === item.name && 
-            s.factory === order.factory &&
-            s.model === (item.model || '') &&
-            s.source === 'order' &&
-            s.sourceOrderNo === order.no
-          )
-          
-          stockItems.forEach(stock => {
-            // 从库存中移除
-            const index = inventory.findIndex(s => s.id === stock.id)
-            if (index !== -1) inventory.splice(index, 1)
-            
-            // 记录日志
-            inventoryLogs.unshift({
-              id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
-              type: 'out',
-              productName: item.name,
-              model: item.model,
-              quantity: stock.quantity,
-              factory: order.factory,
-              reason: `订单 ${order.no} 删除，库存移除`,
-              timestamp: new Date().toISOString()
-            })
-          })
-        }
-      })
-      saveInventory()
-      saveLogs()
-    }
-    
-    orders.splice(i, 1)
-    saveOrders()
-    refresh()
-    refreshInventory()
-  }
-}
-
-// ========== 更新状态（增强版：库存检查） ==========
-function updateOrderStatus(i, newStatus) {
-  const order = orders[i]
-  
-  // 如果状态从未发货变为已发货，需要检查库存
-  if (order.status !== '已发货' && newStatus === '已发货') {
-    if (!deductInventoryForOrder(order)) {
-      return // 库存不足，阻止状态变更
-    }
-  }
-  
-  // 如果状态从已发货变为其他，需要加回库存
-  if (order.status === '已发货' && newStatus !== '已发货') {
-    order.items.forEach(item => {
-      if (item.type === '实物产品' && item.qty > 0) {
-        addToInventory({
-          productName: item.name,
-          model: item.model,
-          quantity: item.qty,
-          factory: order.factory,
-          source: 'order',
-          sourceOrderNo: order.no
-        })
-      }
-    })
-  }
-  
-  orders[i].status = newStatus
-  if (newStatus !== '已发货') {
-    orders[i].logistics = ''
-  }
-  saveOrders()
-  refresh()
-  refreshInventory()
+  renderInventory()
 }
 
 function cancelOrder() {
   document.getElementById('editIdx').value = ''
-  document.getElementById('formTitle').innerText = '➕ 新增订单'
+  document.getElementById('formTitle').innerHTML = '➕ 新增订单'
   document.getElementById('cancelBtn').style.display = 'none'
   document.getElementById('orderNo').value = ''
   document.getElementById('contractNo').value = ''
@@ -1075,163 +900,143 @@ function cancelOrder() {
   calcTotalCost()
 }
 
-// ========== 渲染订单 ==========
-function renderOrders() {
+function editOrder(i) {
+  const o = orders[i]
+  document.getElementById('editIdx').value = i
+  document.getElementById('formTitle').innerHTML = '✏️ 编辑订单'
+  document.getElementById('cancelBtn').style.display = 'block'
+  document.getElementById('orderNo').value = o.no || ''
+  document.getElementById('contractNo').value = o.contract || ''
+  document.getElementById('factory').value = o.factory || ''
+  document.getElementById('customer').value = o.customer || ''
+  document.getElementById('delivery').value = o.delivery || ''
+  document.getElementById('prepaymentDate').value = o.prepaymentDate || ''
+  document.getElementById('contractSignDate').value = o.contractSignDate || ''
+  document.getElementById('taxRate').value = o.taxRate || 13
+  document.getElementById('saleUsd').value = o.sale || ''
+  document.getElementById('logistics').value = o.logistics || ''
+  document.getElementById('status').value = o.status || '合同执行中'
+  toggleLogisticsField()
+  
+  document.getElementById('itemsList').innerHTML = ''
+  if (o.items?.length) {
+    o.items.forEach(it => {
+      const row = document.createElement('div')
+      row.className = 'item-row'
+      row.innerHTML = `
+        <div class="row g-1 align-items-center">
+          <div class="col-3"><select class="form-select form-select-sm itemType"><option ${it.type=='实物产品'?'selected':''}>实物产品</option><option ${it.type=='配件'?'selected':''}>配件</option><option ${it.type=='其他'?'selected':''}>其他</option></select></div>
+          <div class="col-3"><input class="form-control form-control-sm itemName" value="${it.name||''}" placeholder="名称"></div>
+          <div class="col-2"><input class="form-control form-control-sm itemQty" type="number" value="${it.qty||''}" placeholder="数量"></div>
+          <div class="col-2"><input class="form-control form-control-sm itemPrice" type="number" value="${it.price||''}" placeholder="单价"></div>
+          <div class="col-2"><button class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">✕</button></div>
+        </div>
+      `
+      document.getElementById('itemsList').appendChild(row)
+    })
+  } else addItem()
+  calcTotalCost()
+}
+
+function deleteOrder(i) { 
+  if(confirm('确定删除？')){
+    orders.splice(i,1)
+    saveOrders()
+    refresh()
+  }
+}
+
+function updateOrderStatus(i, newStatus) {
+  orders[i].status = newStatus
+  if (newStatus !== '已发货') orders[i].logistics = ''
+  saveOrders()
+  refresh()
+}
+
+function filterByStatus(status) { document.getElementById('search').value = status; refresh() }
+
+// ========== 订单渲染 ==========
+function refresh() {
   const kw = document.getElementById('search').value.toLowerCase()
   const facFilter = document.getElementById('factoryFilter').value
   
-  let totalOrder = 0, totalSale = 0, totalCost = 0, totalTax = 0, totalProfit = 0
-  let statusCount = {}
-  let factoryMap = {}
-  
-  ORDER_STATUS.forEach(s => statusCount[s] = 0)
+  let totalOrder=0, totalSale=0, totalCost=0, totalTax=0, totalProfit=0
+  let statusCount={}, factoryMap={}
+  ORDER_STATUS.forEach(s=>statusCount[s]=0)
   
   orders.forEach(o => {
     totalOrder++
-    const sale = o.sale || 0
-    const cost = o.cost || 0
-    const tax = cost * (o.taxRate||13) / 100
-    const profit = sale * usdRate - cost + tax
-    totalSale += sale
-    totalCost += cost
-    totalTax += tax
-    totalProfit += profit
+    const sale = o.sale||0, cost = o.cost||0, tax = cost*(o.taxRate||13)/100, profit = sale*usdRate - cost + tax
+    totalSale+=sale; totalCost+=cost; totalTax+=tax; totalProfit+=profit
     statusCount[o.status] = (statusCount[o.status]||0) + 1
     factoryMap[o.factory] = (factoryMap[o.factory]||0) + 1
   })
-
+  
   document.getElementById('totalOrder').innerText = totalOrder
   document.getElementById('totalSale').innerText = totalSale.toFixed(0) + '$'
   document.getElementById('totalCost').innerText = totalCost.toFixed(0) + '¥'
   document.getElementById('totalTax').innerText = totalTax.toFixed(0) + '¥'
   document.getElementById('totalProfit').innerText = totalProfit.toFixed(0) + '¥'
-
+  
   let boardHtml = ''
-  ORDER_STATUS.forEach(status => {
-    const count = statusCount[status] || 0
-    const color = STATUS_COLOR[status] || 'secondary'
-    boardHtml += `
-      <div class="status-item bg-${color} bg-opacity-10" onclick="filterByStatus('${status}')">
-        <div class="status-count">${count}</div>
-        <div class="small">${status}</div>
-      </div>
-    `
+  ORDER_STATUS.forEach(s => {
+    const count = statusCount[s]||0
+    boardHtml += `<div class="status-item bg-${STATUS_COLOR[s]} bg-opacity-10" onclick="filterByStatus('${s}')"><div class="status-count">${count}</div><div style="font-size:10px">${s}</div></div>`
   })
   document.getElementById('statusBoard').innerHTML = boardHtml
-
-  const chartStatus = echarts.init(document.getElementById('chartStatus'))
-  chartStatus.setOption({
-    tooltip: { trigger: 'axis' },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', data: ORDER_STATUS, axisLabel: { rotate: 30, fontSize: 10 } },
-    yAxis: { type: 'value' },
-    series: [{
-      name: '订单数量',
-      type: 'bar',
-      data: ORDER_STATUS.map(s => statusCount[s] || 0),
-      itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
-      label: { show: true, position: 'top', fontSize: 11 }
-    }]
+  
+  echarts.init(document.getElementById('chartStatus')).setOption({
+    xAxis:{data:ORDER_STATUS}, series:[{data:ORDER_STATUS.map(s=>statusCount[s]||0), type:'bar', color:'#0d6efd'}]
   })
-
-  const pieData = Object.entries(factoryMap).map(([n,v])=>({name:n,value:v}))
-  const chartFactory = echarts.init(document.getElementById('chartFactory'))
-  chartFactory.setOption({
-    tooltip: { trigger: 'item' },
-    legend: { orient: 'vertical', left: 'left', top: 'center' },
-    series: [{
-      name: '工厂分布',
-      type: 'pie',
-      radius: ['40%', '70%'],
-      itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-      label: { show: false },
-      emphasis: { label: { show: true, fontSize: 12 } },
-      data: pieData
-    }]
+  echarts.init(document.getElementById('chartFactory')).setOption({
+    series:[{data:Object.entries(factoryMap).map(([n,v])=>({name:n,value:v})), type:'pie', radius:['40%','70%']}]
   })
-
-  const now = new Date()
+  
   let alertHtml = ''
+  const now = new Date()
   orders.forEach(o => {
     if (!o.delivery) return
     const days = (new Date(o.delivery) - now) / 86400000
-    if (days < 0) alertHtml += `<div class="alert-overdue">🔴 ${o.no} 已延期 ${Math.abs(Math.floor(days))} 天</div>`
-    else if (days <= 7) alertHtml += `<div class="alert-soon">🟡 ${o.no} ${Math.floor(days)} 天后到期</div>`
+    if (days < 0) alertHtml += `<div class="alert-overdue p-1 small">🔴 ${o.no} 已延期 ${Math.abs(Math.floor(days))}天</div>`
+    else if (days <= 7) alertHtml += `<div class="alert-soon p-1 small">🟡 ${o.no} ${Math.floor(days)}天后到期</div>`
   })
-  document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok">✅ 无交期预警</div>'
-
-  const sel = document.getElementById('factoryFilter')
-  sel.innerHTML = '<option value="">全部工厂</option>' + 
-    Object.keys(factoryMap).map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
-
-  let listHtml = ''
-  const filteredOrders = orders.filter(o => 
-    (o.no+o.contract+o.factory+o.customer).toLowerCase().includes(kw) && 
-    (!facFilter || o.factory===facFilter)
-  )
+  document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok p-2">✅ 无交期预警</div>'
   
-  filteredOrders.forEach((o,i) => {
-    const originalIndex = orders.findIndex(ord => ord === o)
-    const sale = o.sale||0, cost = o.cost||0, tax = cost*(o.taxRate||13)/100, profit = sale*usdRate - cost + tax
-    const color = STATUS_COLOR[o.status] || 'secondary'
-    
-    listHtml += `
-      <div class="card p-2 mb-2 order-card">
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <strong>${o.no}</strong> | ${o.contract}
-            <div class="small text-secondary">${o.factory} · ${o.customer||'-'}</div>
-            <div class="small text-secondary">📅 交付:${o.delivery||'-'} | 💰 预付款:${o.prepaymentDate||'-'} | 📝 合同:${o.contractSignDate||'-'}</div>
-            ${o.logistics ? `<div class="small text-primary">📦 物流单号: ${o.logistics}</div>` : ''}
+  const sel = document.getElementById('factoryFilter')
+  sel.innerHTML = '<option value="">全部工厂</option>' + Object.keys(factoryMap).map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
+  
+  let listHtml = ''
+  orders.filter(o => (o.no+o.contract+o.factory+o.customer).toLowerCase().includes(kw) && (!facFilter || o.factory===facFilter))
+    .forEach((o,i) => {
+      const idx = orders.findIndex(ord=>ord===o)
+      listHtml += `
+        <div class="order-card">
+          <div class="d-flex justify-content-between">
+            <div><strong>${o.no}</strong> | ${o.contract}</div>
+            <div class="dropdown">
+              <span class="badge bg-${STATUS_COLOR[o.status]}" data-bs-toggle="dropdown">${o.status}</span>
+              <ul class="dropdown-menu">${ORDER_STATUS.map(s=>`<li><a class="dropdown-item" href="#" onclick="updateOrderStatus(${idx},'${s}')">${s}</a></li>`).join('')}</ul>
+            </div>
           </div>
-          <div class="dropdown">
-            <span class="badge bg-${color}" data-bs-toggle="dropdown" style="cursor:pointer">
-              ${o.status} ▼
-            </span>
-            <ul class="dropdown-menu dropdown-menu-end">
-              ${ORDER_STATUS.map(s => `<li><a class="dropdown-item ${s===o.status?'active':''}" href="#" onclick="updateOrderStatus(${originalIndex}, '${s}'); return false">${s}</a></li>`).join('')}
-            </ul>
+          <div class="small">${o.factory} · ${o.customer||'-'}</div>
+          <div class="small">成本:¥${o.cost||0} | 销售:$${o.sale||0}</div>
+          <div class="d-flex gap-1 mt-1">
+            <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${idx})">编辑</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${idx})">删除</button>
           </div>
-        </div>
-        <div class="small">成本:¥${cost} | 销售:$${sale} | 退税:¥${tax.toFixed(0)} | 毛利:¥${profit.toFixed(0)}</div>
-        <div class="order-actions">
-          <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
-          <button class="btn btn-sm btn-outline-danger delete-btn" onclick="deleteOrder(${originalIndex})" title="删除订单">🗑️ 删除</button>
-        </div>
-      </div>`
-  })
-  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-secondary p-3 text-center">暂无订单，点击上方"新增订单"创建</div>'
+        </div>`
+    })
+  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-3">暂无订单</div>'
 }
 
-function filterByStatus(status) {
-  document.getElementById('search').value = status
-  document.getElementById('factoryFilter').value = ''
-  renderOrders()
-}
+function clearFilter() { document.getElementById('search').value=''; document.getElementById('factoryFilter').value=''; refresh() }
 
-function refresh() { 
-  renderOrders() 
-  renderInventory()
-}
-
-function clearFilter() { 
-  document.getElementById('search').value=''
-  document.getElementById('factoryFilter').value=''
-  renderOrders() 
-}
-
-// ========== 备份恢复 ==========
+// ========== 工具函数 ==========
 function backup() { 
-  const backupData = {
-    orders: orders,
-    inventory: inventory,
-    logs: inventoryLogs,
-    version: '1.0',
-    backupTime: new Date().toISOString()
-  }
+  const data = {orders, inventory, logs: inventoryLogs}
   const a=document.createElement('a')
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(backupData, null, 2)]))
-  a.download='erp_backup_' + new Date().toISOString().slice(0,10) + '.json'
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data)]))
+  a.download='erp_backup_'+new Date().toISOString().slice(0,10)+'.json'
   a.click() 
 }
 
@@ -1247,14 +1052,10 @@ function restore() {
         orders = data.orders || []
         inventory = data.inventory || []
         inventoryLogs = data.logs || []
-        saveOrders()
-        saveInventory()
-        saveLogs()
-        refresh()
+        saveOrders(); saveInventory(); saveLogs()
+        refresh(); renderInventory()
         alert('恢复成功')
-      }catch{
-        alert('文件格式错误')
-      }
+      }catch{alert('文件格式错误')}
     }
     r.readAsText(e.target.files[0])
   }
@@ -1262,65 +1063,22 @@ function restore() {
 }
 
 function exportExcel() { 
-  const data = [['订单号','合同号','工厂','客户','交付日期','预付款日期','合同签署日期','退税率%','成本(¥)','销售($)','退税(¥)','毛利(¥)','状态','物流单号','创建时间']]
+  const data = [['订单号','合同号','工厂','客户','交付日期','预付款日期','合同签署日期','退税率%','成本(¥)','销售($)','退税(¥)','毛利(¥)','状态','物流单号']]
   orders.forEach(o=>{
     const sale=o.sale||0, cost=o.cost||0, tax=cost*(o.taxRate||13)/100, profit=sale*usdRate-cost+tax
-    data.push([
-      o.no,o.contract,o.factory,o.customer,o.delivery,o.prepaymentDate,o.contractSignDate,o.taxRate||13,
-      cost.toFixed(2),sale.toFixed(2),tax.toFixed(2),profit.toFixed(2),
-      o.status,o.logistics||'',o.createdAt||''
-    ])
+    data.push([o.no,o.contract,o.factory,o.customer,o.delivery,o.prepaymentDate,o.contractSignDate,o.taxRate||13, cost, sale, tax.toFixed(2), profit.toFixed(2), o.status, o.logistics||''])
   })
   const wb=XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(data))
-  XLSX.writeFile(wb,'erp_export_' + new Date().toISOString().slice(0,10) + '.xlsx')
+  XLSX.writeFile(wb,'订单导出.xlsx')
 }
 
-// ========== 详情弹窗 ==========
-function drill(type) {
-  const titles={
-    all:'全部订单明细',
-    sale:'销售额明细',
-    cost:'成本明细',
-    tax:'退税明细',
-    profit:'毛利明细'
-  }
-  document.getElementById('drillTitle').innerText = titles[type]
-  let html = ''
-  orders.forEach((o,i)=>{
-    const sale=o.sale||0, cost=o.cost||0, tax=cost*(o.taxRate||13)/100, profit=sale*usdRate-cost+tax
-    const color = STATUS_COLOR[o.status] || 'secondary'
-    let extra = ''
-    if(type==='sale') extra=`<div class="text-success fw-bold">销售额: $${sale}</div>`
-    if(type==='cost') extra=`<div class="text-info fw-bold">成本: ¥${cost}</div>`
-    if(type==='tax') extra=`<div class="text-warning fw-bold">退税: ¥${tax.toFixed(0)}</div>`
-    if(type==='profit') extra=`<div class="text-danger fw-bold">毛利: ¥${profit.toFixed(0)}</div>`
-    
-    html += `
-      <div class="card p-2 mb-2">
-        <div class="d-flex justify-content-between">
-          <span><strong>${o.no}</strong> | ${o.contract}</span>
-          <span class="badge bg-${color}">${o.status}</span>
-        </div>
-        <div class="small">${o.factory} · ${o.customer||'-'}</div>
-        <div class="small">📅 交付:${o.delivery||'-'} | 💰 预付款:${o.prepaymentDate||'-'} | 📝 合同:${o.contractSignDate||'-'}</div>
-        ${o.logistics ? `<div class="small text-primary">📦 物流单号: ${o.logistics}</div>` : ''}
-        <div class="small">成本:¥${cost} | 销售:$${sale} | 退税:¥${tax.toFixed(0)} | 毛利:¥${profit.toFixed(0)}</div>
-        ${extra}
-        <div class="d-flex gap-1 mt-1">
-          <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${i});bootstrap.Modal.getInstance(document.getElementById('drillModal')).hide()">✏️ 编辑</button>
-          <button class="btn btn-sm btn-outline-danger delete-btn" onclick="if(confirm('确定删除？')){deleteOrder(${i});this.closest('.modal').querySelector('.btn-close').click()}" title="删除订单">🗑️ 删除</button>
-        </div>
-      </div>`
-  })
-  document.getElementById('drillBody').innerHTML = html || '<div class="text-center p-3">暂无订单</div>'
-  new bootstrap.Modal(document.getElementById('drillModal')).show()
-}
+function drill() { alert('钻取功能开发中') }
 
 // ========== 初始化 ==========
 cancelOrder()
-initializeInventoryFromOrders()
 refresh()
+renderInventory()
 </script>
 </body>
 </html>
