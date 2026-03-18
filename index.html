@@ -1469,16 +1469,24 @@ function exportReport() {
   XLSX.writeFile(wb, `报表_${new Date().toISOString().slice(0,10)}.xlsx`)
 }
 
-// ========== 系统设置函数 - 新增修复函数 ==========
+// ========== 系统设置函数 - 修复版 ==========
 function saveSettingsRate() {
   const rate = parseFloat(document.getElementById('settingsUsdRate').value)
   if (rate > 0) {
     usdRate = rate
-    document.getElementById('usdRate').value = rate
-    document.getElementById('usdRateSide').innerText = rate.toFixed(2)
+    
+    // 更新所有显示汇率的地方
+    const usdRateInput = document.getElementById('usdRate')
+    if (usdRateInput) usdRateInput.value = rate
+    
+    const usdRateSide = document.getElementById('usdRateSide')
+    if (usdRateSide) usdRateSide.innerText = rate.toFixed(2)
+    
     const usdRateTop = document.getElementById('usdRateTop')
     if (usdRateTop) usdRateTop.innerText = rate.toFixed(2)
+    
     saveSettings()
+    refresh()  // 刷新页面让所有数据重新计算
     alert('✅ 默认汇率已更新')
   }
 }
