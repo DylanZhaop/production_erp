@@ -12,6 +12,8 @@
 /* 全局样式 */
 body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:hidden}
 .app-container{display:flex;height:100vh;width:100vw;overflow:hidden}
+
+/* 左侧导航 - 固定宽度 */
 .sidebar{width:220px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.1)}
 .sidebar-header{padding:24px 16px;border-bottom:1px solid #334155}
 .sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:16px}
@@ -22,11 +24,93 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 .nav-item.active{background:#0d6efd;color:#fff}
 .nav-item i{font-size:18px;width:24px;text-align:center}
 .sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:12px;color:#94a3b8}
-.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#f0f2f5}
-.top-bar{height:60px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 1px 4px rgba(0,0,0,0.02)}
-.top-bar-title{font-weight:600;color:#1e293b}
-.top-bar-actions{display:flex;gap:16px;align-items:center}
-.content-area{flex:1;overflow-y:auto;padding:20px;background:#f0f2f5}
+
+/* 右侧主内容区 - 改为三列布局 */
+.main-content{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:16px;
+  padding:16px;
+  background:#f0f2f5;
+  overflow:hidden;
+  height:100vh;
+}
+
+/* 中间列 - 核心操作区 */
+.middle-column{
+  background:transparent;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding-right:4px;
+  height:100%;
+}
+
+/* 右侧列 - 订单列表 */
+.right-column{
+  width:380px;
+  background:#f8fafc;
+  border-radius:16px;
+  padding:16px;
+  overflow-y:auto;
+  border-left:2px solid #e2e8f0;
+  box-shadow:-2px 0 8px rgba(0,0,0,0.02);
+  height:100%;
+}
+
+.right-column h6{
+  position:sticky;
+  top:0;
+  background:#f8fafc;
+  padding:8px 0;
+  margin:0 0 12px 0;
+  z-index:10;
+  border-bottom:1px solid #e2e8f0;
+  font-weight:600;
+}
+
+/* 订单列表交替背景 */
+.order-grid{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.order-card{
+  padding:12px;
+  border-radius:10px;
+  border-left:4px solid #0d6efd;
+  transition:0.2s;
+}
+.order-card:nth-child(odd){
+  background-color:#ffffff;
+}
+.order-card:nth-child(even){
+  background-color:#f8fafc;
+}
+.order-card:hover{
+  box-shadow:0 4px 12px rgba(0,0,0,0.05);
+  transform:translateY(-1px);
+}
+
+/* 库存分组背景色 */
+.inventory-group{
+  background-color:#f1f5f9;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:16px;
+  border:1px solid #e2e8f0;
+}
+.inventory-group-title{
+  background-color:#e2e8f0;
+  margin:-12px -12px 12px -12px;
+  padding:8px 12px;
+  border-radius:12px 12px 0 0;
+  font-weight:600;
+  color:#1e293b;
+  border-bottom:1px solid #cbd5e1;
+}
+
+/* 原有样式保留 */
 .content-container{max-width:1400px;margin:0 auto}
 .card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:16px;background:#fff}
 .card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:16px 20px;font-weight:600}
@@ -43,13 +127,8 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 .status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:12px 0;background:#fff;padding:12px;border-radius:12px}
 .status-item{text-align:center;padding:6px 4px;border-radius:6px;font-size:11px;cursor:pointer}
 .status-count{font-weight:700;font-size:14px}
-.order-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.order-card{border-left:4px solid #0d6efd;padding:12px;background:#fff;border-radius:8px;transition:0.2s}
-.order-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.05)}
-.inventory-group{margin-bottom:24px}
-.inventory-group-title{font-size:16px;font-weight:600;padding:8px 12px;background:#f8fafc;border-radius:8px;margin-bottom:12px;border-left:4px solid #0d6efd}
-.inventory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.inventory-card{background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #eef2f6;cursor:pointer;transition:0.2s}
+.inventory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.inventory-card{background:#fff;border-radius:8px;padding:12px;border:1px solid #eef2f6;cursor:pointer;transition:0.2s}
 .inventory-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.1);transform:translateY(-2px)}
 .inventory-card.low-stock{background:#fff3cd;border-left:3px solid #ffc107}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;background:#fff;padding:12px 16px;border-radius:12px}
@@ -79,7 +158,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v1.0</small>
+      <small>正式版 v1.1</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -105,415 +184,399 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
     </div>
   </div>
 
-  <!-- 右侧主内容区 -->
+  <!-- 右侧主内容区 - 三列布局 -->
   <div class="main-content">
-    <div class="top-bar">
-      <div class="top-bar-title" id="currentPageTitle">订单管理</div>
-      <div class="top-bar-actions">
-        <div class="d-flex gap-1 align-items-center">
-          <span class="small">💵 汇率:</span>
-          <input type="number" id="usdRate" value="7.20" style="width:70px" class="form-control form-control-sm" oninput="updateUsdRate()">
+    <!-- 中间列 - 核心操作区 -->
+    <div class="middle-column">
+      <div id="contentArea">
+        <!-- 订单管理页面 -->
+        <div id="ordersPage" style="display:block">
+          <div class="content-container">
+            <!-- 仪表盘卡片 -->
+            <div class="dashboard-grid">
+              <div class="dashboard-card" onclick="drill('all')">
+                <div class="dashboard-label">📋 订单数</div>
+                <div class="dashboard-value" id="totalOrder">0</div>
+              </div>
+              <div class="dashboard-card" onclick="drill('sale')">
+                <div class="dashboard-label">💰 销售额</div>
+                <div class="dashboard-value text-success" id="totalSale">0$</div>
+              </div>
+              <div class="dashboard-card" onclick="drill('cost')">
+                <div class="dashboard-label">📦 成本</div>
+                <div class="dashboard-value text-info" id="totalCost">0¥</div>
+              </div>
+              <div class="dashboard-card" onclick="drill('tax')">
+                <div class="dashboard-label">💵 退税</div>
+                <div class="dashboard-value text-warning" id="totalTax">0¥</div>
+              </div>
+              <div class="dashboard-card" onclick="drill('profit')">
+                <div class="dashboard-label">📈 毛利</div>
+                <div class="dashboard-value text-danger" id="totalProfit">0¥</div>
+              </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="chart-grid">
+              <div class="card">
+                <div class="card-header">📊 订单状态分布</div>
+                <div class="card-body p-2">
+                  <div id="chartStatus" class="chart-container"></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">🏭 工厂分布 <small class="text-muted">(按唯一工厂统计订单数)</small></div>
+                <div class="card-body p-2">
+                  <div id="chartFactory" class="chart-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 状态看板 -->
+            <div class="status-board" id="statusBoard"></div>
+
+            <!-- 预警卡片 -->
+            <div class="card">
+              <div class="card-header">⚠️ 交期预警</div>
+              <div class="card-body" id="alertBox"></div>
+            </div>
+
+            <!-- 工具栏 -->
+            <div class="toolbar">
+              <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空筛选</button>
+              <span class="text-muted" style="line-height:30px; margin-left:auto;">📱 自适应设计</span>
+            </div>
+
+            <!-- 搜索过滤 - 三列 -->
+            <div class="search-filter-3col">
+              <input class="form-control form-control-sm" id="search" placeholder="🔎 搜索订单号/合同号/客户" oninput="refresh()">
+              <select class="form-select form-select-sm" id="factoryFilter" onchange="refresh()">
+                <option value="">全部工厂</option>
+              </select>
+              <select class="form-select form-select-sm" id="productTypeFilter" onchange="refresh()">
+                <option value="">全部产品类型</option>
+              </select>
+            </div>
+
+            <!-- 新增订单卡片 -->
+            <div class="card" id="formCard">
+              <div class="card-header" id="formTitle">➕ 新增订单</div>
+              <div class="card-body">
+                <input type="hidden" id="editIdx">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📋 订单号 *</span>
+                      <input class="form-control form-control-sm" id="orderNo" placeholder="例如: ORD-001">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📄 合同号 *</span>
+                      <input class="form-control form-control-sm" id="contractNo" placeholder="例如: CT-001">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">👥 客户名称</span>
+                      <input class="form-control form-control-sm" id="customer" placeholder="输入客户名称">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📅 交付日期</span>
+                      <input type="date" class="form-control form-control-sm" id="delivery">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="field-container">
+                      <span class="field-label">💰 预付款日期</span>
+                      <input type="date" class="form-control form-control-sm" id="prepaymentDate">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="field-container">
+                      <span class="field-label">📝 合同签署日期</span>
+                      <input type="date" class="form-control form-control-sm" id="contractSignDate">
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="field-container">
+                      <span class="field-label">📊 退税率 %</span>
+                      <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="13">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <h6>📦 产品明细 <small class="text-muted">(每个产品可选择产品类型和工厂)</small></h6>
+                  <div id="itemsList"></div>
+                  <button class="btn btn-sm btn-outline-primary w-100 mt-2" onclick="addItem()">+ 添加产品</button>
+                </div>
+
+                <div class="row g-2 mt-2">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">💰 采购成本(RMB)</span>
+                      <input class="form-control form-control-sm" id="costRmb" readonly placeholder="自动计算">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">💵 销售金额(USD)</span>
+                      <input class="form-control form-control-sm" id="saleUsd" type="number" step="0.01" placeholder="例如: 1000">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📌 订单状态</span>
+                      <select class="form-select form-select-sm" id="status" onchange="toggleLogisticsField()">
+                        <option>合同执行中</option>
+                        <option>待支付预付款</option>
+                        <option>已支付预付款，启动生产</option>
+                        <option>生产中</option>
+                        <option>待支付尾款</option>
+                        <option>已支付，待发货</option>
+                        <option>已发货</option>
+                        <option>已签收</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6" id="logisticsField" style="display: none;">
+                    <div class="field-container">
+                      <span class="field-label">📦 物流单号</span>
+                      <input class="form-control form-control-sm" id="logistics" placeholder="输入物流单号">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                  <button class="btn btn-sm btn-primary flex-grow-1" onclick="saveOrder()">💾 保存订单</button>
+                  <button class="btn btn-sm btn-outline-secondary" id="cancelBtn" onclick="cancelOrder()" style="display:none">↩️ 取消</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-sm btn-outline-primary" onclick="backup()">💾 备份</button>
-        <button class="btn btn-sm btn-outline-warning" onclick="restore()">🔄 恢复</button>
+
+        <!-- 库存管理页面 -->
+        <div id="inventoryPage" style="display:none">
+          <div class="content-container">
+            <!-- 库存仪表盘 -->
+            <div class="dashboard-grid">
+              <div class="dashboard-card">
+                <div class="dashboard-label">📦 产品种类</div>
+                <div class="dashboard-value" id="invTotalProducts">0</div>
+              </div>
+              <div class="dashboard-card">
+                <div class="dashboard-label">🔢 总库存量</div>
+                <div class="dashboard-value text-info" id="invTotalQty">0</div>
+              </div>
+              <div class="dashboard-card" onclick="filterLowStock()">
+                <div class="dashboard-label">⚠️ 低库存预警</div>
+                <div class="dashboard-value text-warning" id="invLowStock">0</div>
+              </div>
+              <div class="dashboard-card">
+                <div class="dashboard-label">💰 库存价值</div>
+                <div class="dashboard-value text-primary" id="invTotalValue">0¥</div>
+              </div>
+              <div class="dashboard-card">
+                <div class="dashboard-label">🏭 合作工厂</div>
+                <div class="dashboard-value" id="invFactories">0</div>
+              </div>
+            </div>
+
+            <!-- 库存工具栏 -->
+            <div class="toolbar">
+              <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入</button>
+              <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
+              <button class="btn btn-sm btn-outline-warning" onclick="rebuildInventoryFromOrders()">🔄 从订单重建</button>
+            </div>
+
+            <!-- 库存搜索 - 三列 -->
+            <div class="search-filter-3col">
+              <input class="form-control form-control-sm" id="invSearch" placeholder="🔎 搜索产品名称/工厂" oninput="renderInventory()">
+              <select class="form-select form-select-sm" id="invFactoryFilter" onchange="renderInventory()">
+                <option value="">全部工厂</option>
+              </select>
+              <select class="form-select form-select-sm" id="invProductTypeFilter" onchange="renderInventory()">
+                <option value="">全部产品类型</option>
+              </select>
+            </div>
+
+            <!-- 库存列表 - 按产品类型分组 -->
+            <div class="card">
+              <div class="card-header">📦 库存列表 <small class="text-muted">(按产品类型分组，显示总数量)</small></div>
+              <div class="card-body">
+                <div id="inventoryGroupedList"></div>
+              </div>
+            </div>
+
+            <!-- 库存变动日志 -->
+            <div class="card mt-3">
+              <div class="card-header">📋 最近变动</div>
+              <div class="card-body" style="max-height:200px; overflow-y:auto" id="invLogs"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 数据报表页面 -->
+        <div id="reportsPage" style="display:none">
+          <div class="content-container">
+            <div class="card">
+              <div class="card-header">📊 报表生成器</div>
+              <div class="card-body">
+                <div class="row g-2 mb-4">
+                  <div class="col-md-2">
+                    <select class="form-select form-select-sm" id="reportType">
+                      <option value="month">📅 月度报表</option>
+                      <option value="quarter">📆 季度报表</option>
+                      <option value="year">🗓️ 年度报表</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <input type="month" class="form-control form-control-sm" id="reportMonth" value="2025-03">
+                  </div>
+                  <div class="col-md-2">
+                    <select class="form-select form-select-sm" id="reportGroupBy">
+                      <option value="all">全部</option>
+                      <option value="factory">按工厂</option>
+                      <option value="productType">按产品类型</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-sm btn-primary" onclick="generateReport()">📊 生成报表</button>
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-sm btn-outline-success" onclick="exportReport()">📥 导出Excel</button>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                  <div class="col-md-3">
+                    <div class="report-card">
+                      <div class="small opacity-75">总订单数</div>
+                      <div class="h3 mb-0" id="repTotalOrders">0</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="report-card" style="background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%)">
+                      <div class="small opacity-75">总销售额</div>
+                      <div class="h3 mb-0" id="repTotalSales">0$</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="report-card" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)">
+                      <div class="small opacity-75">总成本</div>
+                      <div class="h3 mb-0" id="repTotalCosts">0¥</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="report-card" style="background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)">
+                      <div class="small opacity-75">总利润</div>
+                      <div class="h3 mb-0" id="repTotalProfits">0¥</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="card">
+                      <div class="card-header">📈 订单趋势</div>
+                      <div class="card-body">
+                        <div id="repChartTrend" style="height:250px;"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card">
+                      <div class="card-header">🥧 利润构成</div>
+                      <div class="card-body">
+                        <div id="repChartPie" style="height:250px;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card mt-3">
+                  <div class="card-header">📋 分组明细</div>
+                  <div class="card-body" style="max-height:300px; overflow-y:auto" id="reportGroupTable"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 系统设置页面 -->
+        <div id="settingsPage" style="display:none">
+          <div class="content-container">
+            <div class="card">
+              <div class="card-header">⚙️ 系统设置</div>
+              <div class="card-body">
+                <div class="setting-item">
+                  <div class="setting-label">🌐 默认汇率</div>
+                  <div class="setting-desc">设置USD兑CNY的默认汇率</div>
+                  <div class="row g-2">
+                    <div class="col-md-3">
+                      <input type="number" class="form-control form-control-sm" id="settingDefaultRate" value="7.20" step="0.01">
+                    </div>
+                    <div class="col-md-3">
+                      <button class="btn btn-sm btn-primary" onclick="saveDefaultRate()">保存</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-label">⚠️ 预警阈值</div>
+                  <div class="setting-desc">设置低库存预警数量</div>
+                  <div class="row g-2">
+                    <div class="col-md-3">
+                      <input type="number" class="form-control form-control-sm" id="settingLowStock" value="10" min="1">
+                    </div>
+                    <div class="col-md-3">
+                      <span class="text-muted">低于此值显示预警</span>
+                    </div>
+                    <div class="col-md-3">
+                      <button class="btn btn-sm btn-primary" onclick="saveLowStockThreshold()">保存</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-label">💾 数据管理</div>
+                  <div class="setting-desc">备份、恢复或初始化数据</div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-outline-primary" onclick="backup()">📤 备份</button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="restore()">📥 恢复</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="clearAllData()">⚠️ 清空数据</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="resetToSample()">📋 恢复示例</button>
+                  </div>
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-label">ℹ️ 关于系统</div>
+                  <div class="about-info">
+                    <div><strong>版本：</strong>v1.1 UI优化版</div>
+                    <div><strong>更新内容：</strong></div>
+                    <div>✅ 订单列表移至右侧独立区域</div>
+                    <div>✅ 订单交替背景色，更好区分</div>
+                    <div>✅ 库存分组增加浅色背景</div>
+                    <div><strong>最后更新：</strong>2025-03-19</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="content-area" id="contentArea">
-      <!-- ========== 订单管理页面 ========== -->
-      <div id="ordersPage" style="display:block">
-        <div class="content-container">
-          <!-- 仪表盘卡片 -->
-          <div class="dashboard-grid">
-            <div class="dashboard-card" onclick="drill('all')">
-              <div class="dashboard-label">📋 订单数</div>
-              <div class="dashboard-value" id="totalOrder">0</div>
-            </div>
-            <div class="dashboard-card" onclick="drill('sale')">
-              <div class="dashboard-label">💰 销售额</div>
-              <div class="dashboard-value text-success" id="totalSale">0$</div>
-            </div>
-            <div class="dashboard-card" onclick="drill('cost')">
-              <div class="dashboard-label">📦 成本</div>
-              <div class="dashboard-value text-info" id="totalCost">0¥</div>
-            </div>
-            <div class="dashboard-card" onclick="drill('tax')">
-              <div class="dashboard-label">💵 退税</div>
-              <div class="dashboard-value text-warning" id="totalTax">0¥</div>
-            </div>
-            <div class="dashboard-card" onclick="drill('profit')">
-              <div class="dashboard-label">📈 毛利</div>
-              <div class="dashboard-value text-danger" id="totalProfit">0¥</div>
-            </div>
-          </div>
-
-          <!-- 图表区域 -->
-          <div class="chart-grid">
-            <div class="card">
-              <div class="card-header">📊 订单状态分布</div>
-              <div class="card-body p-2">
-                <div id="chartStatus" class="chart-container"></div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">🏭 工厂分布 <small class="text-muted">(按唯一工厂统计订单数)</small></div>
-              <div class="card-body p-2">
-                <div id="chartFactory" class="chart-container"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 状态看板 -->
-          <div class="status-board" id="statusBoard"></div>
-
-          <!-- 预警卡片 -->
-          <div class="card">
-            <div class="card-header">⚠️ 交期预警</div>
-            <div class="card-body" id="alertBox"></div>
-          </div>
-
-          <!-- 工具栏 -->
-          <div class="toolbar">
-            <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空筛选</button>
-            <span class="text-muted" style="line-height:30px; margin-left:auto;">📱 自适应设计</span>
-          </div>
-
-          <!-- 搜索过滤 - 三列 -->
-          <div class="search-filter-3col">
-            <input class="form-control form-control-sm" id="search" placeholder="🔎 搜索订单号/合同号/客户" oninput="refresh()">
-            <select class="form-select form-select-sm" id="factoryFilter" onchange="refresh()">
-              <option value="">全部工厂</option>
-            </select>
-            <select class="form-select form-select-sm" id="productTypeFilter" onchange="refresh()">
-              <option value="">全部产品类型</option>
-            </select>
-          </div>
-
-          <!-- 新增订单卡片 -->
-          <div class="card" id="formCard">
-            <div class="card-header" id="formTitle">➕ 新增订单</div>
-            <div class="card-body">
-              <input type="hidden" id="editIdx">
-              <div class="row g-2">
-                <div class="col-md-6">
-                  <div class="field-container">
-                    <span class="field-label">📋 订单号 *</span>
-                    <input class="form-control form-control-sm" id="orderNo" placeholder="例如: ORD-001">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="field-container">
-                    <span class="field-label">📄 合同号 *</span>
-                    <input class="form-control form-control-sm" id="contractNo" placeholder="例如: CT-001">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="field-container">
-                    <span class="field-label">👥 客户名称</span>
-                    <input class="form-control form-control-sm" id="customer" placeholder="输入客户名称">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="field-container">
-                    <span class="field-label">📅 交付日期</span>
-                    <input type="date" class="form-control form-control-sm" id="delivery">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="field-container">
-                    <span class="field-label">💰 预付款日期</span>
-                    <input type="date" class="form-control form-control-sm" id="prepaymentDate">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="field-container">
-                    <span class="field-label">📝 合同签署日期</span>
-                    <input type="date" class="form-control form-control-sm" id="contractSignDate">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="field-container">
-                    <span class="field-label">📊 退税率 %</span>
-                    <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="13">
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-3">
-                <h6>📦 产品明细 <small class="text-muted">(每个产品可选择产品类型和工厂)</small></h6>
-                <div id="itemsList"></div>
-                <button class="btn btn-sm btn-outline-primary w-100 mt-2" onclick="addItem()">+ 添加产品</button>
-              </div>
-
-              <div class="row g-2 mt-2">
-                <div class="col-md-6">
-                  <div class="field-container">
-                    <span class="field-label">💰 采购成本(RMB)</span>
-                    <input class="form-control form-control-sm" id="costRmb" readonly placeholder="自动计算">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="field-container">
-                    <span class="field-label">💵 销售金额(USD)</span>
-                    <input class="form-control form-control-sm" id="saleUsd" type="number" step="0.01" placeholder="例如: 1000">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="field-container">
-                    <span class="field-label">📌 订单状态</span>
-                    <select class="form-select form-select-sm" id="status" onchange="toggleLogisticsField()">
-                      <option>合同执行中</option>
-                      <option>待支付预付款</option>
-                      <option>已支付预付款，启动生产</option>
-                      <option>生产中</option>
-                      <option>待支付尾款</option>
-                      <option>已支付，待发货</option>
-                      <option>已发货</option>
-                      <option>已签收</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6" id="logisticsField" style="display: none;">
-                  <div class="field-container">
-                    <span class="field-label">📦 物流单号</span>
-                    <input class="form-control form-control-sm" id="logistics" placeholder="输入物流单号">
-                  </div>
-                </div>
-              </div>
-
-              <div class="d-flex gap-2 mt-3">
-                <button class="btn btn-sm btn-primary flex-grow-1" onclick="saveOrder()">💾 保存订单</button>
-                <button class="btn btn-sm btn-outline-secondary" id="cancelBtn" onclick="cancelOrder()" style="display:none">↩️ 取消</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 订单列表 -->
-          <div class="card">
-            <div class="card-header">📋 订单列表</div>
-            <div class="card-body">
-              <div class="order-grid" id="orderList"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========== 库存管理页面 ========== -->
-      <div id="inventoryPage" style="display:none">
-        <div class="content-container">
-          <!-- 库存仪表盘 -->
-          <div class="dashboard-grid">
-            <div class="dashboard-card">
-              <div class="dashboard-label">📦 产品种类</div>
-              <div class="dashboard-value" id="invTotalProducts">0</div>
-            </div>
-            <div class="dashboard-card">
-              <div class="dashboard-label">🔢 总库存量</div>
-              <div class="dashboard-value text-info" id="invTotalQty">0</div>
-            </div>
-            <div class="dashboard-card" onclick="filterLowStock()">
-              <div class="dashboard-label">⚠️ 低库存预警</div>
-              <div class="dashboard-value text-warning" id="invLowStock">0</div>
-            </div>
-            <div class="dashboard-card">
-              <div class="dashboard-label">💰 库存价值</div>
-              <div class="dashboard-value text-primary" id="invTotalValue">0¥</div>
-            </div>
-            <div class="dashboard-card">
-              <div class="dashboard-label">🏭 合作工厂</div>
-              <div class="dashboard-value" id="invFactories">0</div>
-            </div>
-          </div>
-
-          <!-- 库存工具栏 -->
-          <div class="toolbar">
-            <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
-            <button class="btn btn-sm btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
-            <button class="btn btn-sm btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
-            <button class="btn btn-sm btn-outline-warning" onclick="rebuildInventoryFromOrders()">🔄 从订单重建</button>
-          </div>
-
-          <!-- 库存搜索 - 三列 -->
-          <div class="search-filter-3col">
-            <input class="form-control form-control-sm" id="invSearch" placeholder="🔎 搜索产品名称/工厂" oninput="renderInventory()">
-            <select class="form-select form-select-sm" id="invFactoryFilter" onchange="renderInventory()">
-              <option value="">全部工厂</option>
-            </select>
-            <select class="form-select form-select-sm" id="invProductTypeFilter" onchange="renderInventory()">
-              <option value="">全部产品类型</option>
-            </select>
-          </div>
-
-          <!-- 库存列表 - 按产品类型分组 -->
-          <div class="card">
-            <div class="card-header">📦 库存列表 <small class="text-muted">(按产品类型分组，显示总数量)</small></div>
-            <div class="card-body">
-              <div id="inventoryGroupedList"></div>
-            </div>
-          </div>
-
-          <!-- 库存变动日志 -->
-          <div class="card mt-3">
-            <div class="card-header">📋 最近变动</div>
-            <div class="card-body" style="max-height:200px; overflow-y:auto" id="invLogs"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========== 数据报表页面 ========== -->
-      <div id="reportsPage" style="display:none">
-        <div class="content-container">
-          <!-- 报表控制栏 -->
-          <div class="card">
-            <div class="card-header">📊 报表生成器</div>
-            <div class="card-body">
-              <div class="row g-2 mb-4">
-                <div class="col-md-2">
-                  <select class="form-select form-select-sm" id="reportType">
-                    <option value="month">📅 月度报表</option>
-                    <option value="quarter">📆 季度报表</option>
-                    <option value="year">🗓️ 年度报表</option>
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <input type="month" class="form-control form-control-sm" id="reportMonth" value="2025-03">
-                </div>
-                <div class="col-md-2">
-                  <select class="form-select form-select-sm" id="reportGroupBy">
-                    <option value="all">全部</option>
-                    <option value="factory">按工厂</option>
-                    <option value="productType">按产品类型</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <button class="btn btn-sm btn-primary" onclick="generateReport()">📊 生成报表</button>
-                </div>
-                <div class="col-md-3">
-                  <button class="btn btn-sm btn-outline-success" onclick="exportReport()">📥 导出Excel</button>
-                </div>
-              </div>
-
-              <!-- 报表摘要卡片 -->
-              <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                  <div class="report-card">
-                    <div class="small opacity-75">总订单数</div>
-                    <div class="h3 mb-0" id="repTotalOrders">0</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="report-card" style="background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%)">
-                    <div class="small opacity-75">总销售额</div>
-                    <div class="h3 mb-0" id="repTotalSales">0$</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="report-card" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)">
-                    <div class="small opacity-75">总成本</div>
-                    <div class="h3 mb-0" id="repTotalCosts">0¥</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="report-card" style="background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)">
-                    <div class="small opacity-75">总利润</div>
-                    <div class="h3 mb-0" id="repTotalProfits">0¥</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 报表图表 -->
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="card">
-                    <div class="card-header">📈 订单趋势</div>
-                    <div class="card-body">
-                      <div id="repChartTrend" style="height:250px;"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card">
-                    <div class="card-header">🥧 利润构成</div>
-                    <div class="card-body">
-                      <div id="repChartPie" style="height:250px;"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 分组报表表格 -->
-              <div class="card mt-3">
-                <div class="card-header">📋 分组明细</div>
-                <div class="card-body" style="max-height:300px; overflow-y:auto" id="reportGroupTable"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========== 系统设置页面 ========== -->
-      <div id="settingsPage" style="display:none">
-        <div class="content-container">
-          <div class="card">
-            <div class="card-header">⚙️ 系统设置</div>
-            <div class="card-body">
-              <!-- 汇率设置 -->
-              <div class="setting-item">
-                <div class="setting-label">🌐 默认汇率</div>
-                <div class="setting-desc">设置USD兑CNY的默认汇率</div>
-                <div class="row g-2">
-                  <div class="col-md-3">
-                    <input type="number" class="form-control form-control-sm" id="settingDefaultRate" value="7.20" step="0.01">
-                  </div>
-                  <div class="col-md-3">
-                    <button class="btn btn-sm btn-primary" onclick="saveDefaultRate()">保存</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 预警阈值 -->
-              <div class="setting-item">
-                <div class="setting-label">⚠️ 预警阈值</div>
-                <div class="setting-desc">设置低库存预警数量</div>
-                <div class="row g-2">
-                  <div class="col-md-3">
-                    <input type="number" class="form-control form-control-sm" id="settingLowStock" value="10" min="1">
-                  </div>
-                  <div class="col-md-3">
-                    <span class="text-muted">低于此值显示预警</span>
-                  </div>
-                  <div class="col-md-3">
-                    <button class="btn btn-sm btn-primary" onclick="saveLowStockThreshold()">保存</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 数据管理 -->
-              <div class="setting-item">
-                <div class="setting-label">💾 数据管理</div>
-                <div class="setting-desc">备份、恢复或初始化数据</div>
-                <div class="d-flex gap-2 flex-wrap">
-                  <button class="btn btn-sm btn-outline-primary" onclick="backup()">📤 备份</button>
-                  <button class="btn btn-sm btn-outline-warning" onclick="restore()">📥 恢复</button>
-                  <button class="btn btn-sm btn-outline-danger" onclick="clearAllData()">⚠️ 清空数据</button>
-                  <button class="btn btn-sm btn-outline-secondary" onclick="resetToSample()">📋 恢复示例</button>
-                </div>
-              </div>
-
-              <!-- 关于信息 -->
-              <div class="setting-item">
-                <div class="setting-label">ℹ️ 关于系统</div>
-                <div class="about-info">
-                  <div><strong>版本：</strong>v1.0 正式版</div>
-                  <div><strong>最后更新：</strong>2025-03-19</div>
-                  <div><strong>数据存储：</strong>浏览器本地</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- 右侧列 - 订单列表 -->
+    <div class="right-column">
+      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新)</small></h6>
+      <div class="order-grid" id="orderList"></div>
     </div>
   </div>
 </div>
@@ -606,33 +669,25 @@ const SETTINGS_STORAGE = 'ERP_SETTINGS'
 
 // 从localStorage读取数据，兼容旧版本
 function loadData() {
-  // 尝试读取新KEY，如果没有则读旧KEY
   let savedOrders = localStorage.getItem(ORDER_STORAGE)
   if (!savedOrders) {
-    // 尝试读取旧版本数据
     const oldKeys = ['ERP_ORDER_FINAL_V6', 'ERP_ORDER_FINAL_V5', 'ERP_ORDER_FINAL_V4']
     for (let key of oldKeys) {
       savedOrders = localStorage.getItem(key)
-      if (savedOrders) {
-        console.log('从旧版本迁移数据:', key)
-        break
-      }
+      if (savedOrders) break
     }
   }
   
   if (savedOrders) {
     try {
       orders = JSON.parse(savedOrders)
-      console.log('加载订单数:', orders.length)
     } catch (e) {
-      console.error('解析订单数据失败', e)
       orders = []
     }
   } else {
     orders = []
   }
   
-  // 读取库存数据
   let savedInventory = localStorage.getItem(INVENTORY_STORAGE)
   if (!savedInventory) {
     const oldKeys = ['ERP_INVENTORY_V6', 'ERP_INVENTORY_V5', 'ERP_INVENTORY_V4']
@@ -652,7 +707,6 @@ function loadData() {
     inventory = []
   }
   
-  // 读取日志
   let savedLogs = localStorage.getItem(LOG_STORAGE)
   if (!savedLogs) {
     const oldKeys = ['ERP_INVENTORY_LOGS_V6', 'ERP_INVENTORY_LOGS_V5', 'ERP_INVENTORY_LOGS_V4']
@@ -672,7 +726,6 @@ function loadData() {
     inventoryLogs = []
   }
   
-  // 读取设置
   let savedSettings = localStorage.getItem(SETTINGS_STORAGE)
   if (!savedSettings) {
     const oldKeys = ['ERP_SETTINGS_V6', 'ERP_SETTINGS_V5', 'ERP_SETTINGS_V4']
@@ -1560,7 +1613,7 @@ function drill(type) {
   modal.addEventListener('hidden.bs.modal', () => modal.remove())
 }
 
-// ========== 订单刷新函数（修复版） ==========
+// ========== 订单刷新函数 ==========
 function refresh() {
   console.log('刷新订单列表，订单数:', orders.length)
   
@@ -1679,35 +1732,26 @@ function refresh() {
   sel.innerHTML = '<option value="">全部工厂</option>' + 
     factoryList.map(f => `<option ${f === facFilter ? 'selected' : ''}>${f}</option>`).join('')
 
-  // ========== 修复：订单列表渲染 ==========
+  // 订单列表渲染
   let listHtml = ''
   
-  // 先筛选订单
   const filteredOrders = orders.filter(o => {
-    // 文本搜索
     const textMatch = (o.no + o.contract + o.customer).toLowerCase().includes(kw)
-    
-    // 工厂筛选
     let factoryMatch = true
     if (facFilter) {
       factoryMatch = o.items?.some(item => item.factory === facFilter) || false
     }
-    
-    // 产品类型筛选
     let typeMatch = true
     if (typeFilter) {
       typeMatch = o.items?.some(item => item.productType === typeFilter) || false
     }
-    
     return textMatch && factoryMatch && typeMatch
   })
   
-  // 渲染订单卡片
   filteredOrders.forEach((o, index) => {
     const originalIndex = orders.findIndex(ord => ord === o)
     if (originalIndex === -1) return
     
-    // 获取该订单涉及的所有工厂（去重）
     const orderFactories = o.items?.filter(i => i.factory).map(i => i.factory) || []
     const uniqueFactories = [...new Set(orderFactories)].join(', ') || '无'
     
