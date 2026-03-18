@@ -78,7 +78,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>完整版 v5.1</small>
+      <small>完整版 v5.2</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -328,7 +328,8 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
           <div class="toolbar">
             <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入</button>
             <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
-            <button class="btn btn-sm btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="cleanAndRenderInventory()">🧹 清洗数据</button>
+            <button class="btn btn-sm btn-outline-info" onclick="mergeDuplicateInventory()">🔄 合并重复</button>
           </div>
 
           <!-- 库存搜索 - 三列 -->
@@ -498,23 +499,25 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                 </div>
               </div>
 
-              <!-- 数据迁移工具 -->
+              <!-- 数据清洗工具 -->
               <div class="setting-item">
-                <div class="setting-label">🔄 数据迁移</div>
-                <div class="setting-desc">将旧格式数据迁移到新格式</div>
-                <button class="btn btn-sm btn-outline-info" onclick="migrateOldData()">执行迁移</button>
-                <span class="text-muted small ms-2" id="migrateStatus"></span>
+                <div class="setting-label">🧹 数据清洗</div>
+                <div class="setting-desc">标准化产品类型、合并重复库存</div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-info" onclick="cleanAllData()">✨ 一键清洗</button>
+                  <span class="text-muted small ms-2" id="cleanStatus"></span>
+                </div>
               </div>
 
               <!-- 关于信息 -->
               <div class="setting-item">
                 <div class="setting-label">ℹ️ 关于系统</div>
                 <div class="about-info">
-                  <div><strong>版本：</strong>v5.1 修复版</div>
+                  <div><strong>版本：</strong>v5.2 数据清洗版</div>
                   <div><strong>更新内容：</strong></div>
-                  <div>✅ 恢复单价输入框（之前误删）</div>
-                  <div>✅ 删除型号字段，只保留产品类型</div>
-                  <div>✅ 库存按产品类型分组显示</div>
+                  <div>✅ 产品类型自动标准化（如"充电板"→"充电桩"）</div>
+                  <div>✅ 合并相同产品+工厂的库存记录</div>
+                  <div>✅ 新增数据清洗按钮，一键整理</div>
                   <div><strong>最后更新：</strong>2025-03-18</div>
                 </div>
               </div>
@@ -606,6 +609,36 @@ const PRODUCT_TYPES = [
   '其他'
 ]
 
+// ========== 产品类型映射（用于清洗数据） ==========
+const PRODUCT_TYPE_MAP = {
+  // 交流壁挂类
+  '交流壁挂充电板': '交流壁挂充电桩',
+  '交流壁挂充电桩': '交流壁挂充电桩',
+  '壁挂交流': '交流壁挂充电桩',
+  
+  // 交流立柱类
+  '交流立柱式充电板': '交流立柱式充电桩',
+  '交流立柱式充电桩': '交流立柱式充电桩',
+  '立柱交流': '交流立柱式充电桩',
+  
+  // 一体式直流
+  '一体式直流充电桩': '一体式直流充电桩',
+  '一体机': '一体式直流充电桩',
+  '直流一体机': '一体式直流充电桩',
+  
+  // 配件类
+  '配件': '配件',
+  'CCS2枪线': '配件',
+  '30kw模块': '配件',
+  '急停按钮': '配件',
+  '直流电表': '配件',
+  '10寸屏': '配件',
+  '收枪装置': '配件',
+  
+  // 其他
+  '其他': '其他'
+}
+
 // ========== 数据层 ==========
 const ORDER_STORAGE = 'ERP_ORDER_FINAL_V5'
 const INVENTORY_STORAGE = 'ERP_INVENTORY_V5'
@@ -642,32 +675,100 @@ function saveSettings() {
   localStorage.setItem(SETTINGS_STORAGE, JSON.stringify(settings)) 
 }
 
-// ========== 数据迁移工具 ==========
-function migrateOldData() {
-  let migratedCount = 0
+// ========== 数据清洗函数 ==========
+function cleanProductType(type) {
+  if (!type) return '未分类'
+  // 去除前后空格
+  type = type.trim()
+  // 如果直接匹配到映射，返回标准化名称
+  if (PRODUCT_TYPE_MAP[type]) return PRODUCT_TYPE_MAP[type]
   
-  // 迁移订单：删除model字段
-  orders = orders.map(order => {
-    if (order.items) {
-      order.items = order.items.map(item => {
-        // 只保留必要字段，删除model
-        const { model, ...rest } = item
-        return rest
-      })
+  // 部分匹配
+  for (let [key, value] of Object.entries(PRODUCT_TYPE_MAP)) {
+    if (type.includes(key) || key.includes(type)) {
+      return value
     }
-    migratedCount++
+  }
+  
+  // 默认返回原值
+  return type
+}
+
+function mergeDuplicateInventory() {
+  const mergedMap = new Map()
+  
+  inventory.forEach(item => {
+    const key = `${item.name}|${item.factory}`
+    if (mergedMap.has(key)) {
+      const existing = mergedMap.get(key)
+      existing.qty += item.qty
+      existing.lastUpdated = new Date().toISOString()
+    } else {
+      mergedMap.set(key, { ...item })
+    }
+  })
+  
+  inventory = Array.from(mergedMap.values())
+  saveInventory()
+  
+  // 记录合并操作
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now(),
+    type: 'system',
+    name: '系统',
+    reason: '合并重复库存',
+    time: new Date().toLocaleString()
+  })
+  saveLogs()
+}
+
+function cleanAllData() {
+  let cleanedCount = 0
+  
+  // 清洗库存数据
+  inventory = inventory.map(item => {
+    const newType = cleanProductType(item.productType)
+    if (newType !== item.productType) cleanedCount++
+    return {
+      ...item,
+      productType: newType
+    }
+  })
+  
+  // 清洗订单数据
+  orders = orders.map(order => {
+    let orderCleaned = false
+    const newItems = order.items.map(item => {
+      const newType = cleanProductType(item.productType)
+      if (newType !== item.productType) {
+        orderCleaned = true
+        cleanedCount++
+      }
+      return {
+        ...item,
+        productType: newType
+      }
+    })
+    if (orderCleaned) {
+      return { ...order, items: newItems }
+    }
     return order
   })
   
-  // 迁移库存：删除model字段
-  inventory = inventory.map(item => {
-    const { model, ...rest } = item
-    return rest
-  })
+  // 合并重复库存
+  mergeDuplicateInventory()
   
-  saveOrders(); saveInventory()
-  document.getElementById('migrateStatus').innerText = `✅ 已迁移 ${migratedCount} 个订单`
-  refresh(); renderInventory()
+  saveOrders()
+  saveInventory()
+  
+  document.getElementById('cleanStatus').innerText = `✅ 已清洗 ${cleanedCount} 条记录`
+  
+  refresh()
+  renderInventory()
+}
+
+function cleanAndRenderInventory() {
+  cleanAllData()
 }
 
 // ========== 初始化筛选下拉框 ==========
@@ -929,7 +1030,7 @@ function editOrder(i) {
           </div>
           <div class="col-2">
             <select class="form-select form-select-sm itemProductType">
-              ${getProductTypeOptions(it.productType)}
+              ${getProductTypeOptions(cleanProductType(it.productType))}
             </select>
           </div>
           <div class="col-2">
@@ -1047,11 +1148,17 @@ function renderInventory() {
   const facFilter = document.getElementById('invFactoryFilter')?.value || ''
   const typeFilter = document.getElementById('invProductTypeFilter')?.value || ''
   
-  const totalProducts = inventory.length
-  const totalQty = inventory.reduce((sum,i) => sum + i.qty, 0)
-  const lowStock = inventory.filter(i => i.qty < lowStockThreshold).length
-  const totalValue = inventory.reduce((sum,i) => sum + (i.qty * 100), 0)
-  const factories = [...new Set(inventory.map(i => i.factory))]
+  // 先清洗一遍数据
+  const cleanInventory = inventory.map(item => ({
+    ...item,
+    productType: cleanProductType(item.productType)
+  }))
+  
+  const totalProducts = cleanInventory.length
+  const totalQty = cleanInventory.reduce((sum,i) => sum + i.qty, 0)
+  const lowStock = cleanInventory.filter(i => i.qty < lowStockThreshold).length
+  const totalValue = cleanInventory.reduce((sum,i) => sum + (i.qty * 100), 0)
+  const factories = [...new Set(cleanInventory.map(i => i.factory))]
   
   document.getElementById('invTotalProducts').innerText = totalProducts
   document.getElementById('invTotalQty').innerText = totalQty
@@ -1064,7 +1171,7 @@ function renderInventory() {
   sel.innerHTML = '<option value="">全部工厂</option>' + factories.map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
   
   // 过滤库存
-  const filtered = inventory.filter(i => 
+  const filtered = cleanInventory.filter(i => 
     (i.name + i.factory + i.productType).toLowerCase().includes(kw) && 
     (!facFilter || i.factory === facFilter) &&
     (!typeFilter || i.productType === typeFilter)
@@ -1137,7 +1244,7 @@ function filterLowStock() {
 function exportInventory() {
   const data = [['产品名称','产品类型','数量','工厂','来源','最后更新']]
   inventory.forEach(i => {
-    data.push([i.name, i.productType||'', i.qty, i.factory, i.source==='order'?'订单同步':'手动录入', new Date(i.lastUpdated||i.createdAt).toLocaleString()])
+    data.push([i.name, cleanProductType(i.productType)||'', i.qty, i.factory, i.source==='order'?'订单同步':'手动录入', new Date(i.lastUpdated||i.createdAt).toLocaleString()])
   })
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data))
@@ -1213,10 +1320,11 @@ function generateReport() {
     const typeMap = {}
     orders.forEach(o => {
       o.items.forEach(item => {
-        if (item.productType) {
-          if (!typeMap[item.productType]) typeMap[item.productType] = { qty: 0, value: 0 }
-          typeMap[item.productType].qty += item.qty || 0
-          typeMap[item.productType].value += (item.qty || 0) * (item.price || 0)
+        const cleanType = cleanProductType(item.productType)
+        if (cleanType) {
+          if (!typeMap[cleanType]) typeMap[cleanType] = { qty: 0, value: 0 }
+          typeMap[cleanType].qty += item.qty || 0
+          typeMap[cleanType].value += (item.qty || 0) * (item.price || 0)
         }
       })
     })
@@ -1506,14 +1614,14 @@ function refresh() {
     let factoryMatch = true
     if (facFilter) factoryMatch = o.items.some(item => item.factory === facFilter)
     let typeMatch = true
-    if (typeFilter) typeMatch = o.items.some(item => item.productType === typeFilter)
+    if (typeFilter) typeMatch = o.items.some(item => cleanProductType(item.productType) === typeFilter)
     return textMatch && factoryMatch && typeMatch
   })
   
   filteredOrders.forEach((o, i) => {
     const idx = orders.findIndex(ord => ord === o)
     const orderFactories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))].join(', ')
-    const productTypes = [...new Set(o.items.filter(i => i.productType).map(i => i.productType))].join(', ')
+    const productTypes = [...new Set(o.items.filter(i => i.productType).map(i => cleanProductType(i.productType)))].join(', ')
     
     listHtml += `
       <div class="order-card">
@@ -1532,7 +1640,7 @@ function refresh() {
         </div>
         <div class="small">
           ${o.items.map(item => `
-            <span class="product-type-badge" title="${item.productType || '无'}">
+            <span class="product-type-badge" title="${cleanProductType(item.productType) || '无'}">
               ${item.name} (${item.qty}×¥${item.price})
             </span>
           `).join('')}
