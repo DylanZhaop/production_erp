@@ -163,7 +163,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v1.2</small>
+      <small>正式版 v1.3</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -516,7 +516,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
           </div>
         </div>
 
-        <!-- ========== 系统设置页面 - 修复版 ========== -->
+        <!-- 系统设置页面 - 修复版 -->
         <div id="settingsPage" style="display:none">
           <div class="content-container">
             <div class="card">
@@ -569,11 +569,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v1.2 最终优化版</div>
+                    <div><strong>版本：</strong>v1.3 最终修复版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 恢复顶部备份/恢复按钮</div>
-                    <div>✅ 兼容所有旧版本备份文件</div>
-                    <div>✅ 全局字体优化，显示更均匀</div>
+                    <div>✅ 修复图表数据显示错误</div>
+                    <div>✅ 修复汇率保存功能</div>
+                    <div>✅ 优化预警阈值布局</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -1486,7 +1486,7 @@ function saveSettingsRate() {
     if (usdRateTop) usdRateTop.innerText = rate.toFixed(2)
     
     saveSettings()
-    refresh()  // 刷新页面让所有数据重新计算
+    refresh()
     alert('✅ 默认汇率已更新')
   }
 }
@@ -1557,7 +1557,7 @@ function drill(type) {
   modal.addEventListener('hidden.bs.modal', () => modal.remove())
 }
 
-// ========== 订单刷新函数 ==========
+// ========== 订单刷新函数 - 修复图表 ==========
 function refresh() {
   console.log('刷新订单列表，订单数:', orders.length)
   
@@ -1613,24 +1613,34 @@ function refresh() {
   })
   document.getElementById('statusBoard').innerHTML = boardHtml
 
+  // 修复：订单状态分布图表 - 只显示订单数量，不显示金额
   try {
     const chartStatus = echarts.init(document.getElementById('chartStatus'))
     chartStatus.setOption({
-      tooltip: { trigger: 'axis' },
-      xAxis: { data: ORDER_STATUS, axisLabel: { rotate: 30, fontSize: 11 } },
-      yAxis: { type: 'value' },
+      tooltip: { trigger: 'axis', formatter: '{b}<br/>订单数: {c}单' },
+      xAxis: { 
+        data: ORDER_STATUS, 
+        axisLabel: { rotate: 30, fontSize: 11 },
+        name: '订单状态'
+      },
+      yAxis: { 
+        type: 'value',
+        name: '订单数量',
+        axisLabel: { fontSize: 11 }
+      },
       series: [{
         name: '订单数量',
         type: 'bar',
         data: ORDER_STATUS.map(s => statusCount[s] || 0),
         itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
-        label: { show: true, position: 'top', fontSize: 12 }
+        label: { show: true, position: 'top', fontSize: 12, formatter: '{c}单' }
       }]
     })
   } catch (e) {
-    console.error('图表渲染失败', e)
+    console.error('状态图表渲染失败', e)
   }
 
+  // 修复：工厂分布图表 - 只显示订单数量，不显示金额
   try {
     const chartFactory = echarts.init(document.getElementById('chartFactory'))
     const pieData = Object.entries(factoryOrderMap).map(([factory, orderSet]) => ({ 
@@ -1639,7 +1649,7 @@ function refresh() {
     })).sort((a, b) => b.value - a.value)
     
     chartFactory.setOption({
-      tooltip: { trigger: 'item', formatter: '{b}: 参与 {c} 个订单' },
+      tooltip: { trigger: 'item', formatter: '{b}<br/>参与订单: {c}单' },
       legend: { orient: 'vertical', left: 'left', top: 'center', textStyle: { fontSize: 12 } },
       series: [{
         name: '工厂分布',
@@ -1650,7 +1660,7 @@ function refresh() {
         label: { 
           show: true,
           position: 'outside',
-          formatter: '{b}: {c}',
+          formatter: '{b}: {c}单',
           fontSize: 12,
           color: '#1e293b'
         },
