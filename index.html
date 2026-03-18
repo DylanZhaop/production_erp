@@ -79,7 +79,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>完整版 v6.0</small>
+      <small>正式版 v1.0</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -116,7 +116,6 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
         </div>
         <button class="btn btn-sm btn-outline-primary" onclick="backup()">💾 备份</button>
         <button class="btn btn-sm btn-outline-warning" onclick="restore()">🔄 恢复</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
       </div>
     </div>
 
@@ -506,12 +505,9 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
               <div class="setting-item">
                 <div class="setting-label">ℹ️ 关于系统</div>
                 <div class="about-info">
-                  <div><strong>版本：</strong>v6.0 终极修复版</div>
-                  <div><strong>更新内容：</strong></div>
-                  <div>✅ 库存实时同步订单，不重复累加</div>
-                  <div>✅ 去重工具可清理重复数据</div>
-                  <div>✅ 从订单重建库存功能</div>
+                  <div><strong>版本：</strong>v1.0 正式版</div>
                   <div><strong>最后更新：</strong>2025-03-19</div>
+                  <div><strong>数据存储：</strong>浏览器本地</div>
                 </div>
               </div>
             </div>
@@ -603,18 +599,107 @@ const PRODUCT_TYPES = [
 ]
 
 // ========== 数据层 ==========
-const ORDER_STORAGE = 'ERP_ORDER_FINAL_V6'
-const INVENTORY_STORAGE = 'ERP_INVENTORY_V6'
-const LOG_STORAGE = 'ERP_INVENTORY_LOGS_V6'
-const SETTINGS_STORAGE = 'ERP_SETTINGS_V6'
+const ORDER_STORAGE = 'ERP_ORDER_FINAL'
+const INVENTORY_STORAGE = 'ERP_INVENTORY'
+const LOG_STORAGE = 'ERP_INVENTORY_LOGS'
+const SETTINGS_STORAGE = 'ERP_SETTINGS'
 
-// 从localStorage读取数据
-let orders = JSON.parse(localStorage.getItem(ORDER_STORAGE)) || []
-let inventory = JSON.parse(localStorage.getItem(INVENTORY_STORAGE)) || []
-let inventoryLogs = JSON.parse(localStorage.getItem(LOG_STORAGE)) || []
-let settings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE)) || { usdRate: 7.20, lowStockThreshold: 10 }
-let usdRate = settings.usdRate
-let lowStockThreshold = settings.lowStockThreshold
+// 从localStorage读取数据，兼容旧版本
+function loadData() {
+  // 尝试读取新KEY，如果没有则读旧KEY
+  let savedOrders = localStorage.getItem(ORDER_STORAGE)
+  if (!savedOrders) {
+    // 尝试读取旧版本数据
+    const oldKeys = ['ERP_ORDER_FINAL_V6', 'ERP_ORDER_FINAL_V5', 'ERP_ORDER_FINAL_V4']
+    for (let key of oldKeys) {
+      savedOrders = localStorage.getItem(key)
+      if (savedOrders) {
+        console.log('从旧版本迁移数据:', key)
+        break
+      }
+    }
+  }
+  
+  if (savedOrders) {
+    try {
+      orders = JSON.parse(savedOrders)
+      console.log('加载订单数:', orders.length)
+    } catch (e) {
+      console.error('解析订单数据失败', e)
+      orders = []
+    }
+  } else {
+    orders = []
+  }
+  
+  // 读取库存数据
+  let savedInventory = localStorage.getItem(INVENTORY_STORAGE)
+  if (!savedInventory) {
+    const oldKeys = ['ERP_INVENTORY_V6', 'ERP_INVENTORY_V5', 'ERP_INVENTORY_V4']
+    for (let key of oldKeys) {
+      savedInventory = localStorage.getItem(key)
+      if (savedInventory) break
+    }
+  }
+  
+  if (savedInventory) {
+    try {
+      inventory = JSON.parse(savedInventory)
+    } catch (e) {
+      inventory = []
+    }
+  } else {
+    inventory = []
+  }
+  
+  // 读取日志
+  let savedLogs = localStorage.getItem(LOG_STORAGE)
+  if (!savedLogs) {
+    const oldKeys = ['ERP_INVENTORY_LOGS_V6', 'ERP_INVENTORY_LOGS_V5', 'ERP_INVENTORY_LOGS_V4']
+    for (let key of oldKeys) {
+      savedLogs = localStorage.getItem(key)
+      if (savedLogs) break
+    }
+  }
+  
+  if (savedLogs) {
+    try {
+      inventoryLogs = JSON.parse(savedLogs)
+    } catch (e) {
+      inventoryLogs = []
+    }
+  } else {
+    inventoryLogs = []
+  }
+  
+  // 读取设置
+  let savedSettings = localStorage.getItem(SETTINGS_STORAGE)
+  if (!savedSettings) {
+    const oldKeys = ['ERP_SETTINGS_V6', 'ERP_SETTINGS_V5', 'ERP_SETTINGS_V4']
+    for (let key of oldKeys) {
+      savedSettings = localStorage.getItem(key)
+      if (savedSettings) break
+    }
+  }
+  
+  if (savedSettings) {
+    try {
+      settings = JSON.parse(savedSettings)
+      usdRate = settings.usdRate || 7.20
+      lowStockThreshold = settings.lowStockThreshold || 10
+    } catch (e) {}
+  }
+}
+
+let orders = []
+let inventory = []
+let inventoryLogs = []
+let settings = { usdRate: 7.20, lowStockThreshold: 10 }
+let usdRate = 7.20
+let lowStockThreshold = 10
+
+// 加载数据
+loadData()
 
 // 订单状态列表
 const ORDER_STATUS = [
@@ -644,7 +729,6 @@ function deduplicateInventory() {
   let duplicateCount = 0
   
   inventory.forEach(item => {
-    // 手动录入的库存按产品名+工厂去重
     if (item.source === 'manual' || !item.sourceOrderNo) {
       const key = `manual-${item.name}-${item.factory}`
       if (uniqueMap.has(key)) {
@@ -656,11 +740,9 @@ function deduplicateInventory() {
       return
     }
     
-    // 订单同步的库存按订单号+产品名+工厂去重
     const key = `${item.sourceOrderNo}-${item.name}-${item.factory}`
     if (uniqueMap.has(key)) {
       duplicateCount++
-      // 保留数量大的那条记录
       const existing = uniqueMap.get(key)
       if (item.qty > existing.qty) {
         uniqueMap.set(key, { ...item })
@@ -728,7 +810,6 @@ function rebuildInventoryFromOrders() {
 
 // ========== 初始化筛选下拉框 ==========
 function initFilterSelects() {
-  // 产品类型筛选下拉
   const typeFilter = document.getElementById('productTypeFilter')
   if (typeFilter) {
     let options = '<option value="">全部产品类型</option>'
@@ -738,7 +819,6 @@ function initFilterSelects() {
     typeFilter.innerHTML = options
   }
   
-  // 库存产品类型筛选
   const invTypeFilter = document.getElementById('invProductTypeFilter')
   if (invTypeFilter) {
     let options = '<option value="">全部产品类型</option>'
@@ -757,7 +837,6 @@ function updateUsdRate() {
   refresh() 
 }
 
-// 产品类型选项HTML
 function getProductTypeOptions(selected) {
   let options = '<option value="" disabled selected>请选择产品类型</option>'
   PRODUCT_TYPES.forEach(t => {
@@ -824,24 +903,20 @@ function toggleLogisticsField() {
   if (status !== '已发货') document.getElementById('logistics').value = ''
 }
 
-// ========== 核心修复：库存同步逻辑 ==========
 function syncInventoryFromOrder(order) {
   order.items.forEach(item => {
     if (item.type !== '实物产品' || item.qty <= 0 || !item.factory) return
     
-    // 查找该订单是否已有此产品的库存记录
     const existingIndex = inventory.findIndex(i => 
-      i.sourceOrderNo === order.no &&  // 同一个订单
-      i.name === item.name &&           // 同一个产品
-      i.factory === item.factory        // 同一个工厂
+      i.sourceOrderNo === order.no &&
+      i.name === item.name &&
+      i.factory === item.factory
     )
     
     if (existingIndex >= 0) {
-      // 已存在：更新数量
       inventory[existingIndex].qty = item.qty
       inventory[existingIndex].lastUpdated = new Date().toISOString()
     } else {
-      // 不存在：新增
       inventory.push({
         id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
         name: item.name,
@@ -913,7 +988,6 @@ function saveOrder() {
   
   if (!order.no || !order.contract) return alert('请填写订单号、合同号')
   
-  // 如果是编辑已有订单，先删除该订单的旧库存记录
   if (idx !== '') {
     const oldOrderNo = orders[idx].no
     inventory = inventory.filter(item => item.sourceOrderNo !== oldOrderNo)
@@ -922,7 +996,6 @@ function saveOrder() {
   if (idx === '') orders.unshift(order)
   else orders[idx] = order
   
-  // 同步库存（不会重复累加）
   syncInventoryFromOrder(order)
   
   inventoryLogs.unshift({
@@ -1077,7 +1150,6 @@ function addManualInventory() {
   if (!name || qty <= 0 || !factory) return alert('请填写产品名称、数量、工厂')
   if (!productType) return alert('请选择产品类型')
   
-  // 检查是否已有相同的手动记录
   const existing = inventory.find(i => 
     i.source === 'manual' && 
     i.name === name && 
@@ -1148,18 +1220,15 @@ function renderInventory() {
   document.getElementById('invTotalValue').innerText = totalValue + '¥'
   document.getElementById('invFactories').innerText = factories.length
   
-  // 更新工厂筛选下拉
   const sel = document.getElementById('invFactoryFilter')
   sel.innerHTML = '<option value="">全部工厂</option>' + factories.map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
   
-  // 过滤库存
   const filtered = inventory.filter(i => 
     (i.name + i.factory + i.productType).toLowerCase().includes(kw) && 
     (!facFilter || i.factory === facFilter) &&
     (!typeFilter || i.productType === typeFilter)
   )
   
-  // 按产品类型分组
   const grouped = {}
   filtered.forEach(item => {
     const type = item.productType || '未分类'
@@ -1167,7 +1236,6 @@ function renderInventory() {
     grouped[type].push(item)
   })
   
-  // 渲染分组列表
   const groupedList = document.getElementById('inventoryGroupedList')
   if (Object.keys(grouped).length === 0) {
     groupedList.innerHTML = '<div class="text-center p-3">暂无库存记录</div>'
@@ -1185,7 +1253,6 @@ function renderInventory() {
           <div class="inventory-grid">
       `
       items.forEach(item => {
-        // 正确显示来源：有订单号显示订单号，否则显示"手动"
         const sourceDisplay = item.sourceOrderNo 
           ? `<span class="order-badge" title="来源订单">${item.sourceOrderNo}</span>`
           : '<span class="source-badge">✋ 手动</span>'
@@ -1211,7 +1278,6 @@ function renderInventory() {
     groupedList.innerHTML = html
   }
   
-  // 渲染日志
   const logs = document.getElementById('invLogs')
   logs.innerHTML = inventoryLogs.slice(0,20).map(l => `
     <div class="inventory-log ${l.type === 'in' ? 'text-success' : 'text-danger'}">
@@ -1225,7 +1291,6 @@ function filterLowStock() {
   document.getElementById('invFactoryFilter').value = ''
   document.getElementById('invProductTypeFilter').value = ''
   renderInventory()
-  alert('低库存产品已高亮显示（黄色背景）')
 }
 
 function exportInventory() {
@@ -1252,7 +1317,6 @@ function generateReport() {
   document.getElementById('repTotalCosts').innerText = totalCosts.toFixed(0) + '¥'
   document.getElementById('repTotalProfits').innerText = totalProfit.toFixed(0) + '¥'
   
-  // 趋势图
   const months = ['1月','2月','3月','4月','5月','6月']
   const trendData = months.map((m,i) => Math.floor(totalOrders * (0.5 + i*0.15)))
   
@@ -1269,7 +1333,6 @@ function generateReport() {
     }]
   })
   
-  // 利润构成图
   echarts.init(document.getElementById('repChartPie')).setOption({
     tooltip: { trigger: 'item' },
     series: [{
@@ -1284,7 +1347,6 @@ function generateReport() {
     }]
   })
   
-  // 分组表格
   let tableHtml = ''
   if (groupBy === 'factory') {
     const factoryMap = {}
@@ -1414,7 +1476,6 @@ function resetToSample() {
     inventory = []
     inventoryLogs = []
     
-    // 从订单同步库存
     orders.forEach(order => {
       order.items.forEach(item => {
         if (item.type === '实物产品' && item.qty > 0 && item.factory) {
@@ -1499,8 +1560,10 @@ function drill(type) {
   modal.addEventListener('hidden.bs.modal', () => modal.remove())
 }
 
-// ========== 订单刷新函数 ==========
+// ========== 订单刷新函数（修复版） ==========
 function refresh() {
+  console.log('刷新订单列表，订单数:', orders.length)
+  
   const kw = document.getElementById('search').value.toLowerCase()
   const facFilter = document.getElementById('factoryFilter').value
   const typeFilter = document.getElementById('productTypeFilter').value
@@ -1553,50 +1616,53 @@ function refresh() {
   })
   document.getElementById('statusBoard').innerHTML = boardHtml
 
-  const chartStatus = echarts.init(document.getElementById('chartStatus'))
-  chartStatus.setOption({
-    tooltip: { trigger: 'axis' },
-    xAxis: { data: ORDER_STATUS, axisLabel: { rotate: 30, fontSize: 10 } },
-    yAxis: { type: 'value' },
-    series: [{
-      name: '订单数量',
-      type: 'bar',
-      data: ORDER_STATUS.map(s => statusCount[s] || 0),
-      itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
-      label: { show: true, position: 'top', fontSize: 11 }
-    }]
-  })
+  try {
+    const chartStatus = echarts.init(document.getElementById('chartStatus'))
+    chartStatus.setOption({
+      tooltip: { trigger: 'axis' },
+      xAxis: { data: ORDER_STATUS, axisLabel: { rotate: 30, fontSize: 10 } },
+      yAxis: { type: 'value' },
+      series: [{
+        name: '订单数量',
+        type: 'bar',
+        data: ORDER_STATUS.map(s => statusCount[s] || 0),
+        itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', fontSize: 11 }
+      }]
+    })
+  } catch (e) {
+    console.error('图表渲染失败', e)
+  }
 
-  const chartFactory = echarts.init(document.getElementById('chartFactory'))
-  const pieData = Object.entries(factoryOrderMap).map(([factory, orderSet]) => ({ 
-    name: factory, 
-    value: orderSet.size
-  })).sort((a, b) => b.value - a.value)
-  
-  chartFactory.setOption({
-    tooltip: { 
-      trigger: 'item',
-      formatter: '{b}: 参与 {c} 个订单' 
-    },
-    legend: { orient: 'vertical', left: 'left', top: 'center' },
-    series: [{
-      name: '工厂分布',
-      type: 'pie',
-      radius: ['40%', '70%'],
-      data: pieData.length ? pieData : [{ name: '暂无数据', value: 1 }],
-      itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-      label: { 
-        show: true,
-        position: 'outside',
-        formatter: '{b}: {c}',
-        fontSize: 12,
-        fontWeight: 'normal',
-        color: '#1e293b'
-      },
-      labelLine: { show: true, length: 10, length2: 10, smooth: true },
-      emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } }
-    }]
-  })
+  try {
+    const chartFactory = echarts.init(document.getElementById('chartFactory'))
+    const pieData = Object.entries(factoryOrderMap).map(([factory, orderSet]) => ({ 
+      name: factory, 
+      value: orderSet.size
+    })).sort((a, b) => b.value - a.value)
+    
+    chartFactory.setOption({
+      tooltip: { trigger: 'item', formatter: '{b}: 参与 {c} 个订单' },
+      legend: { orient: 'vertical', left: 'left', top: 'center' },
+      series: [{
+        name: '工厂分布',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        data: pieData.length ? pieData : [{ name: '暂无数据', value: 1 }],
+        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+        label: { 
+          show: true,
+          position: 'outside',
+          formatter: '{b}: {c}',
+          fontSize: 12,
+          color: '#1e293b'
+        },
+        labelLine: { show: true, length: 10, length2: 10 }
+      }]
+    })
+  } catch (e) {
+    console.error('工厂图表渲染失败', e)
+  }
 
   const now = new Date()
   let alertHtml = ''
@@ -1613,50 +1679,79 @@ function refresh() {
   sel.innerHTML = '<option value="">全部工厂</option>' + 
     factoryList.map(f => `<option ${f === facFilter ? 'selected' : ''}>${f}</option>`).join('')
 
+  // ========== 修复：订单列表渲染 ==========
   let listHtml = ''
+  
+  // 先筛选订单
   const filteredOrders = orders.filter(o => {
+    // 文本搜索
     const textMatch = (o.no + o.contract + o.customer).toLowerCase().includes(kw)
+    
+    // 工厂筛选
     let factoryMatch = true
-    if (facFilter) factoryMatch = o.items.some(item => item.factory === facFilter)
+    if (facFilter) {
+      factoryMatch = o.items?.some(item => item.factory === facFilter) || false
+    }
+    
+    // 产品类型筛选
     let typeMatch = true
-    if (typeFilter) typeMatch = o.items.some(item => item.productType === typeFilter)
+    if (typeFilter) {
+      typeMatch = o.items?.some(item => item.productType === typeFilter) || false
+    }
+    
     return textMatch && factoryMatch && typeMatch
   })
   
-  filteredOrders.forEach((o, i) => {
-    const idx = orders.findIndex(ord => ord === o)
-    const orderFactories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))].join(', ')
-    const productTypes = [...new Set(o.items.filter(i => i.productType).map(i => i.productType))].join(', ')
+  // 渲染订单卡片
+  filteredOrders.forEach((o, index) => {
+    const originalIndex = orders.findIndex(ord => ord === o)
+    if (originalIndex === -1) return
+    
+    // 获取该订单涉及的所有工厂（去重）
+    const orderFactories = o.items?.filter(i => i.factory).map(i => i.factory) || []
+    const uniqueFactories = [...new Set(orderFactories)].join(', ') || '无'
     
     listHtml += `
       <div class="order-card">
         <div class="d-flex justify-content-between">
-          <div><strong>${o.no}</strong> | ${o.contract}</div>
+          <div>
+            <strong>${o.no || '未知'}</strong> | ${o.contract || '未知'}
+          </div>
           <div class="dropdown">
-            <span class="badge bg-${STATUS_COLOR[o.status] || 'secondary'}" data-bs-toggle="dropdown">${o.status}</span>
-            <ul class="dropdown-menu">
-              ${ORDER_STATUS.map(s => `<li><a class="dropdown-item" href="#" onclick="updateOrderStatus(${idx}, '${s}')">${s}</a></li>`).join('')}
+            <span class="badge bg-${STATUS_COLOR[o.status] || 'secondary'}" data-bs-toggle="dropdown" style="cursor:pointer">
+              ${o.status || '未知'} ▼
+            </span>
+            <ul class="dropdown-menu dropdown-menu-end">
+              ${ORDER_STATUS.map(s => `<li><a class="dropdown-item ${s === o.status ? 'active' : ''}" href="#" onclick="updateOrderStatus(${originalIndex}, '${s}'); return false">${s}</a></li>`).join('')}
             </ul>
           </div>
         </div>
-        <div class="small">
-          <span class="factory-badge">🏭 ${orderFactories || '无'}</span>
-          <span>👥 ${o.customer || '-'}</span>
+        
+        <div class="small mt-1">
+          <span class="factory-badge">🏭 ${uniqueFactories}</span>
+          <span class="ms-2">👥 ${o.customer || '-'}</span>
         </div>
-        <div class="small">
-          ${o.items.map(item => `
-            <span class="product-type-badge" title="${item.productType || '无'}">
-              ${item.name} (${item.qty}×${item.price})
+        
+        <div class="small mt-1">
+          ${o.items?.map(item => `
+            <span class="product-type-badge" title="${item.productType || '无类型'}">
+              ${item.name || '未知'} (${item.qty || 0}×${item.price || 0})
             </span>
-          `).join('')}
+          `).join(' ') || '无产品'}
         </div>
-        <div class="small">交付:${o.delivery||'-'} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}</div>
-        <div class="d-flex gap-1 mt-1">
-          <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${idx})">编辑</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${idx})">删除</button>
+        
+        <div class="small mt-1">
+          📅 交付:${o.delivery || '-'} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}
         </div>
-      </div>`
+        
+        <div class="d-flex gap-1 mt-2">
+          <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${originalIndex})">🗑️ 删除</button>
+        </div>
+      </div>
+    `
   })
+  
   document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-3">暂无订单，请点击"新增订单"创建</div>'
 }
 
@@ -1686,7 +1781,7 @@ function backup() {
   const data = { orders, inventory, logs: inventoryLogs, settings }
   const a = document.createElement('a')
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data)]))
-  a.download = 'erp_full_backup_' + new Date().toISOString().slice(0,10) + '.json'
+  a.download = 'erp_backup_' + new Date().toISOString().slice(0,10) + '.json'
   a.click() 
 }
 
