@@ -1841,7 +1841,7 @@ function backup() {
   a.download = 'erp_backup_' + new Date().toISOString().slice(0,10) + '.json'
   a.click() 
 }
-
+// ========== 修复后的恢复函数 ==========
 function restore() { 
   const i = document.createElement('input')
   i.type = 'file'
@@ -1851,17 +1851,12 @@ function restore() {
     r.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result)
+        console.log('恢复的数据:', data) // 调试用
         
-        // 兼容旧版本数据格式
+        // 您的备份文件格式就是标准的，直接赋值
         if (data.orders) orders = data.orders
-        else if (data.orderData) orders = data.orderData
-        
         if (data.inventory) inventory = data.inventory
-        else if (data.inventoryData) inventory = data.inventoryData
-        
         if (data.logs) inventoryLogs = data.logs
-        else if (data.inventoryLogs) inventoryLogs = data.inventoryLogs
-        
         if (data.settings) {
           settings = data.settings
           usdRate = settings.usdRate || 7.20
@@ -1876,7 +1871,7 @@ function restore() {
         alert('✅ 恢复成功')
       } catch (err) {
         console.error('恢复错误:', err)
-        alert('❌ 文件格式错误，请选择正确的备份文件')
+        alert('❌ 文件格式错误：' + err.message)
       }
     }
     r.readAsText(e.target.files[0])
