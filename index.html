@@ -9,27 +9,27 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-/* 全局样式 */
-body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:hidden}
+/* 全局样式 - 字体优化 */
+body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:hidden}
 .app-container{display:flex;height:100vh;width:100vw;overflow:hidden}
 
 /* 左侧导航 - 固定宽度 */
 .sidebar{width:220px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.1)}
 .sidebar-header{padding:24px 16px;border-bottom:1px solid #334155}
-.sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:16px}
-.sidebar-header small{color:#94a3b8;font-size:11px}
+.sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:18px}
+.sidebar-header small{color:#94a3b8;font-size:13px}
 .sidebar-nav{flex:1;padding:16px 8px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:4px;color:#cbd5e1;cursor:pointer;transition:all 0.2s}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 12px;border-radius:8px;margin-bottom:4px;color:#cbd5e1;cursor:pointer;transition:all 0.2s;font-size:15px}
 .nav-item:hover{background:#334155;color:#fff}
 .nav-item.active{background:#0d6efd;color:#fff}
-.nav-item i{font-size:18px;width:24px;text-align:center}
-.sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:12px;color:#94a3b8}
+.nav-item i{font-size:20px;width:24px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
 
-/* 右侧主内容区 - 改为三列布局 */
+/* 右侧主内容区 - 三列布局 */
 .main-content{
   flex:1;
   display:grid;
-  grid-template-columns:1fr 380px;
+  grid-template-columns:1fr 400px;
   gap:16px;
   padding:16px;
   background:#f0f2f5;
@@ -48,7 +48,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 
 /* 右侧列 - 订单列表 */
 .right-column{
-  width:380px;
+  width:400px;
   background:#f8fafc;
   border-radius:16px;
   padding:16px;
@@ -67,6 +67,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   z-index:10;
   border-bottom:1px solid #e2e8f0;
   font-weight:600;
+  font-size:16px;
 }
 
 /* 订单列表交替背景 */
@@ -76,10 +77,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   gap:8px;
 }
 .order-card{
-  padding:12px;
+  padding:14px;
   border-radius:10px;
   border-left:4px solid #0d6efd;
   transition:0.2s;
+  font-size:14px;
 }
 .order-card:nth-child(odd){
   background-color:#ffffff;
@@ -103,53 +105,56 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 .inventory-group-title{
   background-color:#e2e8f0;
   margin:-12px -12px 12px -12px;
-  padding:8px 12px;
+  padding:10px 12px;
   border-radius:12px 12px 0 0;
   font-weight:600;
   color:#1e293b;
   border-bottom:1px solid #cbd5e1;
+  font-size:15px;
 }
 
-/* 原有样式保留 */
+/* 原有样式保留并优化字体 */
 .content-container{max-width:1400px;margin:0 auto}
 .card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:16px;background:#fff}
-.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:16px 20px;font-weight:600}
+.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:16px 20px;font-weight:600;font-size:16px}
 .card-body{padding:20px}
 .dashboard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
 .dashboard-card{background:#fff;padding:16px;border-radius:12px;cursor:pointer;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
 .dashboard-card:hover{background:#e3f2fd;transform:translateY(-2px)}
-.dashboard-label{color:#64748b;font-size:12px;margin-bottom:4px}
-.dashboard-value{font-size:22px;font-weight:700;color:#1e293b}
+.dashboard-label{color:#64748b;font-size:13px;margin-bottom:4px}
+.dashboard-value{font-size:24px;font-weight:700;color:#1e293b}
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .chart-container{width:100%;height:250px}
 .field-container{margin-bottom:12px}
-.field-label{font-size:11px;color:#64748b;margin-bottom:2px;display:block;font-weight:500}
+.field-label{font-size:12px;color:#64748b;margin-bottom:2px;display:block;font-weight:500}
 .status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:12px 0;background:#fff;padding:12px;border-radius:12px}
-.status-item{text-align:center;padding:6px 4px;border-radius:6px;font-size:11px;cursor:pointer}
-.status-count{font-weight:700;font-size:14px}
+.status-item{text-align:center;padding:8px 4px;border-radius:6px;font-size:13px;cursor:pointer}
+.status-count{font-weight:700;font-size:16px}
 .inventory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
-.inventory-card{background:#fff;border-radius:8px;padding:12px;border:1px solid #eef2f6;cursor:pointer;transition:0.2s}
+.inventory-card{background:#fff;border-radius:8px;padding:12px;border:1px solid #eef2f6;cursor:pointer;transition:0.2s;font-size:14px}
 .inventory-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.1);transform:translateY(-2px)}
 .inventory-card.low-stock{background:#fff3cd;border-left:3px solid #ffc107}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;background:#fff;padding:12px 16px;border-radius:12px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;background:#fff;padding:12px 16px;border-radius:12px;align-items:center}
 .search-filter{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:16px}
 .search-filter-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
-.alert-overdue{background:#fee;color:#c00;padding:8px;border-radius:8px;margin-bottom:4px}
-.alert-soon{background:#fff3e0;color:#e68a00;padding:8px;border-radius:8px;margin-bottom:4px}
-.alert-ok{background:#e8f5e9;color:#2e7d32;padding:8px;border-radius:8px}
+.alert-overdue{background:#fee;color:#c00;padding:8px;border-radius:8px;margin-bottom:4px;font-size:13px}
+.alert-soon{background:#fff3e0;color:#e68a00;padding:8px;border-radius:8px;margin-bottom:4px;font-size:13px}
+.alert-ok{background:#e8f5e9;color:#2e7d32;padding:8px;border-radius:8px;font-size:13px}
 .item-row{background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #edf2f7}
-.inventory-log{font-size:12px;padding:6px 0;border-bottom:1px dashed #e2e8f0}
+.inventory-log{font-size:13px;padding:6px 0;border-bottom:1px dashed #e2e8f0}
 .inventory-log:last-child{border-bottom:none}
 .setting-item{padding:16px;border-bottom:1px solid #eef2f6}
 .setting-item:last-child{border-bottom:none}
-.setting-label{font-weight:600;margin-bottom:4px;color:#1e293b}
-.setting-desc{font-size:12px;color:#64748b;margin-bottom:8px}
-.about-info{background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;line-height:1.8}
-.report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:16px;border-radius:12px;margin-bottom:12px}
-.product-type-badge{font-size:10px;padding:2px 6px;border-radius:12px;background:#e9ecef;color:#495057;display:inline-block;margin-right:4px}
-.factory-badge{font-size:10px;padding:2px 6px;border-radius:12px;background:#dbeafe;color:#1e40af;display:inline-block;margin-right:4px}
-.source-badge{font-size:10px;padding:2px 6px;border-radius:12px;background:#e0e7ff;color:#3730a3;display:inline-block;margin-right:4px}
-.order-badge{font-size:10px;padding:2px 6px;border-radius:12px;background:#f3e8ff;color:#6b21a8;display:inline-block;margin-right:4px}
+.setting-label{font-weight:600;margin-bottom:4px;color:#1e293b;font-size:15px}
+.setting-desc{font-size:13px;color:#64748b;margin-bottom:8px}
+.about-info{background:#f8fafc;padding:12px;border-radius:8px;font-size:14px;line-height:1.8}
+.report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:16px;border-radius:12px;margin-bottom:12px;font-size:14px}
+.product-type-badge{font-size:12px;padding:3px 8px;border-radius:12px;background:#e9ecef;color:#495057;display:inline-block;margin-right:4px;margin-bottom:2px}
+.factory-badge{font-size:12px;padding:3px 8px;border-radius:12px;background:#dbeafe;color:#1e40af;display:inline-block;margin-right:4px}
+.source-badge{font-size:12px;padding:3px 8px;border-radius:12px;background:#e0e7ff;color:#3730a3;display:inline-block;margin-right:4px}
+.order-badge{font-size:12px;padding:3px 8px;border-radius:12px;background:#f3e8ff;color:#6b21a8;display:inline-block;margin-right:4px}
+.btn-sm{font-size:13px;padding:4px 10px}
+.form-control-sm,.form-select-sm{font-size:14px;padding:6px 10px}
 </style>
 </head>
 <body>
@@ -158,7 +163,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v1.1</small>
+      <small>正式版 v1.2</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -180,7 +185,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
     </div>
     <div class="sidebar-footer">
       <div>💵 汇率: <span id="usdRateSide">7.20</span></div>
-      <div style="font-size:10px; margin-top:4px;">⚡ 数据自动保存</div>
+      <div style="font-size:12px; margin-top:4px;">⚡ 数据自动保存</div>
     </div>
   </div>
 
@@ -188,6 +193,14 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="main-content">
     <!-- 中间列 - 核心操作区 -->
     <div class="middle-column">
+      <!-- 顶部工具栏 - 恢复备份按钮 -->
+      <div class="toolbar">
+        <button class="btn btn-sm btn-outline-primary" onclick="backup()">💾 备份</button>
+        <button class="btn btn-sm btn-outline-warning" onclick="restore()">🔄 恢复</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空筛选</button>
+        <span class="text-muted" style="margin-left:auto;">💵 汇率: <span id="usdRateTop">7.20</span></span>
+      </div>
+
       <div id="contentArea">
         <!-- 订单管理页面 -->
         <div id="ordersPage" style="display:block">
@@ -239,12 +252,6 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             <div class="card">
               <div class="card-header">⚠️ 交期预警</div>
               <div class="card-body" id="alertBox"></div>
-            </div>
-
-            <!-- 工具栏 -->
-            <div class="toolbar">
-              <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空筛选</button>
-              <span class="text-muted" style="line-height:30px; margin-left:auto;">📱 自适应设计</span>
             </div>
 
             <!-- 搜索过滤 - 三列 -->
@@ -558,11 +565,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v1.1 UI优化版</div>
+                    <div><strong>版本：</strong>v1.2 最终优化版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 订单列表移至右侧独立区域</div>
-                    <div>✅ 订单交替背景色，更好区分</div>
-                    <div>✅ 库存分组增加浅色背景</div>
+                    <div>✅ 恢复顶部备份/恢复按钮</div>
+                    <div>✅ 兼容所有旧版本备份文件</div>
+                    <div>✅ 全局字体优化，显示更均匀</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -674,7 +681,10 @@ function loadData() {
     const oldKeys = ['ERP_ORDER_FINAL_V6', 'ERP_ORDER_FINAL_V5', 'ERP_ORDER_FINAL_V4']
     for (let key of oldKeys) {
       savedOrders = localStorage.getItem(key)
-      if (savedOrders) break
+      if (savedOrders) {
+        console.log('从旧版本迁移订单数据:', key)
+        break
+      }
     }
   }
   
@@ -682,6 +692,7 @@ function loadData() {
     try {
       orders = JSON.parse(savedOrders)
     } catch (e) {
+      console.error('解析订单数据失败', e)
       orders = []
     }
   } else {
@@ -886,6 +897,7 @@ function initFilterSelects() {
 function updateUsdRate() { 
   usdRate = parseFloat(document.getElementById('usdRate').value) || 7.20
   document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
+  document.getElementById('usdRateTop').innerText = usdRate.toFixed(2)
   saveSettings()
   refresh() 
 }
@@ -1460,6 +1472,7 @@ function saveDefaultRate() {
     usdRate = rate
     document.getElementById('usdRate').value = rate
     document.getElementById('usdRateSide').innerText = rate.toFixed(2)
+    document.getElementById('usdRateTop').innerText = rate.toFixed(2)
     saveSettings()
     alert('✅ 默认汇率已更新')
   }
@@ -1663,7 +1676,7 @@ function refresh() {
     boardHtml += `
       <div class="status-item bg-${color} bg-opacity-10" onclick="filterByStatus('${s}')">
         <div class="status-count">${count}</div>
-        <div style="font-size:10px">${s}</div>
+        <div style="font-size:12px">${s}</div>
       </div>
     `
   })
@@ -1673,14 +1686,14 @@ function refresh() {
     const chartStatus = echarts.init(document.getElementById('chartStatus'))
     chartStatus.setOption({
       tooltip: { trigger: 'axis' },
-      xAxis: { data: ORDER_STATUS, axisLabel: { rotate: 30, fontSize: 10 } },
+      xAxis: { data: ORDER_STATUS, axisLabel: { rotate: 30, fontSize: 11 } },
       yAxis: { type: 'value' },
       series: [{
         name: '订单数量',
         type: 'bar',
         data: ORDER_STATUS.map(s => statusCount[s] || 0),
         itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
-        label: { show: true, position: 'top', fontSize: 11 }
+        label: { show: true, position: 'top', fontSize: 12 }
       }]
     })
   } catch (e) {
@@ -1696,7 +1709,7 @@ function refresh() {
     
     chartFactory.setOption({
       tooltip: { trigger: 'item', formatter: '{b}: 参与 {c} 个订单' },
-      legend: { orient: 'vertical', left: 'left', top: 'center' },
+      legend: { orient: 'vertical', left: 'left', top: 'center', textStyle: { fontSize: 12 } },
       series: [{
         name: '工厂分布',
         type: 'pie',
@@ -1762,7 +1775,7 @@ function refresh() {
             <strong>${o.no || '未知'}</strong> | ${o.contract || '未知'}
           </div>
           <div class="dropdown">
-            <span class="badge bg-${STATUS_COLOR[o.status] || 'secondary'}" data-bs-toggle="dropdown" style="cursor:pointer">
+            <span class="badge bg-${STATUS_COLOR[o.status] || 'secondary'}" data-bs-toggle="dropdown" style="cursor:pointer; font-size:12px; padding:6px 10px">
               ${o.status || '未知'} ▼
             </span>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -1771,12 +1784,12 @@ function refresh() {
           </div>
         </div>
         
-        <div class="small mt-1">
+        <div class="small mt-1" style="font-size:13px">
           <span class="factory-badge">🏭 ${uniqueFactories}</span>
           <span class="ms-2">👥 ${o.customer || '-'}</span>
         </div>
         
-        <div class="small mt-1">
+        <div class="small mt-1" style="font-size:13px">
           ${o.items?.map(item => `
             <span class="product-type-badge" title="${item.productType || '无类型'}">
               ${item.name || '未知'} (${item.qty || 0}×${item.price || 0})
@@ -1784,19 +1797,19 @@ function refresh() {
           `).join(' ') || '无产品'}
         </div>
         
-        <div class="small mt-1">
+        <div class="small mt-1" style="font-size:13px">
           📅 交付:${o.delivery || '-'} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}
         </div>
         
         <div class="d-flex gap-1 mt-2">
-          <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${originalIndex})">🗑️ 删除</button>
+          <button class="btn btn-sm btn-outline-secondary" style="font-size:12px" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
+          <button class="btn btn-sm btn-outline-danger" style="font-size:12px" onclick="deleteOrder(${originalIndex})">🗑️ 删除</button>
         </div>
       </div>
     `
   })
   
-  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-3">暂无订单，请点击"新增订单"创建</div>'
+  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-3" style="font-size:14px">暂无订单，请点击"新增订单"创建</div>'
 }
 
 // ========== 页面切换 ==========
@@ -1838,21 +1851,32 @@ function restore() {
     r.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result)
+        
+        // 兼容旧版本数据格式
         if (data.orders) orders = data.orders
+        else if (data.orderData) orders = data.orderData
+        
         if (data.inventory) inventory = data.inventory
+        else if (data.inventoryData) inventory = data.inventoryData
+        
         if (data.logs) inventoryLogs = data.logs
+        else if (data.inventoryLogs) inventoryLogs = data.inventoryLogs
+        
         if (data.settings) {
           settings = data.settings
           usdRate = settings.usdRate || 7.20
           lowStockThreshold = settings.lowStockThreshold || 10
         }
+        
         saveOrders(); saveInventory(); saveLogs(); saveSettings()
         document.getElementById('usdRate').value = usdRate
         document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
+        document.getElementById('usdRateTop').innerText = usdRate.toFixed(2)
         refresh(); renderInventory()
         alert('✅ 恢复成功')
       } catch (err) {
-        alert('❌ 文件格式错误')
+        console.error('恢复错误:', err)
+        alert('❌ 文件格式错误，请选择正确的备份文件')
       }
     }
     r.readAsText(e.target.files[0])
@@ -1863,6 +1887,7 @@ function restore() {
 // ========== 初始化 ==========
 document.getElementById('usdRate').value = usdRate
 document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
+document.getElementById('usdRateTop').innerText = usdRate.toFixed(2)
 initFilterSelects()
 cancelOrder()
 refresh()
