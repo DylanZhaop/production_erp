@@ -79,7 +79,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>完整版 v5.3</small>
+      <small>完整版 v6.0</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -116,6 +116,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
         </div>
         <button class="btn btn-sm btn-outline-primary" onclick="backup()">💾 备份</button>
         <button class="btn btn-sm btn-outline-warning" onclick="restore()">🔄 恢复</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
       </div>
     </div>
 
@@ -330,7 +331,8 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入</button>
             <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
             <button class="btn btn-sm btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
-            <button class="btn btn-sm btn-outline-info" onclick="showCleanupModal()">🧹 数据清洗</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
+            <button class="btn btn-sm btn-outline-warning" onclick="rebuildInventoryFromOrders()">🔄 从订单重建</button>
           </div>
 
           <!-- 库存搜索 - 三列 -->
@@ -504,12 +506,12 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
               <div class="setting-item">
                 <div class="setting-label">ℹ️ 关于系统</div>
                 <div class="about-info">
-                  <div><strong>版本：</strong>v5.3 库存追溯版</div>
+                  <div><strong>版本：</strong>v6.0 终极修复版</div>
                   <div><strong>更新内容：</strong></div>
-                  <div>✅ 每个订单的产品独立记录，可追溯来源</div>
-                  <div>✅ 库存显示按产品名+工厂分组，数量合计</div>
-                  <div>✅ 新增数据清洗工具，可手动修正错误命名</div>
-                  <div><strong>最后更新：</strong>2025-03-18</div>
+                  <div>✅ 库存实时同步订单，不重复累加</div>
+                  <div>✅ 去重工具可清理重复数据</div>
+                  <div>✅ 从订单重建库存功能</div>
+                  <div><strong>最后更新：</strong>2025-03-19</div>
                 </div>
               </div>
             </div>
@@ -582,43 +584,6 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   </div>
 </div>
 
-<!-- 数据清洗模态框 -->
-<div class="modal fade" id="cleanupModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">🧹 数据清洗工具</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted">手动修正产品名称不一致的问题，点击后系统会尝试自动匹配相似名称。</p>
-        
-        <div class="mb-3">
-          <h6>常见问题：</h6>
-          <ul class="small">
-            <li>"收枪装置" vs "收银装置"</li>
-            <li>"CCS2枪线" vs "CCS2线缆"</li>
-            <li>"A44" vs "A44kW-Type2"</li>
-          </ul>
-        </div>
-        
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-warning" onclick="fixProductName('收银装置', '收枪装置')">修复：收银装置 → 收枪装置</button>
-          <button class="btn btn-sm btn-warning" onclick="fixProductName('CCS2线缆', 'CCS2枪线')">修复：CCS2线缆 → CCS2枪线</button>
-          <button class="btn btn-sm btn-warning" onclick="fixProductName('A44kW-Type2', 'A44')">修复：A44kW-Type2 → A44</button>
-        </div>
-        
-        <hr>
-        
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-info" onclick="autoFixAll()">✨ 自动修复所有</button>
-          <button class="btn btn-sm btn-secondary" onclick="renderInventory()">预览效果</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 // ========== 产品类型列表 ==========
 const PRODUCT_TYPES = [
@@ -638,10 +603,10 @@ const PRODUCT_TYPES = [
 ]
 
 // ========== 数据层 ==========
-const ORDER_STORAGE = 'ERP_ORDER_FINAL_V5'
-const INVENTORY_STORAGE = 'ERP_INVENTORY_V5'
-const LOG_STORAGE = 'ERP_INVENTORY_LOGS_V5'
-const SETTINGS_STORAGE = 'ERP_SETTINGS_V5'
+const ORDER_STORAGE = 'ERP_ORDER_FINAL_V6'
+const INVENTORY_STORAGE = 'ERP_INVENTORY_V6'
+const LOG_STORAGE = 'ERP_INVENTORY_LOGS_V6'
+const SETTINGS_STORAGE = 'ERP_SETTINGS_V6'
 
 // 从localStorage读取数据
 let orders = JSON.parse(localStorage.getItem(ORDER_STORAGE)) || []
@@ -673,53 +638,92 @@ function saveSettings() {
   localStorage.setItem(SETTINGS_STORAGE, JSON.stringify(settings)) 
 }
 
-// ========== 数据清洗函数 ==========
-function fixProductName(oldName, newName) {
-  let changed = 0
-  inventory = inventory.map(item => {
-    if (item.name === oldName) {
-      changed++
-      return { ...item, name: newName }
+// ========== 库存去重函数 ==========
+function deduplicateInventory() {
+  const uniqueMap = new Map()
+  let duplicateCount = 0
+  
+  inventory.forEach(item => {
+    // 手动录入的库存按产品名+工厂去重
+    if (item.source === 'manual' || !item.sourceOrderNo) {
+      const key = `manual-${item.name}-${item.factory}`
+      if (uniqueMap.has(key)) {
+        duplicateCount++
+        uniqueMap.get(key).qty += item.qty
+      } else {
+        uniqueMap.set(key, { ...item })
+      }
+      return
     }
-    return item
+    
+    // 订单同步的库存按订单号+产品名+工厂去重
+    const key = `${item.sourceOrderNo}-${item.name}-${item.factory}`
+    if (uniqueMap.has(key)) {
+      duplicateCount++
+      // 保留数量大的那条记录
+      const existing = uniqueMap.get(key)
+      if (item.qty > existing.qty) {
+        uniqueMap.set(key, { ...item })
+      }
+    } else {
+      uniqueMap.set(key, { ...item })
+    }
   })
   
-  orders = orders.map(order => ({
-    ...order,
-    items: order.items.map(item => {
-      if (item.name === oldName) {
-        changed++
-        return { ...item, name: newName }
-      }
-      return item
-    })
-  }))
-  
-  saveOrders()
+  inventory = Array.from(uniqueMap.values())
   saveInventory()
   
   inventoryLogs.unshift({
     id: 'LOG-' + Date.now(),
     type: 'system',
     name: '系统',
-    reason: `批量修复名称: ${oldName} → ${newName} (${changed}处)`,
+    reason: `去重库存，合并了 ${duplicateCount} 条重复记录`,
     time: new Date().toLocaleString()
   })
   saveLogs()
   
   renderInventory()
-  refresh()
-  alert(`✅ 已修复 ${changed} 处记录`)
+  alert(`✅ 去重完成，合并了 ${duplicateCount} 条重复记录`)
 }
 
-function autoFixAll() {
-  fixProductName('收银装置', '收枪装置')
-  fixProductName('CCS2线缆', 'CCS2枪线')
-  fixProductName('A44kW-Type2', 'A44')
-}
-
-function showCleanupModal() {
-  new bootstrap.Modal(document.getElementById('cleanupModal')).show()
+// ========== 从订单重建库存 ==========
+function rebuildInventoryFromOrders() {
+  if (!confirm('确定要从订单重新生成库存吗？这将删除所有现有库存并重新同步！')) return
+  
+  const newInventory = []
+  
+  orders.forEach(order => {
+    order.items.forEach(item => {
+      if (item.type === '实物产品' && item.qty > 0 && item.factory) {
+        newInventory.push({
+          id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+          name: item.name,
+          productType: item.productType,
+          qty: item.qty,
+          factory: item.factory,
+          source: 'order',
+          sourceOrderNo: order.no,
+          createdAt: new Date().toISOString(),
+          lastUpdated: new Date().toISOString()
+        })
+      }
+    })
+  })
+  
+  inventory = newInventory
+  saveInventory()
+  
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now(),
+    type: 'system',
+    name: '系统',
+    reason: '从订单重建库存',
+    time: new Date().toLocaleString()
+  })
+  saveLogs()
+  
+  renderInventory()
+  alert('✅ 库存已从订单重建')
 }
 
 // ========== 初始化筛选下拉框 ==========
@@ -820,6 +824,39 @@ function toggleLogisticsField() {
   if (status !== '已发货') document.getElementById('logistics').value = ''
 }
 
+// ========== 核心修复：库存同步逻辑 ==========
+function syncInventoryFromOrder(order) {
+  order.items.forEach(item => {
+    if (item.type !== '实物产品' || item.qty <= 0 || !item.factory) return
+    
+    // 查找该订单是否已有此产品的库存记录
+    const existingIndex = inventory.findIndex(i => 
+      i.sourceOrderNo === order.no &&  // 同一个订单
+      i.name === item.name &&           // 同一个产品
+      i.factory === item.factory        // 同一个工厂
+    )
+    
+    if (existingIndex >= 0) {
+      // 已存在：更新数量
+      inventory[existingIndex].qty = item.qty
+      inventory[existingIndex].lastUpdated = new Date().toISOString()
+    } else {
+      // 不存在：新增
+      inventory.push({
+        id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+        name: item.name,
+        productType: item.productType,
+        qty: item.qty,
+        factory: item.factory,
+        source: 'order',
+        sourceOrderNo: order.no,
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
+      })
+    }
+  })
+}
+
 function saveOrder() {
   const idx = document.getElementById('editIdx').value
   const items = []
@@ -876,39 +913,24 @@ function saveOrder() {
   
   if (!order.no || !order.contract) return alert('请填写订单号、合同号')
   
+  // 如果是编辑已有订单，先删除该订单的旧库存记录
+  if (idx !== '') {
+    const oldOrderNo = orders[idx].no
+    inventory = inventory.filter(item => item.sourceOrderNo !== oldOrderNo)
+  }
+  
   if (idx === '') orders.unshift(order)
   else orders[idx] = order
   
-  // ========== 方案C：每个产品独立记录，带来源订单号 ==========
-  order.items.forEach(item => {
-    if (item.type === '实物产品' && item.qty > 0 && item.factory) {
-      // 不合并，每个订单的产品单独记录
-      inventory.push({
-        id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-        name: item.name,
-        productType: item.productType,
-        qty: item.qty,
-        price: item.price,
-        factory: item.factory,
-        source: 'order',
-        sourceOrderNo: order.no,  // 记录来源订单
-        createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
-      })
-      
-      // 记录日志
-      inventoryLogs.unshift({
-        id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-        type: 'in',
-        name: item.name,
-        productType: item.productType,
-        qty: item.qty,
-        factory: item.factory,
-        sourceOrderNo: order.no,
-        reason: `订单 ${order.no} 同步`,
-        time: new Date().toLocaleString()
-      })
-    }
+  // 同步库存（不会重复累加）
+  syncInventoryFromOrder(order)
+  
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+    type: 'in',
+    name: '系统',
+    reason: `订单 ${order.no} 同步库存`,
+    time: new Date().toLocaleString()
   })
   
   saveOrders()
@@ -1000,7 +1022,6 @@ function editOrder(i) {
 
 function deleteOrder(i) { 
   if(confirm('确定删除此订单？')){
-    // 同时删除关联的库存记录
     const orderNo = orders[i].no
     inventory = inventory.filter(item => item.sourceOrderNo !== orderNo)
     
@@ -1056,14 +1077,26 @@ function addManualInventory() {
   if (!name || qty <= 0 || !factory) return alert('请填写产品名称、数量、工厂')
   if (!productType) return alert('请选择产品类型')
   
-  inventory.push({
-    id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-    name, productType, qty, factory,
-    source: 'manual',
-    sourceOrderNo: '',
-    createdAt: new Date().toISOString(),
-    lastUpdated: new Date().toISOString()
-  })
+  // 检查是否已有相同的手动记录
+  const existing = inventory.find(i => 
+    i.source === 'manual' && 
+    i.name === name && 
+    i.factory === factory
+  )
+  
+  if (existing) {
+    existing.qty += qty
+    existing.lastUpdated = new Date().toISOString()
+  } else {
+    inventory.push({
+      id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+      name, productType, qty, factory,
+      source: 'manual',
+      sourceOrderNo: '',
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
+    })
+  }
   
   inventoryLogs.unshift({
     id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
@@ -1103,31 +1136,11 @@ function renderInventory() {
   const facFilter = document.getElementById('invFactoryFilter')?.value || ''
   const typeFilter = document.getElementById('invProductTypeFilter')?.value || ''
   
-  // 按产品名+工厂分组，合并数量
-  const groupedMap = new Map()
-  
-  inventory.forEach(item => {
-    const key = `${item.name}|${item.factory}`
-    if (groupedMap.has(key)) {
-      const existing = groupedMap.get(key)
-      existing.qty += item.qty
-      existing.sourceOrders = existing.sourceOrders || []
-      if (item.sourceOrderNo) existing.sourceOrders.push(item.sourceOrderNo)
-    } else {
-      groupedMap.set(key, { 
-        ...item, 
-        sourceOrders: item.sourceOrderNo ? [item.sourceOrderNo] : []
-      })
-    }
-  })
-  
-  const groupedInventory = Array.from(groupedMap.values())
-  
-  const totalProducts = groupedInventory.length
-  const totalQty = groupedInventory.reduce((sum,i) => sum + i.qty, 0)
-  const lowStock = groupedInventory.filter(i => i.qty < lowStockThreshold).length
-  const totalValue = groupedInventory.reduce((sum,i) => sum + (i.qty * 100), 0)
-  const factories = [...new Set(groupedInventory.map(i => i.factory))]
+  const totalProducts = inventory.length
+  const totalQty = inventory.reduce((sum,i) => sum + i.qty, 0)
+  const lowStock = inventory.filter(i => i.qty < lowStockThreshold).length
+  const totalValue = inventory.reduce((sum,i) => sum + (i.qty * 100), 0)
+  const factories = [...new Set(inventory.map(i => i.factory))]
   
   document.getElementById('invTotalProducts').innerText = totalProducts
   document.getElementById('invTotalQty').innerText = totalQty
@@ -1140,7 +1153,7 @@ function renderInventory() {
   sel.innerHTML = '<option value="">全部工厂</option>' + factories.map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
   
   // 过滤库存
-  const filtered = groupedInventory.filter(i => 
+  const filtered = inventory.filter(i => 
     (i.name + i.factory + i.productType).toLowerCase().includes(kw) && 
     (!facFilter || i.factory === facFilter) &&
     (!typeFilter || i.productType === typeFilter)
@@ -1172,8 +1185,9 @@ function renderInventory() {
           <div class="inventory-grid">
       `
       items.forEach(item => {
-        const sourceDisplay = item.sourceOrders && item.sourceOrders.length > 0 
-          ? item.sourceOrders.map(no => `<span class="order-badge">${no}</span>`).join(' ')
+        // 正确显示来源：有订单号显示订单号，否则显示"手动"
+        const sourceDisplay = item.sourceOrderNo 
+          ? `<span class="order-badge" title="来源订单">${item.sourceOrderNo}</span>`
           : '<span class="source-badge">✋ 手动</span>'
         
         html += `
@@ -1361,17 +1375,17 @@ function resetToSample() {
   if (confirm('恢复示例数据？当前数据将被覆盖。')) {
     orders = [
       {
-        no:'ANS-20260316-0047', contract:'N20260120304-DR01', customer:'绿Gren24', delivery:'2026-04-10',
-        prepaymentDate:'2026-03-01', contractSignDate:'2026-02-28', taxRate:13,
-        cost:207590, sale:105395, logistics:'', status:'合同执行中',
+        no:'ANS-20260316-0047', contract:'N20260120304-DR01', customer:'Green24', delivery:'2026-04-10',
+        prepaymentDate:'2026-03-02', contractSignDate:'2026-03-04', taxRate:13,
+        cost:207590, sale:105395, logistics:'', status:'生产中',
         items:[
-          { type:'实物产品', name:'VULCO-120kW-CCS2*2', productType:'壁挂小直流', factory:'DR', qty:11, price:4100 },
-          { type:'实物产品', name:'VULCO-180kW-CCS2*2', productType:'壁挂小直流', factory:'DR', qty:1, price:49800 },
-          { type:'实物产品', name:'收枪装置', productType:'配件', factory:'CW', qty:12, price:2500 },
-          { type:'实物产品', name:'A22W1-SC', productType:'交流壁挂充电桩', factory:'WR', qty:10, price:1450 },
-          { type:'实物产品', name:'CCS2枪线', productType:'配件', factory:'UU', qty:5, price:2300 },
-          { type:'实物产品', name:'30kw模块', productType:'配件', factory:'YD', qty:5, price:2100 },
-          { type:'实物产品', name:'急停按钮', productType:'配件', factory:'DR', qty:5, price:380 },
+          { type:'实物产品', name:'VULCO-120kW-CCS2*2', productType:'一体式直流充电桩', factory:'DR', qty:11, price:4100 },
+          { type:'实物产品', name:'VULCO-180kW-CCS2*2', productType:'一体式直流充电桩', factory:'DR', qty:1, price:49800 },
+          { type:'实物产品', name:'收枪装置', productType:'配件', factory:'DR', qty:12, price:2500 },
+          { type:'实物产品', name:'A22W1-SC', productType:'交流壁挂充电桩', factory:'CW', qty:10, price:1450 },
+          { type:'实物产品', name:'CCS2枪线', productType:'配件', factory:'WR', qty:5, price:2300 },
+          { type:'实物产品', name:'30kw模块', productType:'配件', factory:'UU', qty:5, price:2100 },
+          { type:'实物产品', name:'急停按钮', productType:'配件', factory:'DR', qty:5, price:38 },
           { type:'实物产品', name:'直流电表', productType:'配件', factory:'DR', qty:5, price:200 },
           { type:'实物产品', name:'10寸屏', productType:'配件', factory:'DR', qty:5, price:400 },
           { type:'实物产品', name:'A44', productType:'交流立柱式充电桩', factory:'YD', qty:10, price:4300 }
@@ -1379,20 +1393,20 @@ function resetToSample() {
         createdAt: new Date().toISOString()
       },
       {
-        no:'ANS-20260317-0048', contract:'AN20260317-TH02', customer:'蓝MartEV', delivery:'2026-04-20',
-        prepaymentDate:'2026-03-10', contractSignDate:'2026-03-05', taxRate:13,
-        cost:59800, sale:12580, logistics:'', status:'生产中',
+        no:'ANS-20260317-0049', contract:'AN20260317-TH01', customer:'G88', delivery:'2026-04-20',
+        prepaymentDate:'2026-03-24', contractSignDate:'2026-03-18', taxRate:13,
+        cost:71600, sale:14575, logistics:'', status:'合同执行中',
         items:[
-          { type:'实物产品', name:'VULCO300kW-GBT+CCS2', productType:'一体式直流充电桩', factory:'TH', qty:1, price:59800 }
+          { type:'实物产品', name:'VULCO160-GBT*2', productType:'一体式直流充电桩', factory:'TH', qty:2, price:35800 }
         ],
         createdAt: new Date().toISOString()
       },
       {
-        no:'ANS-20260317-0049', contract:'AN20260317-TH01', customer:'蓝G88', delivery:'2026-04-20',
-        prepaymentDate:'2026-03-10', contractSignDate:'2026-03-05', taxRate:13,
-        cost:71600, sale:15475, logistics:'', status:'生产中',
+        no:'ANS-20260317-0048', contract:'AN20260317-TH02', customer:'MartEV', delivery:'2026-04-20',
+        prepaymentDate:'2026-03-23', contractSignDate:'2026-03-18', taxRate:13,
+        cost:59800, sale:12580, logistics:'', status:'合同执行中',
         items:[
-          { type:'实物产品', name:'VULCO160-GBT*2', productType:'一体式直流充电桩', factory:'TH', qty:2, price:35800 }
+          { type:'实物产品', name:'VULCO300kW-GBT+CCS2', productType:'一体式直流充电桩', factory:'TH', qty:1, price:59800 }
         ],
         createdAt: new Date().toISOString()
       }
@@ -1409,7 +1423,6 @@ function resetToSample() {
             name: item.name,
             productType: item.productType,
             qty: item.qty,
-            price: item.price,
             factory: item.factory,
             source: 'order',
             sourceOrderNo: order.no,
@@ -1633,7 +1646,7 @@ function refresh() {
         <div class="small">
           ${o.items.map(item => `
             <span class="product-type-badge" title="${item.productType || '无'}">
-              ${item.name} (${item.qty}×¥${item.price})
+              ${item.name} (${item.qty}×${item.price})
             </span>
           `).join('')}
         </div>
