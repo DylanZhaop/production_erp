@@ -1841,6 +1841,8 @@ function backup() {
   a.download = 'erp_backup_' + new Date().toISOString().slice(0,10) + '.json'
   a.click() 
 }
+
+// ========== 修复后的恢复函数 ==========
 // ========== 修复后的恢复函数 ==========
 function restore() { 
   const i = document.createElement('input')
@@ -1851,9 +1853,9 @@ function restore() {
     r.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result)
-        console.log('恢复的数据:', data) // 调试用
+        console.log('恢复的数据:', data)
         
-        // 您的备份文件格式就是标准的，直接赋值
+        // 您的备份文件格式完全正确，直接赋值
         if (data.orders) orders = data.orders
         if (data.inventory) inventory = data.inventory
         if (data.logs) inventoryLogs = data.logs
@@ -1864,9 +1866,17 @@ function restore() {
         }
         
         saveOrders(); saveInventory(); saveLogs(); saveSettings()
-        document.getElementById('usdRate').value = usdRate
-        document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
-        document.getElementById('usdRateTop').innerText = usdRate.toFixed(2)
+        
+        // 安全地设置DOM元素的值
+        const usdRateInput = document.getElementById('usdRate')
+        if (usdRateInput) usdRateInput.value = usdRate
+        
+        const usdRateSide = document.getElementById('usdRateSide')
+        if (usdRateSide) usdRateSide.innerText = usdRate.toFixed(2)
+        
+        const usdRateTop = document.getElementById('usdRateTop')
+        if (usdRateTop) usdRateTop.innerText = usdRate.toFixed(2)
+        
         refresh(); renderInventory()
         alert('✅ 恢复成功')
       } catch (err) {
