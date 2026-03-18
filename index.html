@@ -75,7 +75,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>完整版 v4.0</small>
+      <small>完整版 v4.1</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -182,16 +182,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             </select>
             <select class="form-select form-select-sm" id="productTypeFilter" onchange="refresh()">
               <option value="">全部产品类型</option>
-              <option>一体式直流充电桩</option>
-              <option>壁挂小直流</option>
-              <option>分体式直流充电堆</option>
-              <option>交流立柱式充电桩</option>
-              <option>交流壁挂充电桩</option>
-              <option>便携式交流充电桩</option>
-              <option>便携式直流充电桩</option>
-              <option>移动储能充电设备</option>
-              <option>储能设备</option>
-              <option>光伏类设备</option>
+              <!-- 动态填充 -->
             </select>
           </div>
 
@@ -346,16 +337,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             </select>
             <select class="form-select form-select-sm" id="invProductTypeFilter" onchange="renderInventory()">
               <option value="">全部产品类型</option>
-              <option>一体式直流充电桩</option>
-              <option>壁挂小直流</option>
-              <option>分体式直流充电堆</option>
-              <option>交流立柱式充电桩</option>
-              <option>交流壁挂充电桩</option>
-              <option>便携式交流充电桩</option>
-              <option>便携式直流充电桩</option>
-              <option>移动储能充电设备</option>
-              <option>储能设备</option>
-              <option>光伏类设备</option>
+              <!-- 动态填充 -->
             </select>
           </div>
 
@@ -527,15 +509,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
               <div class="setting-item">
                 <div class="setting-label">ℹ️ 关于系统</div>
                 <div class="about-info">
-                  <div><strong>版本：</strong>v4.0 工厂产品类型版</div>
-                  <div><strong>新增特性：</strong></div>
-                  <div>✅ 工厂移至产品级别，每个产品可选不同工厂</div>
-                  <div>✅ 工厂分布按唯一工厂统计订单数，数字直接显示</div>
-                  <div>✅ 产品类型字段（10种充电桩/储能设备）</div>
-                  <div>✅ 可按产品类型筛选和统计</div>
+                  <div><strong>版本：</strong>v4.1 产品类型优化版</div>
+                  <div><strong>更新内容：</strong></div>
+                  <div>✅ 产品类型下拉增加提示词“请选择产品类型”</div>
+                  <div>✅ 新增选项：配件、定制费、其他</div>
                   <div><strong>最后更新：</strong>2025-03-18</div>
-                  <div><strong>数据存储：</strong>浏览器本地 (localStorage)</div>
-                  <div class="mt-2 text-muted small">✅ 所有模块完整实现，无占位页面</div>
                 </div>
               </div>
             </div>
@@ -566,6 +544,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
         <div class="field-container">
           <span class="field-label">📊 产品类型</span>
           <select class="form-select form-select-sm" id="manualProductType">
+            <option value="" disabled selected>请选择产品类型</option>
             <option>一体式直流充电桩</option>
             <option>壁挂小直流</option>
             <option>分体式直流充电堆</option>
@@ -576,6 +555,9 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             <option>移动储能充电设备</option>
             <option>储能设备</option>
             <option>光伏类设备</option>
+            <option>配件</option>
+            <option>定制费</option>
+            <option>其他</option>
           </select>
         </div>
         <div class="field-container">
@@ -620,7 +602,10 @@ const PRODUCT_TYPES = [
   '便携式直流充电桩',
   '移动储能充电设备',
   '储能设备',
-  '光伏类设备'
+  '光伏类设备',
+  '配件',
+  '定制费',
+  '其他'
 ]
 
 // ========== 数据层 ==========
@@ -752,6 +737,29 @@ function saveSettings() {
   localStorage.setItem(SETTINGS_STORAGE, JSON.stringify(settings)) 
 }
 
+// ========== 初始化筛选下拉框 ==========
+function initFilterSelects() {
+  // 产品类型筛选下拉
+  const typeFilter = document.getElementById('productTypeFilter')
+  if (typeFilter) {
+    let options = '<option value="">全部产品类型</option>'
+    PRODUCT_TYPES.forEach(t => {
+      options += `<option value="${t}">${t}</option>`
+    })
+    typeFilter.innerHTML = options
+  }
+  
+  // 库存产品类型筛选
+  const invTypeFilter = document.getElementById('invProductTypeFilter')
+  if (invTypeFilter) {
+    let options = '<option value="">全部产品类型</option>'
+    PRODUCT_TYPES.forEach(t => {
+      options += `<option value="${t}">${t}</option>`
+    })
+    invTypeFilter.innerHTML = options
+  }
+}
+
 // ========== 数据迁移工具 ==========
 function migrateOldData() {
   let migratedCount = 0
@@ -773,9 +781,13 @@ function updateUsdRate() {
   refresh() 
 }
 
-// 产品类型选项HTML
+// 产品类型选项HTML（带默认提示）
 function getProductTypeOptions(selected) {
-  return PRODUCT_TYPES.map(t => `<option ${t === selected ? 'selected' : ''}>${t}</option>`).join('')
+  let options = '<option value="" disabled selected>请选择产品类型</option>'
+  PRODUCT_TYPES.forEach(t => {
+    options += `<option value="${t}" ${t === selected ? 'selected' : ''}>${t}</option>`
+  })
+  return options
 }
 
 function addItem() {
@@ -795,7 +807,7 @@ function addItem() {
       </div>
       <div class="col-2">
         <select class="form-select form-select-sm itemProductType">
-          ${getProductTypeOptions('一体式直流充电桩')}
+          ${getProductTypeOptions()}
         </select>
       </div>
       <div class="col-2">
@@ -839,14 +851,22 @@ function toggleLogisticsField() {
 function saveOrder() {
   const idx = document.getElementById('editIdx').value
   const items = []
+  let hasError = false
   document.querySelectorAll('.item-row').forEach(row => {
     const type = row.querySelector('.itemType')?.value
-    // 只保存实物产品到库存
+    const productType = row.querySelector('.itemProductType')?.value
+    // 验证实物产品必须选择产品类型
+    if (type === '实物产品' && !productType) {
+      alert('请为所有实物产品选择产品类型')
+      hasError = true
+      return
+    }
+    
     if (type === '实物产品') {
       items.push({
         type: type,
         name: row.querySelector('.itemName')?.value,
-        productType: row.querySelector('.itemProductType')?.value,
+        productType: productType,
         factory: row.querySelector('.itemFactory')?.value.trim(),
         qty: parseFloat(row.querySelector('.itemQty')?.value) || 0,
         price: parseFloat(row.querySelector('.itemPrice')?.value) || 0
@@ -860,6 +880,8 @@ function saveOrder() {
       })
     }
   })
+  
+  if (hasError) return
   
   const status = document.getElementById('status').value
   const order = {
@@ -1010,6 +1032,7 @@ function addManualInventory() {
   const factory = document.getElementById('manualFactory').value.trim()
   
   if (!name || qty <= 0 || !factory) return alert('请填写产品名称、数量、工厂')
+  if (!productType) return alert('请选择产品类型')
   
   const existing = inventory.find(i => i.name === name && i.factory === factory && i.model === model)
   if (existing) {
@@ -1081,11 +1104,6 @@ function renderInventory() {
   const sel = document.getElementById('invFactoryFilter')
   if (sel) {
     sel.innerHTML = '<option value="">全部工厂</option>' + factories.map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
-  }
-  
-  const typeSel = document.getElementById('invProductTypeFilter')
-  if (typeSel) {
-    typeSel.innerHTML = '<option value="">全部产品类型</option>' + PRODUCT_TYPES.map(t => `<option ${t===typeFilter?'selected':''}>${t}</option>`).join('')
   }
   
   const filtered = inventory.filter(i => 
@@ -1363,7 +1381,7 @@ function drill(type) {
   modal.addEventListener('hidden.bs.modal', () => modal.remove())
 }
 
-// ========== 订单刷新函数（核心优化：工厂分布数字直接显示） ==========
+// ========== 订单刷新函数 ==========
 function refresh() {
   const kw = document.getElementById('search').value.toLowerCase()
   const facFilter = document.getElementById('factoryFilter').value
@@ -1371,9 +1389,7 @@ function refresh() {
   
   let totalOrder = 0, totalSale = 0, totalCost = 0, totalTax = 0, totalProfit = 0
   let statusCount = {}
-  // 🔥 工厂分布统计：按唯一工厂统计订单数
   let factoryOrderMap = {}
-  // 所有工厂列表（用于筛选）
   let allFactories = new Set()
   
   ORDER_STATUS.forEach(s => statusCount[s] = 0)
@@ -1386,20 +1402,13 @@ function refresh() {
     const profit = sale * usdRate - cost + tax
     totalSale += sale; totalCost += cost; totalTax += tax; totalProfit += profit
     
-    // 状态统计
     if (o.status && statusCount.hasOwnProperty(o.status)) statusCount[o.status]++
     
-    // 🔥 工厂分布统计：每个工厂只计一次，代表该订单涉及此工厂
     if (o.items && o.items.length > 0) {
-      // 获取该订单涉及的所有唯一工厂
       const orderFactories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))]
-      
       orderFactories.forEach(factory => {
         if (factory) {
-          // 记录工厂参与的订单数（每个订单只计一次）
-          if (!factoryOrderMap[factory]) {
-            factoryOrderMap[factory] = new Set()
-          }
+          if (!factoryOrderMap[factory]) factoryOrderMap[factory] = new Set()
           factoryOrderMap[factory].add(o.no)
           allFactories.add(factory)
         }
@@ -1407,14 +1416,12 @@ function refresh() {
     }
   })
 
-  // 更新仪表盘
   document.getElementById('totalOrder').innerText = totalOrder
   document.getElementById('totalSale').innerText = totalSale.toFixed(0) + '$'
   document.getElementById('totalCost').innerText = totalCost.toFixed(0) + '¥'
   document.getElementById('totalTax').innerText = totalTax.toFixed(0) + '¥'
   document.getElementById('totalProfit').innerText = totalProfit.toFixed(0) + '¥'
 
-  // 状态看板
   let boardHtml = ''
   ORDER_STATUS.forEach(s => {
     const count = statusCount[s] || 0
@@ -1428,7 +1435,6 @@ function refresh() {
   })
   document.getElementById('statusBoard').innerHTML = boardHtml
 
-  // 订单状态图表
   const chartStatus = echarts.init(document.getElementById('chartStatus'))
   chartStatus.setOption({
     tooltip: { trigger: 'axis' },
@@ -1443,11 +1449,10 @@ function refresh() {
     }]
   })
 
-  // 🔥 工厂分布图表：按唯一工厂统计订单数，数字直接显示在扇形上
   const chartFactory = echarts.init(document.getElementById('chartFactory'))
   const pieData = Object.entries(factoryOrderMap).map(([factory, orderSet]) => ({ 
     name: factory, 
-    value: orderSet.size  // 订单数量
+    value: orderSet.size
   })).sort((a, b) => b.value - a.value)
   
   chartFactory.setOption({
@@ -1455,49 +1460,26 @@ function refresh() {
       trigger: 'item',
       formatter: '{b}: 参与 {c} 个订单' 
     },
-    legend: { 
-      orient: 'vertical', 
-      left: 'left', 
-      top: 'center'
-    },
+    legend: { orient: 'vertical', left: 'left', top: 'center' },
     series: [{
       name: '工厂分布',
       type: 'pie',
       radius: ['40%', '70%'],
       data: pieData.length ? pieData : [{ name: '暂无数据', value: 1 }],
-      itemStyle: { 
-        borderRadius: 10,
-        borderColor: '#fff',
-        borderWidth: 2
-      },
-      // ✅ 关键配置：显示数字标签
+      itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
       label: { 
-        show: true,           // 显示标签
-        position: 'outside',   // 放在扇形外部
-        formatter: '{b}: {c}', // 显示格式：工厂名: 订单数
+        show: true,
+        position: 'outside',
+        formatter: '{b}: {c}',
         fontSize: 12,
         fontWeight: 'normal',
         color: '#1e293b'
       },
-      // 引导线样式
-      labelLine: {
-        show: true,
-        length: 10,
-        length2: 10,
-        smooth: true
-      },
-      // 高亮效果
-      emphasis: {
-        label: {
-          show: true,
-          fontSize: 14,
-          fontWeight: 'bold'
-        }
-      }
+      labelLine: { show: true, length: 10, length2: 10, smooth: true },
+      emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } }
     }]
   })
 
-  // 预警
   const now = new Date()
   let alertHtml = ''
   orders.forEach(o => {
@@ -1508,38 +1490,24 @@ function refresh() {
   })
   document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok p-2">✅ 无交期预警</div>'
 
-  // 工厂筛选下拉框
   const factoryList = Array.from(allFactories).sort()
   const sel = document.getElementById('factoryFilter')
   sel.innerHTML = '<option value="">全部工厂</option>' + 
     factoryList.map(f => `<option ${f === facFilter ? 'selected' : ''}>${f}</option>`).join('')
 
-  // 订单列表
   let listHtml = ''
   const filteredOrders = orders.filter(o => {
-    // 文本搜索
     const textMatch = (o.no + o.contract + o.customer).toLowerCase().includes(kw)
-    
-    // 工厂筛选
     let factoryMatch = true
-    if (facFilter) {
-      factoryMatch = o.items.some(item => item.factory === facFilter)
-    }
-    
-    // 产品类型筛选
+    if (facFilter) factoryMatch = o.items.some(item => item.factory === facFilter)
     let typeMatch = true
-    if (typeFilter) {
-      typeMatch = o.items.some(item => item.productType === typeFilter)
-    }
-    
+    if (typeFilter) typeMatch = o.items.some(item => item.productType === typeFilter)
     return textMatch && factoryMatch && typeMatch
   })
   
   filteredOrders.forEach((o, i) => {
     const idx = orders.findIndex(ord => ord === o)
-    // 获取该订单涉及的工厂（去重）
     const orderFactories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))].join(', ')
-    // 获取产品类型列表
     const productTypes = [...new Set(o.items.filter(i => i.productType).map(i => i.productType))].join(', ')
     
     listHtml += `
@@ -1629,6 +1597,7 @@ function restore() {
 // ========== 初始化 ==========
 document.getElementById('usdRate').value = usdRate
 document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
+initFilterSelects()
 cancelOrder()
 refresh()
 renderInventory()
