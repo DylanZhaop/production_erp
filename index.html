@@ -516,41 +516,44 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
           </div>
         </div>
 
-        <!-- 系统设置页面 -->
+        <!-- ========== 系统设置页面 - 修复版 ========== -->
         <div id="settingsPage" style="display:none">
           <div class="content-container">
             <div class="card">
               <div class="card-header">⚙️ 系统设置</div>
               <div class="card-body">
+                <!-- 汇率设置 - 修复ID -->
                 <div class="setting-item">
                   <div class="setting-label">🌐 默认汇率</div>
                   <div class="setting-desc">设置USD兑CNY的默认汇率</div>
-                  <div class="row g-2">
-                    <div class="col-md-3">
-                      <input type="number" class="form-control form-control-sm" id="settingDefaultRate" value="7.20" step="0.01">
+                  <div class="row g-2 align-items-center">
+                    <div class="col-md-2">
+                      <input type="number" class="form-control form-control-sm" id="settingsUsdRate" value="7.20" step="0.01">
                     </div>
-                    <div class="col-md-3">
-                      <button class="btn btn-sm btn-primary" onclick="saveDefaultRate()">保存</button>
+                    <div class="col-md-2">
+                      <button class="btn btn-sm btn-primary" onclick="saveSettingsRate()">保存</button>
                     </div>
                   </div>
                 </div>
 
+                <!-- 预警阈值 - 优化布局 -->
                 <div class="setting-item">
                   <div class="setting-label">⚠️ 预警阈值</div>
-                  <div class="setting-desc">设置低库存预警数量</div>
-                  <div class="row g-2">
-                    <div class="col-md-3">
-                      <input type="number" class="form-control form-control-sm" id="settingLowStock" value="10" min="1">
+                  <div class="setting-desc">设置低库存预警数量，低于此值显示黄色背景</div>
+                  <div class="row g-2 align-items-center">
+                    <div class="col-md-2">
+                      <input type="number" class="form-control form-control-sm" id="settingsLowStock" value="10" min="1">
                     </div>
                     <div class="col-md-3">
                       <span class="text-muted">低于此值显示预警</span>
                     </div>
-                    <div class="col-md-3">
-                      <button class="btn btn-sm btn-primary" onclick="saveLowStockThreshold()">保存</button>
+                    <div class="col-md-2">
+                      <button class="btn btn-sm btn-primary" onclick="saveSettingsThreshold()">保存</button>
                     </div>
                   </div>
                 </div>
 
+                <!-- 数据管理 -->
                 <div class="setting-item">
                   <div class="setting-label">💾 数据管理</div>
                   <div class="setting-desc">备份、恢复或初始化数据</div>
@@ -562,6 +565,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                   </div>
                 </div>
 
+                <!-- 关于信息 -->
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
@@ -1465,108 +1469,27 @@ function exportReport() {
   XLSX.writeFile(wb, `报表_${new Date().toISOString().slice(0,10)}.xlsx`)
 }
 
-// ========== 系统设置函数 ==========
-function saveDefaultRate() {
-  const rate = parseFloat(document.getElementById('settingDefaultRate').value)
+// ========== 系统设置函数 - 新增修复函数 ==========
+function saveSettingsRate() {
+  const rate = parseFloat(document.getElementById('settingsUsdRate').value)
   if (rate > 0) {
     usdRate = rate
     document.getElementById('usdRate').value = rate
     document.getElementById('usdRateSide').innerText = rate.toFixed(2)
-    document.getElementById('usdRateTop').innerText = rate.toFixed(2)
+    const usdRateTop = document.getElementById('usdRateTop')
+    if (usdRateTop) usdRateTop.innerText = rate.toFixed(2)
     saveSettings()
     alert('✅ 默认汇率已更新')
   }
 }
 
-function saveLowStockThreshold() {
-  const val = parseInt(document.getElementById('settingLowStock').value)
+function saveSettingsThreshold() {
+  const val = parseInt(document.getElementById('settingsLowStock').value)
   if (val > 0) {
     lowStockThreshold = val
     saveSettings()
     renderInventory()
     alert('✅ 低库存阈值已更新')
-  }
-}
-
-function clearAllData() {
-  if (confirm('⚠️ 确定要清空所有订单和库存数据吗？此操作不可恢复！')) {
-    orders = []
-    inventory = []
-    inventoryLogs = []
-    saveOrders(); saveInventory(); saveLogs()
-    refresh(); renderInventory()
-    alert('✅ 数据已清空')
-  }
-}
-
-function resetToSample() {
-  if (confirm('恢复示例数据？当前数据将被覆盖。')) {
-    orders = [
-      {
-        no:'ANS-20260316-0047', contract:'N20260120304-DR01', customer:'Green24', delivery:'2026-04-10',
-        prepaymentDate:'2026-03-02', contractSignDate:'2026-03-04', taxRate:13,
-        cost:207590, sale:105395, logistics:'', status:'生产中',
-        items:[
-          { type:'实物产品', name:'VULCO-120kW-CCS2*2', productType:'一体式直流充电桩', factory:'DR', qty:11, price:4100 },
-          { type:'实物产品', name:'VULCO-180kW-CCS2*2', productType:'一体式直流充电桩', factory:'DR', qty:1, price:49800 },
-          { type:'实物产品', name:'收枪装置', productType:'配件', factory:'DR', qty:12, price:2500 },
-          { type:'实物产品', name:'A22W1-SC', productType:'交流壁挂充电桩', factory:'CW', qty:10, price:1450 },
-          { type:'实物产品', name:'CCS2枪线', productType:'配件', factory:'WR', qty:5, price:2300 },
-          { type:'实物产品', name:'30kw模块', productType:'配件', factory:'UU', qty:5, price:2100 },
-          { type:'实物产品', name:'急停按钮', productType:'配件', factory:'DR', qty:5, price:38 },
-          { type:'实物产品', name:'直流电表', productType:'配件', factory:'DR', qty:5, price:200 },
-          { type:'实物产品', name:'10寸屏', productType:'配件', factory:'DR', qty:5, price:400 },
-          { type:'实物产品', name:'A44', productType:'交流立柱式充电桩', factory:'YD', qty:10, price:4300 }
-        ],
-        createdAt: new Date().toISOString()
-      },
-      {
-        no:'ANS-20260317-0049', contract:'AN20260317-TH01', customer:'G88', delivery:'2026-04-20',
-        prepaymentDate:'2026-03-24', contractSignDate:'2026-03-18', taxRate:13,
-        cost:71600, sale:14575, logistics:'', status:'合同执行中',
-        items:[
-          { type:'实物产品', name:'VULCO160-GBT*2', productType:'一体式直流充电桩', factory:'TH', qty:2, price:35800 }
-        ],
-        createdAt: new Date().toISOString()
-      },
-      {
-        no:'ANS-20260317-0048', contract:'AN20260317-TH02', customer:'MartEV', delivery:'2026-04-20',
-        prepaymentDate:'2026-03-23', contractSignDate:'2026-03-18', taxRate:13,
-        cost:59800, sale:12580, logistics:'', status:'合同执行中',
-        items:[
-          { type:'实物产品', name:'VULCO300kW-GBT+CCS2', productType:'一体式直流充电桩', factory:'TH', qty:1, price:59800 }
-        ],
-        createdAt: new Date().toISOString()
-      }
-    ]
-    inventory = []
-    inventoryLogs = []
-    
-    orders.forEach(order => {
-      order.items.forEach(item => {
-        if (item.type === '实物产品' && item.qty > 0 && item.factory) {
-          inventory.push({
-            id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-            name: item.name,
-            productType: item.productType,
-            qty: item.qty,
-            factory: item.factory,
-            source: 'order',
-            sourceOrderNo: order.no,
-            createdAt: new Date().toISOString(),
-            lastUpdated: new Date().toISOString()
-          })
-        }
-      })
-    })
-    
-    inventoryLogs = [
-      {id:'LOG-001', type:'in', name:'系统', reason:'初始化示例数据', time:new Date().toLocaleString()}
-    ]
-    
-    saveOrders(); saveInventory(); saveLogs()
-    refresh(); renderInventory()
-    alert('✅ 已恢复示例数据')
   }
 }
 
@@ -1828,12 +1751,12 @@ function switchTab(tab) {
   if (tab === 'inventory') renderInventory()
   if (tab === 'reports') generateReport()
   if (tab === 'settings') {
-    document.getElementById('settingDefaultRate').value = usdRate
-    document.getElementById('settingLowStock').value = lowStockThreshold
+    document.getElementById('settingsUsdRate').value = usdRate
+    document.getElementById('settingsLowStock').value = lowStockThreshold
   }
 }
 
-// ========== 备份恢复 ==========
+// ========== 备份恢复 - 修复版 ==========
 function backup() { 
   const data = { orders, inventory, logs: inventoryLogs, settings }
   const a = document.createElement('a')
@@ -1842,8 +1765,6 @@ function backup() {
   a.click() 
 }
 
-// ========== 修复后的恢复函数 ==========
-// ========== 修复后的恢复函数 ==========
 function restore() { 
   const i = document.createElement('input')
   i.type = 'file'
@@ -1855,7 +1776,7 @@ function restore() {
         const data = JSON.parse(ev.target.result)
         console.log('恢复的数据:', data)
         
-        // 您的备份文件格式完全正确，直接赋值
+        // 直接赋值，兼容各种格式
         if (data.orders) orders = data.orders
         if (data.inventory) inventory = data.inventory
         if (data.logs) inventoryLogs = data.logs
@@ -1877,6 +1798,12 @@ function restore() {
         const usdRateTop = document.getElementById('usdRateTop')
         if (usdRateTop) usdRateTop.innerText = usdRate.toFixed(2)
         
+        const settingsUsdRate = document.getElementById('settingsUsdRate')
+        if (settingsUsdRate) settingsUsdRate.value = usdRate
+        
+        const settingsLowStock = document.getElementById('settingsLowStock')
+        if (settingsLowStock) settingsLowStock.value = lowStockThreshold
+        
         refresh(); renderInventory()
         alert('✅ 恢复成功')
       } catch (err) {
@@ -1892,7 +1819,15 @@ function restore() {
 // ========== 初始化 ==========
 document.getElementById('usdRate').value = usdRate
 document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
-document.getElementById('usdRateTop').innerText = usdRate.toFixed(2)
+const usdRateTop = document.getElementById('usdRateTop')
+if (usdRateTop) usdRateTop.innerText = usdRate.toFixed(2)
+
+// 设置页面初始化
+const settingsUsdRate = document.getElementById('settingsUsdRate')
+if (settingsUsdRate) settingsUsdRate.value = usdRate
+const settingsLowStock = document.getElementById('settingsLowStock')
+if (settingsLowStock) settingsLowStock.value = lowStockThreshold
+
 initFilterSelects()
 cancelOrder()
 refresh()
