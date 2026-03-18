@@ -40,6 +40,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 .chart-container{width:100%;height:250px}
 .field-container{margin-bottom:12px}
 .field-label{font-size:11px;color:#64748b;margin-bottom:2px;display:block;font-weight:500}
+.factory-hint{font-size:11px;color:#0d6efd;margin-top:2px}
 .status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:12px 0;background:#fff;padding:12px;border-radius:12px}
 .status-item{text-align:center;padding:6px 4px;border-radius:6px;font-size:11px;cursor:pointer}
 .status-count{font-weight:700;font-size:14px}
@@ -52,6 +53,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 .inventory-card.low-stock{background:#fff3cd;border-left:3px solid #ffc107}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;background:#fff;padding:12px 16px;border-radius:12px}
 .search-filter{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:16px}
+.search-filter-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
 .alert-overdue{background:#fee;color:#c00;padding:8px;border-radius:8px;margin-bottom:4px}
 .alert-soon{background:#fff3e0;color:#e68a00;padding:8px;border-radius:8px;margin-bottom:4px}
 .alert-ok{background:#e8f5e9;color:#2e7d32;padding:8px;border-radius:8px}
@@ -64,6 +66,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 .setting-desc{font-size:12px;color:#64748b;margin-bottom:8px}
 .about-info{background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;line-height:1.8}
 .report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:16px;border-radius:12px;margin-bottom:12px}
+.product-type-badge{font-size:10px;padding:2px 6px;border-radius:12px;background:#e9ecef;color:#495057;display:inline-block;margin-right:4px}
 </style>
 </head>
 <body>
@@ -72,7 +75,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>完整版 v3.0</small>
+      <small>完整版 v4.0</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -149,7 +152,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
               </div>
             </div>
             <div class="card">
-              <div class="card-header">🏭 工厂分布</div>
+              <div class="card-header">🏭 工厂分布 <small class="text-muted">(按唯一工厂统计订单数)</small></div>
               <div class="card-body p-2">
                 <div id="chartFactory" class="chart-container"></div>
               </div>
@@ -171,10 +174,25 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             <span class="text-muted" style="line-height:30px; margin-left:auto;">📱 自适应设计</span>
           </div>
 
-          <!-- 搜索过滤 -->
-          <div class="search-filter">
-            <input class="form-control form-control-sm" id="search" placeholder="🔎 搜索订单号/合同号/工厂/客户" oninput="refresh()">
-            <select class="form-select form-select-sm" id="factoryFilter" onchange="refresh()"></select>
+          <!-- 搜索过滤 - 三列：搜索框、工厂筛选、产品类型筛选 -->
+          <div class="search-filter-3col">
+            <input class="form-control form-control-sm" id="search" placeholder="🔎 搜索订单号/合同号/客户" oninput="refresh()">
+            <select class="form-select form-select-sm" id="factoryFilter" onchange="refresh()">
+              <option value="">全部工厂</option>
+            </select>
+            <select class="form-select form-select-sm" id="productTypeFilter" onchange="refresh()">
+              <option value="">全部产品类型</option>
+              <option>一体式直流充电桩</option>
+              <option>壁挂小直流</option>
+              <option>分体式直流充电堆</option>
+              <option>交流立柱式充电桩</option>
+              <option>交流壁挂充电桩</option>
+              <option>便携式交流充电桩</option>
+              <option>便携式直流充电桩</option>
+              <option>移动储能充电设备</option>
+              <option>储能设备</option>
+              <option>光伏类设备</option>
+            </select>
           </div>
 
           <!-- 新增订单卡片 -->
@@ -197,14 +215,14 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                 </div>
                 <div class="col-md-6">
                   <div class="field-container">
-                    <span class="field-label">🏭 工厂 *</span>
-                    <input class="form-control form-control-sm" id="factory" placeholder="例如: TH 或 NT">
+                    <span class="field-label">👥 客户名称</span>
+                    <input class="form-control form-control-sm" id="customer" placeholder="输入客户名称">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="field-container">
-                    <span class="field-label">👥 客户名称</span>
-                    <input class="form-control form-control-sm" id="customer" placeholder="输入客户名称">
+                    <span class="field-label">📅 交付日期</span>
+                    <input type="date" class="form-control form-control-sm" id="delivery">
                   </div>
                 </div>
                 <div class="col-md-4">
@@ -221,12 +239,6 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                 </div>
                 <div class="col-md-4">
                   <div class="field-container">
-                    <span class="field-label">📅 交付日期</span>
-                    <input type="date" class="form-control form-control-sm" id="delivery">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="field-container">
                     <span class="field-label">📊 退税率 %</span>
                     <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="13">
                   </div>
@@ -234,7 +246,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
               </div>
 
               <div class="mt-3">
-                <h6>📦 产品明细</h6>
+                <h6>📦 产品明细 <small class="text-muted">(每个产品可选择工厂和产品类型)</small></h6>
                 <div id="itemsList"></div>
                 <button class="btn btn-sm btn-outline-primary w-100 mt-2" onclick="addItem()">+ 添加产品</button>
               </div>
@@ -326,11 +338,24 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             <button class="btn btn-sm btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
           </div>
 
-          <!-- 库存搜索 -->
-          <div class="search-filter">
-            <input class="form-control form-control-sm" id="invSearch" placeholder="🔎 搜索产品/型号/工厂" oninput="renderInventory()">
+          <!-- 库存搜索 - 三列 -->
+          <div class="search-filter-3col">
+            <input class="form-control form-control-sm" id="invSearch" placeholder="🔎 搜索产品/型号" oninput="renderInventory()">
             <select class="form-select form-select-sm" id="invFactoryFilter" onchange="renderInventory()">
               <option value="">全部工厂</option>
+            </select>
+            <select class="form-select form-select-sm" id="invProductTypeFilter" onchange="renderInventory()">
+              <option value="">全部产品类型</option>
+              <option>一体式直流充电桩</option>
+              <option>壁挂小直流</option>
+              <option>分体式直流充电堆</option>
+              <option>交流立柱式充电桩</option>
+              <option>交流壁挂充电桩</option>
+              <option>便携式交流充电桩</option>
+              <option>便携式直流充电桩</option>
+              <option>移动储能充电设备</option>
+              <option>储能设备</option>
+              <option>光伏类设备</option>
             </select>
           </div>
 
@@ -358,15 +383,22 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             <div class="card-header">📊 报表生成器</div>
             <div class="card-body">
               <div class="row g-2 mb-4">
-                <div class="col-md-3">
+                <div class="col-md-2">
                   <select class="form-select form-select-sm" id="reportType">
                     <option value="month">📅 月度报表</option>
                     <option value="quarter">📆 季度报表</option>
                     <option value="year">🗓️ 年度报表</option>
                   </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                   <input type="month" class="form-control form-control-sm" id="reportMonth" value="2025-03">
+                </div>
+                <div class="col-md-2">
+                  <select class="form-select form-select-sm" id="reportGroupBy">
+                    <option value="all">全部</option>
+                    <option value="factory">按工厂</option>
+                    <option value="productType">按产品类型</option>
+                  </select>
                 </div>
                 <div class="col-md-3">
                   <button class="btn btn-sm btn-primary" onclick="generateReport()">📊 生成报表</button>
@@ -423,6 +455,12 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                   </div>
                 </div>
               </div>
+
+              <!-- 分组报表表格 -->
+              <div class="card mt-3">
+                <div class="card-header">📋 分组明细</div>
+                <div class="card-body" style="max-height:300px; overflow-y:auto" id="reportGroupTable"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -469,7 +507,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
               <div class="setting-item">
                 <div class="setting-label">💾 数据管理</div>
                 <div class="setting-desc">备份、恢复或初始化数据</div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                   <button class="btn btn-sm btn-outline-primary" onclick="backup()">📤 备份</button>
                   <button class="btn btn-sm btn-outline-warning" onclick="restore()">📥 恢复</button>
                   <button class="btn btn-sm btn-outline-danger" onclick="clearAllData()">⚠️ 清空数据</button>
@@ -477,15 +515,27 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                 </div>
               </div>
 
+              <!-- 数据迁移工具 -->
+              <div class="setting-item">
+                <div class="setting-label">🔄 数据迁移</div>
+                <div class="setting-desc">将旧格式数据迁移到新格式（工厂在产品级别）</div>
+                <button class="btn btn-sm btn-outline-info" onclick="migrateOldData()">执行迁移</button>
+                <span class="text-muted small ms-2" id="migrateStatus"></span>
+              </div>
+
               <!-- 关于信息 -->
               <div class="setting-item">
                 <div class="setting-label">ℹ️ 关于系统</div>
                 <div class="about-info">
-                  <div><strong>版本：</strong>v3.0 完整版</div>
+                  <div><strong>版本：</strong>v4.0 工厂产品类型版</div>
+                  <div><strong>新增特性：</strong></div>
+                  <div>✅ 工厂移至产品级别，每个产品可选不同工厂</div>
+                  <div>✅ 工厂分布按唯一工厂统计订单数，数字直接显示</div>
+                  <div>✅ 产品类型字段（10种充电桩/储能设备）</div>
+                  <div>✅ 可按产品类型筛选和统计</div>
                   <div><strong>最后更新：</strong>2025-03-18</div>
                   <div><strong>数据存储：</strong>浏览器本地 (localStorage)</div>
-                  <div><strong>功能模块：</strong>订单管理 / 库存管理 / 数据报表 / 系统设置</div>
-                  <div class="mt-2 text-muted small">✅ 所有模块均已完整实现，无占位页面</div>
+                  <div class="mt-2 text-muted small">✅ 所有模块完整实现，无占位页面</div>
                 </div>
               </div>
             </div>
@@ -512,6 +562,21 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
         <div class="field-container">
           <span class="field-label">🔢 型号</span>
           <input class="form-control form-control-sm" id="manualModel" placeholder="例如: XYZ-001">
+        </div>
+        <div class="field-container">
+          <span class="field-label">📊 产品类型</span>
+          <select class="form-select form-select-sm" id="manualProductType">
+            <option>一体式直流充电桩</option>
+            <option>壁挂小直流</option>
+            <option>分体式直流充电堆</option>
+            <option>交流立柱式充电桩</option>
+            <option>交流壁挂充电桩</option>
+            <option>便携式交流充电桩</option>
+            <option>便携式直流充电桩</option>
+            <option>移动储能充电设备</option>
+            <option>储能设备</option>
+            <option>光伏类设备</option>
+          </select>
         </div>
         <div class="field-container">
           <span class="field-label">🔢 数量 *</span>
@@ -544,27 +609,117 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 </div>
 
 <script>
-// ========== 数据层 ==========
-const ORDER_STORAGE = 'ERP_ORDER_FINAL'
-const INVENTORY_STORAGE = 'ERP_INVENTORY'
-const LOG_STORAGE = 'ERP_INVENTORY_LOGS'
-const SETTINGS_STORAGE = 'ERP_SETTINGS'
-
-// 从localStorage读取数据，确保用户数据不丢失
-let orders = JSON.parse(localStorage.getItem(ORDER_STORAGE)) || [
-  {no:'ORD-001', contract:'CT-001', factory:'TH', customer:'客户A', delivery:'2025-03-25', prepaymentDate:'2025-03-01', contractSignDate:'2025-02-28', taxRate:13, cost:1000, sale:200, logistics:'', status:'合同执行中', items:[{type:'实物产品', name:'产品A', qty:10, price:100}]},
-  {no:'ORD-002', contract:'CT-002', factory:'NT', customer:'客户B', delivery:'2025-03-30', prepaymentDate:'2025-03-05', contractSignDate:'2025-03-01', taxRate:13, cost:2000, sale:400, logistics:'LOG123', status:'已发货', items:[{type:'实物产品', name:'产品B', qty:20, price:100}]},
-  {no:'ORD-003', contract:'CT-003', factory:'TH', customer:'客户C', delivery:'2025-04-15', prepaymentDate:'2025-03-20', contractSignDate:'2025-03-15', taxRate:13, cost:1500, sale:300, logistics:'', status:'生产中', items:[{type:'实物产品', name:'产品C', qty:15, price:100}]}
+// ========== 产品类型列表 ==========
+const PRODUCT_TYPES = [
+  '一体式直流充电桩',
+  '壁挂小直流',
+  '分体式直流充电堆',
+  '交流立柱式充电桩',
+  '交流壁挂充电桩',
+  '便携式交流充电桩',
+  '便携式直流充电桩',
+  '移动储能充电设备',
+  '储能设备',
+  '光伏类设备'
 ]
 
+// ========== 数据层 ==========
+const ORDER_STORAGE = 'ERP_ORDER_FINAL_V4'
+const INVENTORY_STORAGE = 'ERP_INVENTORY_V4'
+const LOG_STORAGE = 'ERP_INVENTORY_LOGS_V4'
+const SETTINGS_STORAGE = 'ERP_SETTINGS_V4'
+
+// 数据迁移函数：将旧格式转换为新格式
+function migrateOrderToNewFormat(oldOrder) {
+  // 如果已经是新格式（items里有factory字段），直接返回
+  if (oldOrder.items && oldOrder.items.length > 0 && oldOrder.items[0].factory) {
+    return oldOrder
+  }
+  
+  // 创建新订单对象，移除顶层的factory
+  const newOrder = { ...oldOrder }
+  delete newOrder.factory
+  
+  // 处理items，为每个产品分配工厂
+  if (newOrder.items && newOrder.items.length > 0) {
+    // 如果旧订单有factory字段，按逗号分隔循环分配
+    if (oldOrder.factory) {
+      const factories = oldOrder.factory.split(',').map(f => f.trim()).filter(f => f)
+      
+      newOrder.items = newOrder.items.map((item, index) => {
+        // 循环分配工厂
+        const factory = factories[index % factories.length] || factories[0] || '未知'
+        return {
+          ...item,
+          factory: factory,
+          productType: item.productType || '一体式直流充电桩' // 默认产品类型
+        }
+      })
+    } else {
+      // 没有factory字段，给默认值
+      newOrder.items = newOrder.items.map(item => ({
+        ...item,
+        factory: '未知',
+        productType: item.productType || '一体式直流充电桩'
+      }))
+    }
+  }
+  
+  return newOrder
+}
+
+// 从localStorage读取数据，自动迁移旧格式
+let rawOrders = JSON.parse(localStorage.getItem(ORDER_STORAGE)) || []
+let orders = []
+
+// 迁移订单数据
+if (rawOrders.length > 0) {
+  orders = rawOrders.map(migrateOrderToNewFormat)
+} else {
+  // 示例数据（新格式）
+  orders = [
+    {
+      no:'ORD-001', contract:'CT-001', customer:'客户A', delivery:'2025-03-25',
+      prepaymentDate:'2025-03-01', contractSignDate:'2025-02-28', taxRate:13,
+      cost:1000, sale:200, logistics:'', status:'合同执行中',
+      items:[
+        { type:'实物产品', name:'产品A', productType:'一体式直流充电桩', factory:'TH', qty:10, price:100 },
+        { type:'实物产品', name:'产品B', productType:'壁挂小直流', factory:'NT', qty:5, price:100 }
+      ],
+      createdAt: new Date().toISOString()
+    },
+    {
+      no:'ORD-002', contract:'CT-002', customer:'客户B', delivery:'2025-03-30',
+      prepaymentDate:'2025-03-05', contractSignDate:'2025-03-01', taxRate:13,
+      cost:2000, sale:400, logistics:'LOG123', status:'已发货',
+      items:[
+        { type:'实物产品', name:'产品C', productType:'分体式直流充电堆', factory:'NT', qty:20, price:100 }
+      ],
+      createdAt: new Date().toISOString()
+    },
+    {
+      no:'ORD-003', contract:'CT-003', customer:'客户C', delivery:'2025-04-15',
+      prepaymentDate:'2025-03-20', contractSignDate:'2025-03-15', taxRate:13,
+      cost:2500, sale:500, logistics:'', status:'生产中',
+      items:[
+        { type:'实物产品', name:'产品D', productType:'交流立柱式充电桩', factory:'TH', qty:10, price:100 },
+        { type:'实物产品', name:'产品E', productType:'交流壁挂充电桩', factory:'SH', qty:8, price:100 },
+        { type:'实物产品', name:'产品F', productType:'便携式交流充电桩', factory:'TH', qty:5, price:100 }
+      ],
+      createdAt: new Date().toISOString()
+    }
+  ]
+}
+
+// 库存数据（新格式）
 let inventory = JSON.parse(localStorage.getItem(INVENTORY_STORAGE)) || [
-  {id:'INV-001', name:'产品A', model:'XYZ-001', qty:50, factory:'TH', source:'order', createdAt:new Date().toISOString(), lastUpdated:new Date().toISOString()},
-  {id:'INV-002', name:'产品B', model:'XYZ-002', qty:30, factory:'NT', source:'order', createdAt:new Date().toISOString(), lastUpdated:new Date().toISOString()},
-  {id:'INV-003', name:'产品C', model:'XYZ-003', qty:5, factory:'TH', source:'manual', createdAt:new Date().toISOString(), lastUpdated:new Date().toISOString()}
+  {id:'INV-001', name:'产品A', model:'XYZ-001', productType:'一体式直流充电桩', qty:50, factory:'TH', source:'order', createdAt:new Date().toISOString(), lastUpdated:new Date().toISOString()},
+  {id:'INV-002', name:'产品B', model:'XYZ-002', productType:'壁挂小直流', qty:30, factory:'NT', source:'order', createdAt:new Date().toISOString(), lastUpdated:new Date().toISOString()},
+  {id:'INV-003', name:'产品C', model:'XYZ-003', productType:'分体式直流充电堆', qty:5, factory:'TH', source:'manual', createdAt:new Date().toISOString(), lastUpdated:new Date().toISOString()}
 ]
 
 let inventoryLogs = JSON.parse(localStorage.getItem(LOG_STORAGE)) || [
-  {id:'LOG-001', type:'in', name:'产品A', model:'XYZ-001', qty:50, factory:'TH', reason:'初始化库存', time:new Date().toLocaleString()}
+  {id:'LOG-001', type:'in', name:'产品A', model:'XYZ-001', productType:'一体式直流充电桩', qty:50, factory:'TH', reason:'初始化库存', time:new Date().toLocaleString()}
 ]
 
 // 设置
@@ -597,6 +752,19 @@ function saveSettings() {
   localStorage.setItem(SETTINGS_STORAGE, JSON.stringify(settings)) 
 }
 
+// ========== 数据迁移工具 ==========
+function migrateOldData() {
+  let migratedCount = 0
+  orders = orders.map(order => {
+    const newOrder = migrateOrderToNewFormat(order)
+    if (JSON.stringify(order) !== JSON.stringify(newOrder)) migratedCount++
+    return newOrder
+  })
+  saveOrders()
+  document.getElementById('migrateStatus').innerText = `✅ 已迁移 ${migratedCount} 个订单`
+  refresh()
+}
+
 // ========== 订单管理函数 ==========
 function updateUsdRate() { 
   usdRate = parseFloat(document.getElementById('usdRate').value) || 7.20
@@ -605,16 +773,43 @@ function updateUsdRate() {
   refresh() 
 }
 
+// 产品类型选项HTML
+function getProductTypeOptions(selected) {
+  return PRODUCT_TYPES.map(t => `<option ${t === selected ? 'selected' : ''}>${t}</option>`).join('')
+}
+
 function addItem() {
   const div = document.createElement('div')
   div.className = 'item-row'
   div.innerHTML = `
     <div class="row g-1 align-items-center">
-      <div class="col-3"><select class="form-select form-select-sm itemType"><option>实物产品</option><option>配件</option><option>其他</option></select></div>
-      <div class="col-3"><input class="form-control form-control-sm itemName" placeholder="产品名称"></div>
-      <div class="col-2"><input class="form-control form-control-sm itemQty" type="number" min="0" placeholder="数量"></div>
-      <div class="col-2"><input class="form-control form-control-sm itemPrice" type="number" min="0" placeholder="单价"></div>
-      <div class="col-2"><button class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">✕</button></div>
+      <div class="col-2">
+        <select class="form-select form-select-sm itemType">
+          <option>实物产品</option>
+          <option>配件</option>
+          <option>其他</option>
+        </select>
+      </div>
+      <div class="col-2">
+        <input class="form-control form-control-sm itemName" placeholder="产品名称">
+      </div>
+      <div class="col-2">
+        <select class="form-select form-select-sm itemProductType">
+          ${getProductTypeOptions('一体式直流充电桩')}
+        </select>
+      </div>
+      <div class="col-2">
+        <input class="form-control form-control-sm itemFactory" placeholder="工厂">
+      </div>
+      <div class="col-1">
+        <input class="form-control form-control-sm itemQty" type="number" min="0" placeholder="数量">
+      </div>
+      <div class="col-1">
+        <input class="form-control form-control-sm itemPrice" type="number" min="0" placeholder="单价">
+      </div>
+      <div class="col-2">
+        <button class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">✕</button>
+      </div>
     </div>
   `
   document.getElementById('itemsList').appendChild(div)
@@ -645,19 +840,31 @@ function saveOrder() {
   const idx = document.getElementById('editIdx').value
   const items = []
   document.querySelectorAll('.item-row').forEach(row => {
-    items.push({
-      type: row.querySelector('.itemType')?.value,
-      name: row.querySelector('.itemName')?.value,
-      qty: parseFloat(row.querySelector('.itemQty')?.value) || 0,
-      price: parseFloat(row.querySelector('.itemPrice')?.value) || 0
-    })
+    const type = row.querySelector('.itemType')?.value
+    // 只保存实物产品到库存
+    if (type === '实物产品') {
+      items.push({
+        type: type,
+        name: row.querySelector('.itemName')?.value,
+        productType: row.querySelector('.itemProductType')?.value,
+        factory: row.querySelector('.itemFactory')?.value.trim(),
+        qty: parseFloat(row.querySelector('.itemQty')?.value) || 0,
+        price: parseFloat(row.querySelector('.itemPrice')?.value) || 0
+      })
+    } else {
+      items.push({
+        type: type,
+        name: row.querySelector('.itemName')?.value,
+        qty: parseFloat(row.querySelector('.itemQty')?.value) || 0,
+        price: parseFloat(row.querySelector('.itemPrice')?.value) || 0
+      })
+    }
   })
   
   const status = document.getElementById('status').value
   const order = {
     no: document.getElementById('orderNo').value.trim(),
     contract: document.getElementById('contractNo').value.trim(),
-    factory: document.getElementById('factory').value.trim(),
     customer: document.getElementById('customer').value.trim(),
     delivery: document.getElementById('delivery').value,
     prepaymentDate: document.getElementById('prepaymentDate').value,
@@ -671,7 +878,7 @@ function saveOrder() {
     createdAt: new Date().toISOString()
   }
   
-  if (!order.no || !order.contract || !order.factory) return alert('请填写订单号、合同号、工厂')
+  if (!order.no || !order.contract) return alert('请填写订单号、合同号')
   
   if (idx === '') orders.unshift(order)
   else orders[idx] = order
@@ -679,7 +886,7 @@ function saveOrder() {
   saveOrders()
   cancelOrder()
   refresh()
-  renderInventory() // 同步更新库存
+  renderInventory()
 }
 
 function cancelOrder() {
@@ -688,7 +895,6 @@ function cancelOrder() {
   document.getElementById('cancelBtn').style.display = 'none'
   document.getElementById('orderNo').value = ''
   document.getElementById('contractNo').value = ''
-  document.getElementById('factory').value = ''
   document.getElementById('customer').value = ''
   document.getElementById('delivery').value = ''
   document.getElementById('prepaymentDate').value = ''
@@ -710,7 +916,6 @@ function editOrder(i) {
   document.getElementById('cancelBtn').style.display = 'block'
   document.getElementById('orderNo').value = o.no || ''
   document.getElementById('contractNo').value = o.contract || ''
-  document.getElementById('factory').value = o.factory || ''
   document.getElementById('customer').value = o.customer || ''
   document.getElementById('delivery').value = o.delivery || ''
   document.getElementById('prepaymentDate').value = o.prepaymentDate || ''
@@ -728,15 +933,33 @@ function editOrder(i) {
       row.className = 'item-row'
       row.innerHTML = `
         <div class="row g-1 align-items-center">
-          <div class="col-3"><select class="form-select form-select-sm itemType">
-            <option ${it.type=='实物产品'?'selected':''}>实物产品</option>
-            <option ${it.type=='配件'?'selected':''}>配件</option>
-            <option ${it.type=='其他'?'selected':''}>其他</option>
-          </select></div>
-          <div class="col-3"><input class="form-control form-control-sm itemName" value="${it.name||''}"></div>
-          <div class="col-2"><input class="form-control form-control-sm itemQty" type="number" value="${it.qty||''}"></div>
-          <div class="col-2"><input class="form-control form-control-sm itemPrice" type="number" value="${it.price||''}"></div>
-          <div class="col-2"><button class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">✕</button></div>
+          <div class="col-2">
+            <select class="form-select form-select-sm itemType">
+              <option ${it.type=='实物产品'?'selected':''}>实物产品</option>
+              <option ${it.type=='配件'?'selected':''}>配件</option>
+              <option ${it.type=='其他'?'selected':''}>其他</option>
+            </select>
+          </div>
+          <div class="col-2">
+            <input class="form-control form-control-sm itemName" value="${it.name||''}">
+          </div>
+          <div class="col-2">
+            <select class="form-select form-select-sm itemProductType">
+              ${getProductTypeOptions(it.productType)}
+            </select>
+          </div>
+          <div class="col-2">
+            <input class="form-control form-control-sm itemFactory" value="${it.factory||''}">
+          </div>
+          <div class="col-1">
+            <input class="form-control form-control-sm itemQty" type="number" value="${it.qty||''}">
+          </div>
+          <div class="col-1">
+            <input class="form-control form-control-sm itemPrice" type="number" value="${it.price||''}">
+          </div>
+          <div class="col-2">
+            <button class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">✕</button>
+          </div>
         </div>
       `
       document.getElementById('itemsList').appendChild(row)
@@ -763,12 +986,14 @@ function updateOrderStatus(i, newStatus) {
 function filterByStatus(status) { 
   document.getElementById('search').value = status
   document.getElementById('factoryFilter').value = ''
+  document.getElementById('productTypeFilter').value = ''
   refresh() 
 }
 
 function clearFilter() { 
   document.getElementById('search').value = ''
   document.getElementById('factoryFilter').value = ''
+  document.getElementById('productTypeFilter').value = ''
   refresh() 
 }
 
@@ -780,6 +1005,7 @@ function showManualInventoryModal() {
 function addManualInventory() {
   const name = document.getElementById('manualProductName').value.trim()
   const model = document.getElementById('manualModel').value.trim()
+  const productType = document.getElementById('manualProductType').value
   const qty = parseInt(document.getElementById('manualQuantity').value) || 0
   const factory = document.getElementById('manualFactory').value.trim()
   
@@ -792,7 +1018,7 @@ function addManualInventory() {
   } else {
     inventory.push({
       id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-      name, model, qty, factory,
+      name, model, productType, qty, factory,
       source: 'manual',
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString()
@@ -801,7 +1027,7 @@ function addManualInventory() {
   
   inventoryLogs.unshift({
     id: 'LOG-' + Date.now(),
-    type: 'in', name, model, qty, factory,
+    type: 'in', name, model, productType, qty, factory,
     reason: '手动录入',
     time: new Date().toLocaleString()
   })
@@ -823,6 +1049,7 @@ function showInventoryDetail(id) {
   document.getElementById('inventoryDetailBody').innerHTML = `
     <div class="field-container"><span class="field-label">📝 产品名称</span><div class="form-control bg-light">${item.name}</div></div>
     <div class="field-container"><span class="field-label">🔢 型号</span><div class="form-control bg-light">${item.model || '-'}</div></div>
+    <div class="field-container"><span class="field-label">📊 产品类型</span><div class="form-control bg-light">${item.productType || '-'}</div></div>
     <div class="field-container"><span class="field-label">🔢 当前库存</span><div class="form-control bg-light fw-bold ${item.qty < lowStockThreshold ? 'text-warning' : ''}">${item.qty}</div></div>
     <div class="field-container"><span class="field-label">🏭 工厂</span><div class="form-control bg-light">${item.factory}</div></div>
     <div class="field-container"><span class="field-label">📦 来源</span><div class="form-control bg-light">${item.source === 'order' ? '订单同步' : '手动录入'}</div></div>
@@ -836,12 +1063,14 @@ function showInventoryDetail(id) {
 function renderInventory() {
   const kw = document.getElementById('invSearch')?.value.toLowerCase() || ''
   const facFilter = document.getElementById('invFactoryFilter')?.value || ''
+  const typeFilter = document.getElementById('invProductTypeFilter')?.value || ''
   
   const totalProducts = inventory.length
   const totalQty = inventory.reduce((sum,i) => sum + i.qty, 0)
   const lowStock = inventory.filter(i => i.qty < lowStockThreshold).length
   const totalValue = inventory.reduce((sum,i) => sum + (i.qty * 100), 0)
   const factories = [...new Set(inventory.map(i => i.factory))]
+  const productTypes = [...new Set(inventory.map(i => i.productType))]
   
   document.getElementById('invTotalProducts') && (document.getElementById('invTotalProducts').innerText = totalProducts)
   document.getElementById('invTotalQty') && (document.getElementById('invTotalQty').innerText = totalQty)
@@ -854,7 +1083,17 @@ function renderInventory() {
     sel.innerHTML = '<option value="">全部工厂</option>' + factories.map(f => `<option ${f===facFilter?'selected':''}>${f}</option>`).join('')
   }
   
-  const filtered = inventory.filter(i => (i.name+i.model+i.factory).toLowerCase().includes(kw) && (!facFilter || i.factory===facFilter))
+  const typeSel = document.getElementById('invProductTypeFilter')
+  if (typeSel) {
+    typeSel.innerHTML = '<option value="">全部产品类型</option>' + PRODUCT_TYPES.map(t => `<option ${t===typeFilter?'selected':''}>${t}</option>`).join('')
+  }
+  
+  const filtered = inventory.filter(i => 
+    (i.name+i.model+i.factory+i.productType).toLowerCase().includes(kw) && 
+    (!facFilter || i.factory===facFilter) &&
+    (!typeFilter || i.productType===typeFilter)
+  )
+  
   const list = document.getElementById('invList')
   if (list) {
     list.innerHTML = filtered.map(i => `
@@ -863,6 +1102,7 @@ function renderInventory() {
           <div><strong>${i.name}</strong> ${i.model ? '('+i.model+')' : ''}</div>
           <span class="badge ${i.qty < lowStockThreshold ? 'bg-warning' : 'bg-info'}">${i.qty}</span>
         </div>
+        <div class="small"><span class="product-type-badge">${i.productType || '未知'}</span></div>
         <div class="small">🏭 ${i.factory}</div>
         <div class="small text-muted">${i.source === 'order' ? '📦 订单' : '✋ 手动'}</div>
       </div>
@@ -873,7 +1113,7 @@ function renderInventory() {
   if (logs) {
     logs.innerHTML = inventoryLogs.slice(0,20).map(l => `
       <div class="inventory-log ${l.type === 'in' ? 'text-success' : 'text-danger'}">
-        ${l.type === 'in' ? '📥 +' : '📤 -'}${l.qty} | ${l.name} | ${l.reason} | ${l.time}
+        ${l.type === 'in' ? '📥 +' : '📤 -'}${l.qty} | ${l.name} | ${l.productType || ''} | ${l.reason} | ${l.time}
       </div>
     `).join('') || '<div class="text-center p-2">暂无变动记录</div>'
   }
@@ -882,14 +1122,15 @@ function renderInventory() {
 function filterLowStock() { 
   document.getElementById('invSearch').value = ''
   document.getElementById('invFactoryFilter').value = ''
+  document.getElementById('invProductTypeFilter').value = ''
   renderInventory()
   alert('低库存产品已高亮显示（黄色背景）')
 }
 
 function exportInventory() {
-  const data = [['产品名称','型号','数量','工厂','来源','最后更新']]
+  const data = [['产品名称','型号','产品类型','数量','工厂','来源','最后更新']]
   inventory.forEach(i => {
-    data.push([i.name, i.model||'', i.qty, i.factory, i.source==='order'?'订单同步':'手动录入', new Date(i.lastUpdated||i.createdAt).toLocaleString()])
+    data.push([i.name, i.model||'', i.productType||'', i.qty, i.factory, i.source==='order'?'订单同步':'手动录入', new Date(i.lastUpdated||i.createdAt).toLocaleString()])
   })
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data))
@@ -903,13 +1144,14 @@ function generateReport() {
   const totalCosts = orders.reduce((s,o) => s + (o.cost||0), 0)
   const totalTax = orders.reduce((s,o) => s + (o.cost||0)*(o.taxRate||13)/100, 0)
   const totalProfit = totalSales * usdRate - totalCosts + totalTax
+  const groupBy = document.getElementById('reportGroupBy').value
   
   document.getElementById('repTotalOrders').innerText = totalOrders
   document.getElementById('repTotalSales').innerText = totalSales.toFixed(0) + '$'
   document.getElementById('repTotalCosts').innerText = totalCosts.toFixed(0) + '¥'
   document.getElementById('repTotalProfits').innerText = totalProfit.toFixed(0) + '¥'
   
-  // 模拟月度数据
+  // 趋势图
   const months = ['1月','2月','3月','4月','5月','6月']
   const trendData = months.map((m,i) => Math.floor(totalOrders * (0.5 + i*0.15)))
   
@@ -926,6 +1168,7 @@ function generateReport() {
     }]
   })
   
+  // 利润构成图
   echarts.init(document.getElementById('repChartPie')).setOption({
     tooltip: { trigger: 'item' },
     series: [{
@@ -939,6 +1182,50 @@ function generateReport() {
       ]
     }]
   })
+  
+  // 分组表格
+  let tableHtml = ''
+  if (groupBy === 'factory') {
+    // 按工厂统计
+    const factoryMap = {}
+    orders.forEach(o => {
+      const factories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))]
+      factories.forEach(f => {
+        if (!factoryMap[f]) factoryMap[f] = { orders: 0, sales: 0, costs: 0 }
+        factoryMap[f].orders++
+        factoryMap[f].sales += o.sale || 0
+        factoryMap[f].costs += o.cost || 0
+      })
+    })
+    
+    tableHtml = '<table class="table table-sm"><thead><tr><th>工厂</th><th>订单数</th><th>销售额($)</th><th>成本(¥)</th></tr></thead><tbody>'
+    Object.entries(factoryMap).forEach(([f, data]) => {
+      tableHtml += `<tr><td>${f}</td><td>${data.orders}</td><td>${data.sales.toFixed(0)}</td><td>${data.costs.toFixed(0)}</td></tr>`
+    })
+    tableHtml += '</tbody></table>'
+  } else if (groupBy === 'productType') {
+    // 按产品类型统计
+    const typeMap = {}
+    orders.forEach(o => {
+      o.items.forEach(item => {
+        if (item.productType) {
+          if (!typeMap[item.productType]) typeMap[item.productType] = { qty: 0, value: 0 }
+          typeMap[item.productType].qty += item.qty || 0
+          typeMap[item.productType].value += (item.qty || 0) * (item.price || 0)
+        }
+      })
+    })
+    
+    tableHtml = '<table class="table table-sm"><thead><tr><th>产品类型</th><th>数量</th><th>价值(¥)</th></tr></thead><tbody>'
+    Object.entries(typeMap).forEach(([t, data]) => {
+      tableHtml += `<tr><td>${t}</td><td>${data.qty}</td><td>${data.value.toFixed(0)}</td></tr>`
+    })
+    tableHtml += '</tbody></table>'
+  } else {
+    tableHtml = '<p class="text-muted">请选择分组方式查看明细</p>'
+  }
+  
+  document.getElementById('reportGroupTable').innerHTML = tableHtml
 }
 
 function exportReport() {
@@ -988,12 +1275,29 @@ function clearAllData() {
 function resetToSample() {
   if (confirm('恢复示例数据？当前数据将被覆盖。')) {
     orders = [
-      {no:'ORD-001', contract:'CT-001', factory:'TH', customer:'客户A', delivery:'2025-03-25', prepaymentDate:'2025-03-01', contractSignDate:'2025-02-28', taxRate:13, cost:1000, sale:200, logistics:'', status:'合同执行中', items:[]},
-      {no:'ORD-002', contract:'CT-002', factory:'NT', customer:'客户B', delivery:'2025-03-30', prepaymentDate:'2025-03-05', contractSignDate:'2025-03-01', taxRate:13, cost:2000, sale:400, logistics:'LOG123', status:'已发货', items:[]}
+      {
+        no:'ORD-001', contract:'CT-001', customer:'客户A', delivery:'2025-03-25',
+        prepaymentDate:'2025-03-01', contractSignDate:'2025-02-28', taxRate:13,
+        cost:1000, sale:200, logistics:'', status:'合同执行中',
+        items:[
+          { type:'实物产品', name:'产品A', productType:'一体式直流充电桩', factory:'TH', qty:10, price:100 },
+          { type:'实物产品', name:'产品B', productType:'壁挂小直流', factory:'NT', qty:5, price:100 }
+        ],
+        createdAt: new Date().toISOString()
+      },
+      {
+        no:'ORD-002', contract:'CT-002', customer:'客户B', delivery:'2025-03-30',
+        prepaymentDate:'2025-03-05', contractSignDate:'2025-03-01', taxRate:13,
+        cost:2000, sale:400, logistics:'LOG123', status:'已发货',
+        items:[
+          { type:'实物产品', name:'产品C', productType:'分体式直流充电堆', factory:'NT', qty:20, price:100 }
+        ],
+        createdAt: new Date().toISOString()
+      }
     ]
     inventory = [
-      {id:'INV-001', name:'产品A', model:'XYZ-001', qty:50, factory:'TH', source:'order', createdAt:new Date().toISOString()},
-      {id:'INV-002', name:'产品B', model:'XYZ-002', qty:30, factory:'NT', source:'order', createdAt:new Date().toISOString()}
+      {id:'INV-001', name:'产品A', model:'XYZ-001', productType:'一体式直流充电桩', qty:50, factory:'TH', source:'order', createdAt:new Date().toISOString()},
+      {id:'INV-002', name:'产品B', model:'XYZ-002', productType:'壁挂小直流', qty:30, factory:'NT', source:'order', createdAt:new Date().toISOString()}
     ]
     inventoryLogs = [{id:'LOG-001', type:'in', name:'产品A', qty:50, factory:'TH', reason:'示例数据', time:new Date().toLocaleString()}]
     saveOrders(); saveInventory(); saveLogs()
@@ -1021,13 +1325,17 @@ function drill(type) {
     if (type === 'tax') highlight = `<span class="badge bg-warning">¥${tax.toFixed(0)}</span>`
     if (type === 'profit') highlight = `<span class="badge bg-danger">¥${profit.toFixed(0)}</span>`
     
+    // 获取该订单涉及的所有工厂（去重）
+    const factories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))].join(', ')
+    
     html += `
       <div class="list-group-item">
         <div class="d-flex justify-content-between">
           <div><strong>${o.no}</strong> | ${o.contract}</div>
           ${highlight}
         </div>
-        <div class="small">${o.factory} · ${o.customer||'-'} · 状态:${o.status}</div>
+        <div class="small">工厂: ${factories || '无'} · 客户: ${o.customer||'-'} · 状态:${o.status}</div>
+        <div class="small text-muted">产品: ${o.items.map(i => i.name).join(', ')}</div>
       </div>
     `
   })
@@ -1055,13 +1363,19 @@ function drill(type) {
   modal.addEventListener('hidden.bs.modal', () => modal.remove())
 }
 
-// ========== 订单刷新函数 ==========
+// ========== 订单刷新函数（核心优化：工厂分布数字直接显示） ==========
 function refresh() {
   const kw = document.getElementById('search').value.toLowerCase()
   const facFilter = document.getElementById('factoryFilter').value
+  const typeFilter = document.getElementById('productTypeFilter').value
   
   let totalOrder = 0, totalSale = 0, totalCost = 0, totalTax = 0, totalProfit = 0
-  let statusCount = {}, factoryMap = {}
+  let statusCount = {}
+  // 🔥 工厂分布统计：按唯一工厂统计订单数
+  let factoryOrderMap = {}
+  // 所有工厂列表（用于筛选）
+  let allFactories = new Set()
+  
   ORDER_STATUS.forEach(s => statusCount[s] = 0)
   
   orders.forEach(o => {
@@ -1071,16 +1385,36 @@ function refresh() {
     const tax = cost * (o.taxRate || 13) / 100
     const profit = sale * usdRate - cost + tax
     totalSale += sale; totalCost += cost; totalTax += tax; totalProfit += profit
+    
+    // 状态统计
     if (o.status && statusCount.hasOwnProperty(o.status)) statusCount[o.status]++
-    if (o.factory) factoryMap[o.factory] = (factoryMap[o.factory] || 0) + 1
+    
+    // 🔥 工厂分布统计：每个工厂只计一次，代表该订单涉及此工厂
+    if (o.items && o.items.length > 0) {
+      // 获取该订单涉及的所有唯一工厂
+      const orderFactories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))]
+      
+      orderFactories.forEach(factory => {
+        if (factory) {
+          // 记录工厂参与的订单数（每个订单只计一次）
+          if (!factoryOrderMap[factory]) {
+            factoryOrderMap[factory] = new Set()
+          }
+          factoryOrderMap[factory].add(o.no)
+          allFactories.add(factory)
+        }
+      })
+    }
   })
 
+  // 更新仪表盘
   document.getElementById('totalOrder').innerText = totalOrder
   document.getElementById('totalSale').innerText = totalSale.toFixed(0) + '$'
   document.getElementById('totalCost').innerText = totalCost.toFixed(0) + '¥'
   document.getElementById('totalTax').innerText = totalTax.toFixed(0) + '¥'
   document.getElementById('totalProfit').innerText = totalProfit.toFixed(0) + '¥'
 
+  // 状态看板
   let boardHtml = ''
   ORDER_STATUS.forEach(s => {
     const count = statusCount[s] || 0
@@ -1109,18 +1443,57 @@ function refresh() {
     }]
   })
 
-  // 工厂分布图表
+  // 🔥 工厂分布图表：按唯一工厂统计订单数，数字直接显示在扇形上
   const chartFactory = echarts.init(document.getElementById('chartFactory'))
-  const pieData = Object.entries(factoryMap).map(([n,v]) => ({ name: n, value: v }))
+  const pieData = Object.entries(factoryOrderMap).map(([factory, orderSet]) => ({ 
+    name: factory, 
+    value: orderSet.size  // 订单数量
+  })).sort((a, b) => b.value - a.value)
+  
   chartFactory.setOption({
-    tooltip: { trigger: 'item' },
-    legend: { orient: 'vertical', left: 'left', top: 'center' },
+    tooltip: { 
+      trigger: 'item',
+      formatter: '{b}: 参与 {c} 个订单' 
+    },
+    legend: { 
+      orient: 'vertical', 
+      left: 'left', 
+      top: 'center'
+    },
     series: [{
       name: '工厂分布',
       type: 'pie',
       radius: ['40%', '70%'],
       data: pieData.length ? pieData : [{ name: '暂无数据', value: 1 }],
-      itemStyle: { borderRadius: 10 }
+      itemStyle: { 
+        borderRadius: 10,
+        borderColor: '#fff',
+        borderWidth: 2
+      },
+      // ✅ 关键配置：显示数字标签
+      label: { 
+        show: true,           // 显示标签
+        position: 'outside',   // 放在扇形外部
+        formatter: '{b}: {c}', // 显示格式：工厂名: 订单数
+        fontSize: 12,
+        fontWeight: 'normal',
+        color: '#1e293b'
+      },
+      // 引导线样式
+      labelLine: {
+        show: true,
+        length: 10,
+        length2: 10,
+        smooth: true
+      },
+      // 高亮效果
+      emphasis: {
+        label: {
+          show: true,
+          fontSize: 14,
+          fontWeight: 'bold'
+        }
+      }
     }]
   })
 
@@ -1135,20 +1508,40 @@ function refresh() {
   })
   document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok p-2">✅ 无交期预警</div>'
 
-  // 工厂筛选
+  // 工厂筛选下拉框
+  const factoryList = Array.from(allFactories).sort()
   const sel = document.getElementById('factoryFilter')
   sel.innerHTML = '<option value="">全部工厂</option>' + 
-    Object.keys(factoryMap).map(f => `<option ${f === facFilter ? 'selected' : ''}>${f}</option>`).join('')
+    factoryList.map(f => `<option ${f === facFilter ? 'selected' : ''}>${f}</option>`).join('')
 
   // 订单列表
   let listHtml = ''
-  const filteredOrders = orders.filter(o => 
-    (o.no + o.contract + o.factory + o.customer).toLowerCase().includes(kw) && 
-    (!facFilter || o.factory === facFilter)
-  )
+  const filteredOrders = orders.filter(o => {
+    // 文本搜索
+    const textMatch = (o.no + o.contract + o.customer).toLowerCase().includes(kw)
+    
+    // 工厂筛选
+    let factoryMatch = true
+    if (facFilter) {
+      factoryMatch = o.items.some(item => item.factory === facFilter)
+    }
+    
+    // 产品类型筛选
+    let typeMatch = true
+    if (typeFilter) {
+      typeMatch = o.items.some(item => item.productType === typeFilter)
+    }
+    
+    return textMatch && factoryMatch && typeMatch
+  })
   
   filteredOrders.forEach((o, i) => {
     const idx = orders.findIndex(ord => ord === o)
+    // 获取该订单涉及的工厂（去重）
+    const orderFactories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))].join(', ')
+    // 获取产品类型列表
+    const productTypes = [...new Set(o.items.filter(i => i.productType).map(i => i.productType))].join(', ')
+    
     listHtml += `
       <div class="order-card">
         <div class="d-flex justify-content-between">
@@ -1160,8 +1553,9 @@ function refresh() {
             </ul>
           </div>
         </div>
-        <div class="small">${o.factory} · ${o.customer || '-'} · 交付:${o.delivery||'-'}</div>
-        <div class="small">成本:¥${o.cost || 0} | 销售:$${o.sale || 0}</div>
+        <div class="small">🏭 ${orderFactories || '无'} · 👥 ${o.customer || '-'}</div>
+        <div class="small"><span class="product-type-badge">📦 ${productTypes || '无'}</span></div>
+        <div class="small">交付:${o.delivery||'-'} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}</div>
         <div class="d-flex gap-1 mt-1">
           <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${idx})">编辑</button>
           <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${idx})">删除</button>
@@ -1210,7 +1604,7 @@ function restore() {
     r.onload = ev => {
       try {
         const data = JSON.parse(ev.target.result)
-        if (data.orders) orders = data.orders
+        if (data.orders) orders = data.orders.map(migrateOrderToNewFormat)
         if (data.inventory) inventory = data.inventory
         if (data.logs) inventoryLogs = data.logs
         if (data.settings) {
