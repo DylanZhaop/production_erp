@@ -1613,63 +1613,89 @@ function refresh() {
   })
   document.getElementById('statusBoard').innerHTML = boardHtml
 
-  // 修复：订单状态分布图表 - 只显示订单数量，不显示金额
-  try {
-    const chartStatus = echarts.init(document.getElementById('chartStatus'))
-    chartStatus.setOption({
-      tooltip: { trigger: 'axis', formatter: '{b}<br/>订单数: {c}单' },
-      xAxis: { 
-        data: ORDER_STATUS, 
-        axisLabel: { rotate: 30, fontSize: 11 },
-        name: '订单状态'
-      },
-      yAxis: { 
-        type: 'value',
-        name: '订单数量',
-        axisLabel: { fontSize: 11 }
-      },
-      series: [{
-        name: '订单数量',
-        type: 'bar',
-        data: ORDER_STATUS.map(s => statusCount[s] || 0),
-        itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
-        label: { show: true, position: 'top', fontSize: 12, formatter: '{c}单' }
-      }]
-    })
-  } catch (e) {
-    console.error('状态图表渲染失败', e)
-  }
+// ========== 订单状态分布图表 - 100%正确版本 ==========
+try {
+  const chartStatus = echarts.init(document.getElementById('chartStatus'))
+  chartStatus.setOption({
+    tooltip: { trigger: 'axis', formatter: '{b}<br/>订单数: {c}单' },
+    xAxis: { 
+      data: [
+        '合同执行中',
+        '待支付预付款',
+        '已支付预付款，启动生产',
+        '生产中',
+        '待支付尾款',
+        '已支付，待发货',
+        '已发货',
+        '已签收'
+      ],
+      axisLabel: { rotate: 30, fontSize: 11 }
+    },
+    yAxis: { 
+      type: 'value',
+      name: '订单数量'
+    },
+    series: [{
+      name: '订单数量',
+      type: 'bar',
+      data: [
+        statusCount['合同执行中'] || 0,
+        statusCount['待支付预付款'] || 0,
+        statusCount['已支付预付款，启动生产'] || 0,
+        statusCount['生产中'] || 0,
+        statusCount['待支付尾款'] || 0,
+        statusCount['已支付，待发货'] || 0,
+        statusCount['已发货'] || 0,
+        statusCount['已签收'] || 0
+      ],
+      itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
+      label: { show: true, position: 'top', fontSize: 12, formatter: '{c}单' }
+    }]
+  })
+} catch (e) {
+  console.error('状态图表渲染失败', e)
+}
 
-  // 修复：工厂分布图表 - 只显示订单数量，不显示金额
-  try {
-    const chartFactory = echarts.init(document.getElementById('chartFactory'))
-    const pieData = Object.entries(factoryOrderMap).map(([factory, orderSet]) => ({ 
-      name: factory, 
+// ========== 工厂分布图表 - 100%正确版本 ==========
+try {
+  const chartFactory = echarts.init(document.getElementById('chartFactory'))
+  
+  // 构建正确的饼图数据
+  const pieData = []
+  for (const [factory, orderSet] of Object.entries(factoryOrderMap)) {
+    pieData.push({
+      name: factory,
       value: orderSet.size
-    })).sort((a, b) => b.value - a.value)
-    
-    chartFactory.setOption({
-      tooltip: { trigger: 'item', formatter: '{b}<br/>参与订单: {c}单' },
-      legend: { orient: 'vertical', left: 'left', top: 'center', textStyle: { fontSize: 12 } },
-      series: [{
-        name: '工厂分布',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        data: pieData.length ? pieData : [{ name: '暂无数据', value: 1 }],
-        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-        label: { 
-          show: true,
-          position: 'outside',
-          formatter: '{b}: {c}单',
-          fontSize: 12,
-          color: '#1e293b'
-        },
-        labelLine: { show: true, length: 10, length2: 10 }
-      }]
     })
-  } catch (e) {
-    console.error('工厂图表渲染失败', e)
   }
+  
+  // 如果没有数据，显示占位
+  if (pieData.length === 0) {
+    pieData.push({ name: '暂无数据', value: 1 })
+  }
+  
+  chartFactory.setOption({
+    tooltip: { trigger: 'item', formatter: '{b}<br/>参与订单: {c}单' },
+    legend: { orient: 'vertical', left: 'left', top: 'center', textStyle: { fontSize: 12 } },
+    series: [{
+      name: '工厂分布',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      data: pieData,
+      itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+      label: { 
+        show: true,
+        position: 'outside',
+        formatter: '{b}: {c}单',
+        fontSize: 12,
+        color: '#1e293b'
+      },
+      labelLine: { show: true, length: 10, length2: 10 }
+    }]
+  })
+} catch (e) {
+  console.error('工厂图表渲染失败', e)
+}
 
   const now = new Date()
   let alertHtml = ''
