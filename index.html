@@ -25,16 +25,24 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 .nav-item i{font-size:20px;width:24px;text-align:center}
 .sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
 
-/* 右侧主内容区 - 三列布局 */
+/* 修改后 - 减小间距，让内容紧贴 */
 .main-content{
   flex:1;
   display:grid;
-  grid-template-columns:1fr 400px;
-  gap:16px;
-  padding:16px;
+  grid-template-columns:1fr 380px;  /* 右侧列宽度减小 */
+  gap:8px;  /* 间距从16px减小到8px */
+  padding:12px;  /* 内边距从16px减小到12px */
   background:#f0f2f5;
   overflow:hidden;
   height:100vh;
+}
+
+/* 右侧列宽度调整 */
+.right-column{
+  width: 380px;
+  min-width: 300px;
+  max-width: 600px;  /* 减小最大宽度 */
+  /* 其他样式不变 */
 }
 
 /* 中间列 - 核心操作区 */
@@ -691,15 +699,18 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">🌐 默认汇率</div>
                   <div class="setting-desc">设置USD兑CNY的默认汇率</div>
+                  <!-- 修改后 -->
                   <div class="row g-2 align-items-center">
                     <div class="col-md-2">
-                      <input type="number" class="form-control form-control-sm" id="settingsUsdRate" value="7.20" step="0.01">
+                      <input type="number" class="form-control form-control-sm" id="settingsLowStock" value="10" min="1">
                     </div>
                     <div class="col-md-2">
-                      <button class="btn btn-sm btn-primary" onclick="saveSettingsRate()">保存</button>
+                      <button class="btn btn-sm btn-primary" onclick="saveSettingsThreshold()">保存</button>
+                    </div>
+                    <div class="col-md-3">
+                      <span class="text-muted">低于此值显示预警</span>
                     </div>
                   </div>
-                </div>
 
                 <div class="setting-item">
                   <div class="setting-label">⚠️ 预警阈值</div>
