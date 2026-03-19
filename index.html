@@ -46,7 +46,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   height:100%;
 }
 
-/* 右侧列 - 订单列表 - 可调整宽度并保存偏好 */
+/* 右侧列 - 订单列表 - 可调整宽度并保存偏好 - 修复拖拽问题 */
 .right-column{
   width: 400px;
   min-width: 300px;
@@ -60,14 +60,22 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   box-shadow:-2px 0 8px rgba(0,0,0,0.02);
   height:100%;
   position: relative;
+  transition: none; /* 防止拖拽时的过渡动画影响性能 */
 }
 
-/* 添加调整手柄提示 */
+/* 确保拖拽手柄可见且易用 */
 .right-column::-webkit-resizer {
   background-color: #0d6efd;
   border-radius: 4px 0 4px 0;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.right-column::-webkit-resizer:hover {
+  opacity: 1;
+  background-color: #0b5ed7;
 }
 
 /* 添加拖拽提示线 */
@@ -120,7 +128,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   transform:translateY(-1px);
 }
 
-/* 不同状态的卡片左边框颜色 */
+/* 不同状态的卡片左边框颜色 - 确保每个状态颜色不同 */
 .order-card.status-contract-executing {
   border-left:4px solid #6c757d;  /* 合同执行中 - 灰色 */
 }
@@ -131,10 +139,10 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   border-left:4px solid #0dcaf0;  /* 已支付预付款启动生产 - 青色 */
 }
 .order-card.status-in-production {
-  border-left:4px solid #0d6efd;  /* 生产中 - 蓝色 */
+  border-left:4px solid #fd7e14;  /* 生产中 - 橙色 (之前是蓝色，与已发货冲突) */
 }
 .order-card.status-balance-pending {
-  border-left:4px solid #fd7e14;  /* 待支付尾款 - 橙色 */
+  border-left:4px solid #d63384;  /* 待支付尾款 - 粉色 */
 }
 .order-card.status-paid-pending-ship {
   border-left:4px solid #20c997;  /* 已支付待发货 - 青绿 */
@@ -154,7 +162,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   background-color:#f8fafc;
 }
 
-/* 状态徽章样式 */
+/* 状态徽章样式 - 确保每个状态颜色不同 */
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
@@ -169,8 +177,8 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 .status-badge.contract-executing { background-color: #6c757d; }
 .status-badge.prepayment-pending { background-color: #ffc107; color: #000; }
 .status-badge.prepayment-paid { background-color: #0dcaf0; color: #000; }
-.status-badge.in-production { background-color: #0d6efd; }
-.status-badge.balance-pending { background-color: #fd7e14; }
+.status-badge.in-production { background-color: #fd7e14; } /* 橙色 */
+.status-badge.balance-pending { background-color: #d63384; } /* 粉色 */
 .status-badge.paid-pending-ship { background-color: #20c997; color: #000; }
 .status-badge.shipped { background-color: #0d6efd; }
 .status-badge.received { background-color: #198754; }
@@ -284,7 +292,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v1.7</small>
+      <small>正式版 v2.0</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -391,9 +399,9 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
             <!-- 状态看板 -->
             <div class="status-board" id="statusBoard"></div>
 
-            <!-- 预警卡片 -->
+            <!-- 预警卡片 - 优化版 -->
             <div class="card">
-              <div class="card-header">⚠️ 交期预警</div>
+              <div class="card-header">⚠️ 交期预警 <small class="text-muted">(已发货/已签收订单不预警)</small></div>
               <div class="card-body" id="alertBox"></div>
             </div>
 
@@ -408,7 +416,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
               </select>
             </div>
 
-            <!-- 新增订单卡片 -->
+            <!-- 新增订单卡片 - 增加发货日期字段 -->
             <div class="card" id="formCard">
               <div class="card-header" id="formTitle">➕ 新增订单</div>
               <div class="card-body">
@@ -480,7 +488,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                   <div class="col-md-6">
                     <div class="field-container">
                       <span class="field-label">📌 订单状态</span>
-                      <select class="form-select form-select-sm" id="status" onchange="toggleLogisticsField()">
+                      <select class="form-select form-select-sm" id="status" onchange="toggleShipDateField()">
                         <option>合同执行中</option>
                         <option>待支付预付款</option>
                         <option>已支付预付款，启动生产</option>
@@ -490,6 +498,13 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                         <option>已发货</option>
                         <option>已签收</option>
                       </select>
+                    </div>
+                  </div>
+                  <!-- 发货日期字段 - 仅在状态为已发货时显示 -->
+                  <div class="col-md-6" id="shipDateField" style="display: none;">
+                    <div class="field-container">
+                      <span class="field-label">📆 发货日期</span>
+                      <input type="date" class="form-control form-control-sm" id="shipDate">
                     </div>
                   </div>
                   <div class="col-md-6" id="logisticsField" style="display: none;">
@@ -712,11 +727,14 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v1.7 工厂分布三图版</div>
+                    <div><strong>版本：</strong>v2.0 交期预警优化版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 工厂分布拆分为三个饼图（实物/配件/其他）</div>
-                    <div>✅ 修复退税率为0的问题</div>
-                    <div>✅ 订单列表状态彩色显示</div>
+                    <div>✅ 新增发货日期字段，已发货订单不再预警</div>
+                    <div>✅ 补录历史订单自动识别不预警</div>
+                    <div>✅ 订单状态变更为已发货后立即停止预警</div>
+                    <div>✅ 工厂分布图表直接显示名称和数字</div>
+                    <div>✅ 订单状态颜色区分优化</div>
+                    <div>✅ 订单列表宽度可手动拖拽调整</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -727,9 +745,9 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
       </div>
     </div>
 
-    <!-- 右侧列 - 订单列表 - 可调整宽度 -->
+    <!-- 右侧列 - 订单列表 - 可调整宽度 - 修复拖拽问题 -->
     <div class="right-column" id="resizableColumn">
-      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，可拖拽右边框调整宽度)</small></h6>
+      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，可拖拽右下角调整宽度)</small></h6>
       <div class="order-grid" id="orderList"></div>
     </div>
   </div>
@@ -831,8 +849,8 @@ const STATUS_COLOR = {
   '合同执行中':'secondary',
   '待支付预付款':'warning',
   '已支付预付款，启动生产':'info',
-  '生产中':'primary',
-  '待支付尾款':'warning',
+  '生产中':'warning',
+  '待支付尾款':'danger',
   '已支付，待发货':'info',
   '已发货':'primary',
   '已签收':'success'
@@ -855,7 +873,7 @@ const ORDER_STORAGE = 'ERP_ORDER_FINAL'
 const INVENTORY_STORAGE = 'ERP_INVENTORY'
 const LOG_STORAGE = 'ERP_INVENTORY_LOGS'
 const SETTINGS_STORAGE = 'ERP_SETTINGS'
-const WIDTH_STORAGE = 'ORDER_LIST_WIDTH'  // 保存宽度的key
+const WIDTH_STORAGE = 'ORDER_LIST_WIDTH'
 
 // 全局变量
 let orders = []
@@ -1139,10 +1157,22 @@ function calcTotalCost() {
   document.getElementById('costRmb').value = total ? total.toFixed(2) : ''
 }
 
-function toggleLogisticsField() {
+// 切换发货日期和物流单号字段的显示
+function toggleShipDateField() {
   const status = document.getElementById('status').value
-  document.getElementById('logisticsField').style.display = status === '已发货' ? 'block' : 'none'
-  if (status !== '已发货') document.getElementById('logistics').value = ''
+  const shipDateField = document.getElementById('shipDateField')
+  const logisticsField = document.getElementById('logisticsField')
+  
+  if (status === '已发货') {
+    shipDateField.style.display = 'block'
+    logisticsField.style.display = 'block'
+  } else {
+    shipDateField.style.display = 'none'
+    logisticsField.style.display = 'none'
+    // 清空字段值
+    document.getElementById('shipDate').value = ''
+    document.getElementById('logistics').value = ''
+  }
 }
 
 function syncInventoryFromOrder(order) {
@@ -1212,21 +1242,25 @@ function saveOrder() {
   if (hasError) return
   
   const status = document.getElementById('status').value
-  // 修复：正确处理退税率为0的情况
   const taxRateValue = document.getElementById('taxRate').value
   const taxRate = taxRateValue === '' ? 13 : parseFloat(taxRateValue)
+  
+  // 只有状态为已发货时才保存发货日期和物流单号
+  const shipDate = status === '已发货' ? document.getElementById('shipDate').value : ''
+  const logistics = status === '已发货' ? document.getElementById('logistics').value.trim() : ''
   
   const order = {
     no: document.getElementById('orderNo').value.trim(),
     contract: document.getElementById('contractNo').value.trim(),
     customer: document.getElementById('customer').value.trim(),
     delivery: document.getElementById('delivery').value,
+    shipDate: shipDate,  // 新增发货日期
     prepaymentDate: document.getElementById('prepaymentDate').value,
     contractSignDate: document.getElementById('contractSignDate').value,
     taxRate: taxRate,
     cost: parseFloat(document.getElementById('costRmb').value) || 0,
     sale: parseFloat(document.getElementById('saleUsd').value) || 0,
-    logistics: status === '已发货' ? document.getElementById('logistics').value.trim() : '',
+    logistics: logistics,
     status: status,
     items: items,
     createdAt: new Date().toISOString()
@@ -1268,12 +1302,14 @@ function cancelOrder() {
   document.getElementById('contractNo').value = ''
   document.getElementById('customer').value = ''
   document.getElementById('delivery').value = ''
+  document.getElementById('shipDate').value = ''
   document.getElementById('prepaymentDate').value = ''
   document.getElementById('contractSignDate').value = ''
   document.getElementById('taxRate').value = '13'
   document.getElementById('saleUsd').value = ''
   document.getElementById('logistics').value = ''
   document.getElementById('status').value = '合同执行中'
+  document.getElementById('shipDateField').style.display = 'none'
   document.getElementById('logisticsField').style.display = 'none'
   document.getElementById('itemsList').innerHTML = ''
   addItem()
@@ -1289,13 +1325,14 @@ function editOrder(i) {
   document.getElementById('contractNo').value = o.contract || ''
   document.getElementById('customer').value = o.customer || ''
   document.getElementById('delivery').value = o.delivery || ''
+  document.getElementById('shipDate').value = o.shipDate || ''
   document.getElementById('prepaymentDate').value = o.prepaymentDate || ''
   document.getElementById('contractSignDate').value = o.contractSignDate || ''
   document.getElementById('taxRate').value = o.taxRate === 0 ? '0' : (o.taxRate || 13)
   document.getElementById('saleUsd').value = o.sale || ''
   document.getElementById('logistics').value = o.logistics || ''
   document.getElementById('status').value = o.status || '合同执行中'
-  toggleLogisticsField()
+  toggleShipDateField()
   
   document.getElementById('itemsList').innerHTML = ''
   if (o.items?.length) {
@@ -1363,7 +1400,11 @@ function deleteOrder(i) {
 
 function updateOrderStatus(i, newStatus) {
   orders[i].status = newStatus
-  if (newStatus !== '已发货') orders[i].logistics = ''
+  // 如果状态不是已发货，清空物流单号和发货日期
+  if (newStatus !== '已发货') {
+    orders[i].logistics = ''
+    orders[i].shipDate = ''
+  }
   saveOrders()
   refresh()
 }
@@ -1554,13 +1595,19 @@ function generateReport() {
   const totalOrders = orders.length
   const totalSales = orders.reduce((s,o) => s + (o.sale||0), 0)
   const totalCosts = orders.reduce((s,o) => s + (o.cost||0), 0)
-  const totalTax = orders.reduce((s,o) => s + (o.cost||0)*(o.taxRate||13)/100, 0)
+  let totalTax = 0
+  orders.forEach(o => {
+    const cost = o.cost || 0
+    const taxRate = o.taxRate === 0 ? 0 : (o.taxRate || 13)
+    totalTax += cost * taxRate / 100
+  })
   const totalProfit = totalSales * usdRate - totalCosts + totalTax
   const groupBy = document.getElementById('reportGroupBy').value
   
   document.getElementById('repTotalOrders').innerText = totalOrders
   document.getElementById('repTotalSales').innerText = totalSales.toFixed(0) + '$'
   document.getElementById('repTotalCosts').innerText = totalCosts.toFixed(0) + '¥'
+  document.getElementById('repTotalTax').innerText = totalTax.toFixed(0) + '¥'
   document.getElementById('repTotalProfits').innerText = totalProfit.toFixed(0) + '¥'
   
   const months = ['1月','2月','3月','4月','5月','6月']
@@ -1652,7 +1699,6 @@ function saveSettingsRate() {
   if (rate > 0) {
     usdRate = rate
     
-    // 更新所有显示汇率的地方
     const usdRateInput = document.getElementById('usdRate')
     if (usdRateInput) usdRateInput.value = rate
     
@@ -1690,7 +1736,10 @@ function drill(type) {
   
   let html = '<div class="list-group">'
   orders.forEach((o, i) => {
-    const sale = o.sale||0, cost = o.cost||0, tax = cost*(o.taxRate||13)/100, profit = sale*usdRate - cost + tax
+    const sale = o.sale||0, cost = o.cost||0
+    const taxRate = o.taxRate === 0 ? 0 : (o.taxRate || 13)
+    const tax = cost * taxRate / 100
+    const profit = sale * usdRate - cost + tax
     let highlight = ''
     if (type === 'sale') highlight = `<span class="badge bg-success">$${sale}</span>`
     if (type === 'cost') highlight = `<span class="badge bg-info">¥${cost}</span>`
@@ -1734,7 +1783,7 @@ function drill(type) {
   modal.addEventListener('hidden.bs.modal', () => modal.remove())
 }
 
-// ========== 订单刷新函数 - 完全修复版 ==========
+// ========== 订单刷新函数 - 修复版 ==========
 function refresh() {
   console.log('刷新订单列表，订单数:', orders.length)
   
@@ -1742,30 +1791,19 @@ function refresh() {
   const facFilter = document.getElementById('factoryFilter').value
   const typeFilter = document.getElementById('productTypeFilter').value
   
-  // 初始化统计变量
-  let totalOrder = 0
-  let totalSale = 0
-  let totalCost = 0
-  let totalTax = 0
-  let totalProfit = 0
-  
-  // 状态统计：每个状态初始为0
+  let totalOrder = 0, totalSale = 0, totalCost = 0, totalTax = 0, totalProfit = 0
   let statusCount = {}
   ORDER_STATUS.forEach(s => statusCount[s] = 0)
   
-  // 工厂统计：按产品类型分类
-  let factoryMapReal = {}  // 实物产品
-  let factoryMapPart = {}  // 配件
-  let factoryMapOther = {} // 其他
+  let factoryMapReal = {}, factoryMapPart = {}, factoryMapOther = {}
   
-  // 遍历订单进行统计
   orders.forEach(o => {
     totalOrder++
     
     const sale = o.sale || 0
     const cost = o.cost || 0
-    // 修复：正确处理退税率为0的情况
-    const tax = cost * (o.taxRate || 13) / 100
+    const taxRate = o.taxRate === 0 ? 0 : (o.taxRate || 13)
+    const tax = cost * taxRate / 100
     const profit = sale * usdRate - cost + tax
     
     totalSale += sale
@@ -1773,36 +1811,31 @@ function refresh() {
     totalTax += tax
     totalProfit += profit
     
-    // 状态统计：每个订单只计一次
     if (o.status && statusCount.hasOwnProperty(o.status)) {
       statusCount[o.status]++
     }
     
-    // 按产品类型统计工厂分布
     if (o.items && o.items.length > 0) {
       o.items.forEach(item => {
-        if (item.factory) {
-          // 根据产品类型分类统计
+        if (item.factory && item.qty) {
           if (item.type === '实物产品') {
-            factoryMapReal[item.factory] = (factoryMapReal[item.factory] || 0) + 1
+            factoryMapReal[item.factory] = (factoryMapReal[item.factory] || 0) + item.qty
           } else if (item.type === '配件') {
-            factoryMapPart[item.factory] = (factoryMapPart[item.factory] || 0) + 1
+            factoryMapPart[item.factory] = (factoryMapPart[item.factory] || 0) + item.qty
           } else {
-            factoryMapOther[item.factory] = (factoryMapOther[item.factory] || 0) + 1
+            factoryMapOther[item.factory] = (factoryMapOther[item.factory] || 0) + item.qty
           }
         }
       })
     }
   })
 
-  // 更新仪表盘
   document.getElementById('totalOrder').innerText = totalOrder
   document.getElementById('totalSale').innerText = totalSale.toFixed(0) + '$'
   document.getElementById('totalCost').innerText = totalCost.toFixed(0) + '¥'
   document.getElementById('totalTax').innerText = totalTax.toFixed(0) + '¥'
   document.getElementById('totalProfit').innerText = totalProfit.toFixed(0) + '¥'
 
-  // 更新状态看板
   let boardHtml = ''
   ORDER_STATUS.forEach(s => {
     const count = statusCount[s] || 0
@@ -1816,65 +1849,26 @@ function refresh() {
   })
   document.getElementById('statusBoard').innerHTML = boardHtml
 
-  // ===== 订单状态分布图表 - 硬编码确保正确 =====
+  // 订单状态分布图表
   try {
-    // 获取DOM元素
     const chartStatusDom = document.getElementById('chartStatus')
-    if (!chartStatusDom) {
-      console.error('找不到chartStatus元素')
-    } else {
-      // 先尝试销毁旧实例
+    if (chartStatusDom) {
       const existingChart = echarts.getInstanceByDom(chartStatusDom)
-      if (existingChart) {
-        existingChart.dispose()
-      }
-      
-      // 创建新实例
+      if (existingChart) existingChart.dispose()
       const chartStatus = echarts.init(chartStatusDom)
-      
-      // 硬编码配置，确保绝对正确
       chartStatus.setOption({
-        tooltip: { 
-          trigger: 'axis', 
-          formatter: '{b}<br/>订单数: {c}单' 
-        },
+        tooltip: { trigger: 'axis', formatter: '{b}<br/>订单数: {c}单' },
         xAxis: { 
-          data: [
-            '合同执行中',
-            '待支付预付款',
-            '已支付预付款，启动生产',
-            '生产中',
-            '待支付尾款',
-            '已支付，待发货',
-            '已发货',
-            '已签收'
-          ],
+          data: ORDER_STATUS,
           axisLabel: { rotate: 30, fontSize: 11 }
         },
-        yAxis: { 
-          type: 'value',
-          name: '订单数量'
-        },
+        yAxis: { type: 'value', name: '订单数量' },
         series: [{
           name: '订单数量',
           type: 'bar',
-          data: [
-            statusCount['合同执行中'] || 0,
-            statusCount['待支付预付款'] || 0,
-            statusCount['已支付预付款，启动生产'] || 0,
-            statusCount['生产中'] || 0,
-            statusCount['待支付尾款'] || 0,
-            statusCount['已支付，待发货'] || 0,
-            statusCount['已发货'] || 0,
-            statusCount['已签收'] || 0
-          ],
+          data: ORDER_STATUS.map(s => statusCount[s] || 0),
           itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
-          label: { 
-            show: true, 
-            position: 'top', 
-            fontSize: 12, 
-            formatter: '{c}单' 
-          }
+          label: { show: true, position: 'top', fontSize: 12, formatter: '{c}单' }
         }]
       })
     }
@@ -1882,75 +1876,60 @@ function refresh() {
     console.error('状态图表渲染失败', e)
   }
 
-  // ===== 三个工厂分布图表 =====
+  // 三个工厂分布图表
   try {
-    // 实物产品工厂分布
+    // 实物产品
     const chartRealDom = document.getElementById('chartFactoryReal')
     if (chartRealDom) {
       const existingReal = echarts.getInstanceByDom(chartRealDom)
       if (existingReal) existingReal.dispose()
       const chartReal = echarts.init(chartRealDom)
-      
-      const realData = Object.entries(factoryMapReal).map(([factory, count]) => ({
-        name: factory,
-        value: count
-      })).sort((a, b) => b.value - a.value)
-      
+      const realData = Object.entries(factoryMapReal).map(([f, c]) => ({ name: f, value: c }))
       chartReal.setOption({
         tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
         series: [{
           type: 'pie',
-          radius: ['50%', '70%'],
-          data: realData.length ? realData : [{ name: '暂无', value: 1 }],
-          label: { show: false },
+          radius: ['40%', '70%'],
+          data: realData.length ? realData : [{ name: '暂无数据', value: 1 }],
+          label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
           emphasis: { scale: true }
         }]
       })
     }
 
-    // 配件工厂分布
+    // 配件
     const chartPartDom = document.getElementById('chartFactoryPart')
     if (chartPartDom) {
       const existingPart = echarts.getInstanceByDom(chartPartDom)
       if (existingPart) existingPart.dispose()
       const chartPart = echarts.init(chartPartDom)
-      
-      const partData = Object.entries(factoryMapPart).map(([factory, count]) => ({
-        name: factory,
-        value: count
-      })).sort((a, b) => b.value - a.value)
-      
+      const partData = Object.entries(factoryMapPart).map(([f, c]) => ({ name: f, value: c }))
       chartPart.setOption({
         tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
         series: [{
           type: 'pie',
-          radius: ['50%', '70%'],
-          data: partData.length ? partData : [{ name: '暂无', value: 1 }],
-          label: { show: false },
+          radius: ['40%', '70%'],
+          data: partData.length ? partData : [{ name: '暂无数据', value: 1 }],
+          label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
           emphasis: { scale: true }
         }]
       })
     }
 
-    // 其他工厂分布
+    // 其他
     const chartOtherDom = document.getElementById('chartFactoryOther')
     if (chartOtherDom) {
       const existingOther = echarts.getInstanceByDom(chartOtherDom)
       if (existingOther) existingOther.dispose()
       const chartOther = echarts.init(chartOtherDom)
-      
-      const otherData = Object.entries(factoryMapOther).map(([factory, count]) => ({
-        name: factory,
-        value: count
-      })).sort((a, b) => b.value - a.value)
-      
+      const otherData = Object.entries(factoryMapOther).map(([f, c]) => ({ name: f, value: c }))
       chartOther.setOption({
         tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
         series: [{
           type: 'pie',
-          radius: ['50%', '70%'],
-          data: otherData.length ? otherData : [{ name: '暂无', value: 1 }],
-          label: { show: false },
+          radius: ['40%', '70%'],
+          data: otherData.length ? otherData : [{ name: '暂无数据', value: 1 }],
+          label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
           emphasis: { scale: true }
         }]
       })
@@ -1959,15 +1938,25 @@ function refresh() {
     console.error('工厂图表渲染失败', e)
   }
 
-  // 更新预警
+  // ===== 优化版交期预警 =====
   const now = new Date()
   let alertHtml = ''
+  
   orders.forEach(o => {
+    // 已发货和已签收的订单不预警
+    if (o.status === '已发货' || o.status === '已签收') return
     if (!o.delivery) return
-    const days = (new Date(o.delivery) - now) / 86400000
-    if (days < 0) alertHtml += `<div class="alert-overdue p-1 small">🔴 ${o.no} 已延期 ${Math.abs(Math.floor(days))}天</div>`
-    else if (days <= 7) alertHtml += `<div class="alert-soon p-1 small">🟡 ${o.no} ${Math.floor(days)}天后到期</div>`
+    
+    const deliveryDate = new Date(o.delivery)
+    const days = (deliveryDate - now) / 86400000
+    
+    if (days < 0) {
+      alertHtml += `<div class="alert-overdue p-1 small">🔴 ${o.no} 已延期 ${Math.abs(Math.floor(days))}天</div>`
+    } else if (days <= 7) {
+      alertHtml += `<div class="alert-soon p-1 small">🟡 ${o.no} ${Math.floor(days)}天后到期</div>`
+    }
   })
+  
   document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok p-2">✅ 无交期预警</div>'
 
   // 更新工厂筛选下拉框
@@ -1981,7 +1970,7 @@ function refresh() {
   sel.innerHTML = '<option value="">全部工厂</option>' + 
     factoryList.map(f => `<option ${f === facFilter ? 'selected' : ''}>${f}</option>`).join('')
 
-  // 订单列表渲染 - 带彩色状态
+  // 订单列表渲染
   let listHtml = ''
   
   const filteredOrders = orders.filter(o => {
@@ -2004,8 +1993,10 @@ function refresh() {
     const orderFactories = o.items?.filter(i => i.factory).map(i => i.factory) || []
     const uniqueFactories = [...new Set(orderFactories)].join(', ') || '无'
     
-    // 获取状态对应的卡片类名
     const cardClass = STATUS_CARD_CLASS[o.status] || ''
+    
+    // 显示发货日期（如果有）
+    const shipDateDisplay = o.shipDate ? ` | 发货:${o.shipDate}` : ''
     
     listHtml += `
       <div class="order-card ${cardClass}">
@@ -2037,7 +2028,7 @@ function refresh() {
         </div>
         
         <div class="small mt-1" style="font-size:13px">
-          📅 交付:${o.delivery || '-'} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}
+          📅 交付:${o.delivery || '-'}${shipDateDisplay} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}
         </div>
         
         <div class="d-flex gap-1 mt-2">
@@ -2103,7 +2094,6 @@ function restore() {
         
         saveOrders(); saveInventory(); saveLogs(); saveSettings()
         
-        // 安全地设置DOM元素的值
         const usdRateInput = document.getElementById('usdRate')
         if (usdRateInput) usdRateInput.value = usdRate
         
@@ -2220,41 +2210,33 @@ function initResizableColumn() {
   const column = document.getElementById('resizableColumn')
   if (!column) return
   
-  // 读取保存的宽度
   const savedWidth = localStorage.getItem(WIDTH_STORAGE)
   if (savedWidth) {
     column.style.width = savedWidth + 'px'
+    column.style.minWidth = savedWidth + 'px'
   }
   
-  // 监听调整结束事件，保存宽度
   let resizeTimeout
-  column.addEventListener('mouseup', function() {
-    clearTimeout(resizeTimeout)
-    resizeTimeout = setTimeout(() => {
-      const currentWidth = this.offsetWidth
-      localStorage.setItem(WIDTH_STORAGE, currentWidth)
-      console.log('保存列宽:', currentWidth)
-    }, 500)
+  const observer = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        const currentWidth = entry.contentRect.width
+        localStorage.setItem(WIDTH_STORAGE, Math.round(currentWidth))
+        console.log('保存列宽:', Math.round(currentWidth))
+      }, 500)
+    }
   })
   
-  // 也监听键盘事件（调整时按方向键微调）
-  column.addEventListener('keyup', function() {
-    clearTimeout(resizeTimeout)
-    resizeTimeout = setTimeout(() => {
-      const currentWidth = this.offsetWidth
-      localStorage.setItem(WIDTH_STORAGE, currentWidth)
-    }, 500)
-  })
+  observer.observe(column)
+  column.style.overflow = 'auto'
 }
 
 // ========== 加载数据并初始化 ==========
 loadData()
 
-// 确保DOM完全加载后再渲染
 document.addEventListener('DOMContentLoaded', function() {
-  // 给数据加载一点缓冲时间
   setTimeout(function() {
-    // 初始化UI
     document.getElementById('usdRate').value = usdRate
     document.getElementById('usdRateSide').innerText = usdRate.toFixed(2)
     const usdRateTop = document.getElementById('usdRateTop')
@@ -2269,7 +2251,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cancelOrder()
     refresh()
     renderInventory()
-    initResizableColumn()  // 初始化可调整宽度
+    initResizableColumn()
     
     console.log('初始化完成')
   }, 100)
