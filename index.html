@@ -13,81 +13,76 @@
 body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:hidden}
 .app-container{display:flex;height:100vh;width:100vw;overflow:hidden}
 
-/* 左侧导航 - 减小留白 */
+/* 左侧导航 - 减小内边距，消除左侧留白 */
 .sidebar{width:200px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.1)}
-.sidebar-header{padding:20px 12px;border-bottom:1px solid #334155}
-.sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:18px}
-.sidebar-header small{color:#94a3b8;font-size:13px}
-.sidebar-nav{flex:1;padding:12px 4px}
-.nav-item{display:flex;align-items:center;gap:8px;padding:10px 10px;border-radius:8px;margin-bottom:2px;color:#cbd5e1;cursor:pointer;transition:all 0.2s;font-size:15px}
-.nav-item:hover{background:#334155;color:#fff}
-.nav-item.active{background:#0d6efd;color:#fff}
-.nav-item i{font-size:20px;width:24px;text-align:center}
-.sidebar-footer{padding:12px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
+.sidebar-header{padding:16px 10px;}  /* 减小内边距 */
+.sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:16px}
+.sidebar-header small{color:#94a3b8;font-size:12px}
+.sidebar-nav{flex:1;padding:8px 4px}
+.nav-item{padding:8px 8px;margin-bottom:2px;font-size:14px}  /* 更紧凑 */
+.sidebar-footer{padding:10px;font-size:12px}
 
-/* 右侧主内容区 - 改为flex布局支持拖拽 */
+/* 右侧主内容区 - 消除所有间隙 */
 .main-content{
   flex:1;
   display:flex;
-  gap:0;
-  padding:8px;
+  gap:0px;  /* 完全消除间隙 */
+  padding:4px;  /* 最小化内边距 */
   background:#f0f2f5;
   overflow:hidden;
   height:100vh;
 }
 
-/* 中间列 - 核心操作区，自适应宽度 */
+/* 中间列 - 核心操作区，紧贴左侧导航 */
 .middle-column{
   flex:1;
   min-width:300px;
   background:transparent;
   overflow-y:auto;
   overflow-x:hidden;
-  padding-right:2px;
+  padding-right:0;  /* 移除右侧内边距 */
   height:100%;
 }
 
-/* 拖拽分隔条 */
+/* 更细的拖拽分隔条 - 2px */
 .resizer {
-  width: 6px;
+  width: 2px;
   background: transparent;
   cursor: col-resize;
   transition: background 0.2s;
-  margin: 0 2px;
+  margin: 0;
   height: 100%;
 }
 
 .resizer:hover,
 .resizer:active {
   background: #0d6efd;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
-/* 右侧列 - 订单列表，固定初始宽度，由JS控制 */
+/* 右侧列 - 订单列表，紧贴中间列 */
 .right-column{
-  width: 380px;
+  width: 350px;  /* 默认宽度 */
   min-width: 250px;
-  max-width: 800px;
+  max-width: 600px;
   background:#f8fafc;
-  border-radius:8px;
-  padding:10px;
-  border-left:2px solid #e2e8f0;
-  box-shadow:-2px 0 8px rgba(0,0,0,0.02);
+  border-radius:0 6px 6px 0;  /* 只保留右侧圆角 */
+  padding:8px;
+  border-left:1px solid #e2e8f0;
   height:100%;
   overflow-y:auto;
 }
 
-.right-column h6{
-  position:sticky;
-  top:0;
-  background:#f8fafc;
-  padding:6px 0;
-  margin:0 0 8px 0;
-  z-index:10;
-  border-bottom:1px solid #e2e8f0;
-  font-weight:600;
-  font-size:15px;
-}
+/* 卡片内边距统一减小 */
+.card{margin-bottom:6px; border-radius:4px;}
+.card-header{padding:8px 12px; font-size:14px;}
+.card-body{padding:10px;}
+.toolbar{padding:6px 8px; margin-bottom:6px; gap:4px;}
+.dashboard-grid{gap:3px; margin-bottom:6px;}
+.dashboard-card{padding:6px;}
+.dashboard-label{font-size:11px;}
+.dashboard-value{font-size:18px;}
+
 
 /* 订单列表交替背景 - 状态彩色标签 */
 .order-grid{
