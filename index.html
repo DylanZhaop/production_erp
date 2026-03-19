@@ -139,7 +139,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   border-left:4px solid #0dcaf0;  /* 已支付预付款启动生产 - 青色 */
 }
 .order-card.status-in-production {
-  border-left:4px solid #fd7e14;  /* 生产中 - 橙色 (之前是蓝色，与已发货冲突) */
+  border-left:4px solid #fd7e14;  /* 生产中 - 橙色 */
 }
 .order-card.status-balance-pending {
   border-left:4px solid #d63384;  /* 待支付尾款 - 粉色 */
@@ -161,27 +161,6 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 .order-card:nth-child(even){
   background-color:#f8fafc;
 }
-
-/* 状态徽章样式 - 确保每个状态颜色不同 */
-.status-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  color: white;
-  text-align: center;
-  min-width: 100px;
-}
-
-.status-badge.contract-executing { background-color: #6c757d; }
-.status-badge.prepayment-pending { background-color: #ffc107; color: #000; }
-.status-badge.prepayment-paid { background-color: #0dcaf0; color: #000; }
-.status-badge.in-production { background-color: #fd7e14; } /* 橙色 */
-.status-badge.balance-pending { background-color: #d63384; } /* 粉色 */
-.status-badge.paid-pending-ship { background-color: #20c997; color: #000; }
-.status-badge.shipped { background-color: #0d6efd; }
-.status-badge.received { background-color: #198754; }
 
 /* 工厂分布三图布局 */
 .factory-charts-grid {
@@ -292,7 +271,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v2.1</small>
+      <small>正式版 v2.2</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -358,7 +337,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
               </div>
             </div>
 
-            <!-- 图表区域 - 修改为三个工厂分布图 -->
+            <!-- 图表区域 - 订单状态分布图 -->
             <div class="card">
               <div class="card-header">📊 订单状态分布</div>
               <div class="card-body p-2">
@@ -588,7 +567,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
           </div>
         </div>
 
-        <!-- 数据报表页面 -->
+        <!-- 数据报表页面 - 修复版 -->
         <div id="reportsPage" style="display:none">
           <div class="content-container">
             <div class="card">
@@ -675,13 +654,13 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
           </div>
         </div>
 
-        <!-- 系统设置页面 - 修复版 -->
+        <!-- 系统设置页面 -->
         <div id="settingsPage" style="display:none">
           <div class="content-container">
             <div class="card">
               <div class="card-header">⚙️ 系统设置</div>
               <div class="card-body">
-                <!-- 汇率设置 - 修复ID -->
+                <!-- 汇率设置 -->
                 <div class="setting-item">
                   <div class="setting-label">🌐 默认汇率</div>
                   <div class="setting-desc">设置USD兑CNY的默认汇率</div>
@@ -695,7 +674,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                   </div>
                 </div>
 
-                <!-- 预警阈值 - 优化布局 -->
+                <!-- 预警阈值 -->
                 <div class="setting-item">
                   <div class="setting-label">⚠️ 预警阈值</div>
                   <div class="setting-desc">设置低库存预警数量，低于此值显示黄色背景</div>
@@ -728,12 +707,12 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v2.1 库存联动版</div>
+                    <div><strong>版本：</strong>v2.2 图表优化版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 订单状态变更自动更新库存</div>
-                    <div>✅ 新增手动出库功能</div>
-                    <div>✅ 所有库存变动记录日志</div>
-                    <div>✅ 修复已发货订单预警问题</div>
+                    <div>✅ 修复报表图表无法显示的问题</div>
+                    <div>✅ 订单状态柱状图颜色与状态对应</div>
+                    <div>✅ 修复"其他"分类显示1的bug</div>
+                    <div>✅ 库存联动、手动出库功能</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -744,7 +723,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
       </div>
     </div>
 
-    <!-- 右侧列 - 订单列表 - 可调整宽度 - 修复拖拽问题 -->
+    <!-- 右侧列 - 订单列表 -->
     <div class="right-column" id="resizableColumn">
       <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，可拖拽右下角调整宽度)</small></h6>
       <div class="order-grid" id="orderList"></div>
@@ -868,7 +847,7 @@ const PRODUCT_TYPES = [
   '其他'
 ]
 
-// ========== 订单状态列表（硬编码，确保不会被修改）==========
+// ========== 订单状态列表 ==========
 const ORDER_STATUS = [
   '合同执行中',
   '待支付预付款',
@@ -879,6 +858,18 @@ const ORDER_STATUS = [
   '已发货',
   '已签收'
 ]
+
+// 状态对应的颜色（用于柱状图，与订单列表左边框颜色一致）
+const STATUS_CHART_COLOR = {
+  '合同执行中': '#6c757d',
+  '待支付预付款': '#ffc107',
+  '已支付预付款，启动生产': '#0dcaf0',
+  '生产中': '#fd7e14',
+  '待支付尾款': '#d63384',
+  '已支付，待发货': '#20c997',
+  '已发货': '#0d6efd',
+  '已签收': '#198754'
+}
 
 const STATUS_COLOR = {
   '合同执行中':'secondary',
@@ -1567,7 +1558,7 @@ function deleteOrder(i) {
   }
 }
 
-// ========== 修复：状态变更时同步库存 ==========
+// ========== 状态变更时同步库存 ==========
 function updateOrderStatus(i, newStatus) {
   const oldStatus = orders[i].status
   const order = orders[i]
@@ -1875,7 +1866,7 @@ function exportInventory() {
   XLSX.writeFile(wb, `库存列表_${new Date().toISOString().slice(0,10)}.xlsx`)
 }
 
-// ========== 报表函数 ==========
+// ========== 报表函数 - 修复版 ==========
 function generateReport() {
   const totalOrders = orders.length
   const totalSales = orders.reduce((s,o) => s + (o.sale||0), 0)
@@ -1892,39 +1883,51 @@ function generateReport() {
   document.getElementById('repTotalOrders').innerText = totalOrders
   document.getElementById('repTotalSales').innerText = totalSales.toFixed(0) + '$'
   document.getElementById('repTotalCosts').innerText = totalCosts.toFixed(0) + '¥'
-  document.getElementById('repTotalTax').innerText = totalTax.toFixed(0) + '¥'
   document.getElementById('repTotalProfits').innerText = totalProfit.toFixed(0) + '¥'
   
+  // 订单趋势图（模拟数据）
   const months = ['1月','2月','3月','4月','5月','6月']
   const trendData = months.map((m,i) => Math.floor(totalOrders * (0.5 + i*0.15)))
   
-  echarts.init(document.getElementById('repChartTrend')).setOption({
-    tooltip: { trigger: 'axis' },
-    xAxis: { data: months },
-    yAxis: {},
-    series: [{
-      name: '订单数',
-      type: 'line',
-      data: trendData,
-      smooth: true,
-      lineStyle: { color: '#0d6efd', width: 3 }
-    }]
-  })
+  try {
+    const chartTrend = echarts.init(document.getElementById('repChartTrend'))
+    chartTrend.setOption({
+      tooltip: { trigger: 'axis' },
+      xAxis: { data: months },
+      yAxis: { type: 'value' },
+      series: [{
+        name: '订单数',
+        type: 'line',
+        data: trendData,
+        smooth: true,
+        lineStyle: { color: '#0d6efd', width: 3 }
+      }]
+    })
+  } catch (e) {
+    console.error('趋势图渲染失败', e)
+  }
   
-  echarts.init(document.getElementById('repChartPie')).setOption({
-    tooltip: { trigger: 'item' },
-    series: [{
-      name: '利润构成',
-      type: 'pie',
-      radius: ['40%', '70%'],
-      data: [
-        { name: '毛利润', value: Math.max(totalProfit, 1), itemStyle: { color: '#dc3545' } },
-        { name: '总成本', value: Math.max(totalCosts, 1), itemStyle: { color: '#0d6efd' } },
-        { name: '退税额', value: Math.max(totalTax, 1), itemStyle: { color: '#ffc107' } }
-      ]
-    }]
-  })
+  // 利润构成图
+  try {
+    const chartPie = echarts.init(document.getElementById('repChartPie'))
+    chartPie.setOption({
+      tooltip: { trigger: 'item' },
+      series: [{
+        name: '利润构成',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        data: [
+          { name: '毛利润', value: Math.max(totalProfit, 1), itemStyle: { color: '#dc3545' } },
+          { name: '总成本', value: Math.max(totalCosts, 1), itemStyle: { color: '#0d6efd' } },
+          { name: '退税额', value: Math.max(totalTax, 1), itemStyle: { color: '#ffc107' } }
+        ]
+      }]
+    })
+  } catch (e) {
+    console.error('利润图渲染失败', e)
+  }
   
+  // 分组表格
   let tableHtml = ''
   if (groupBy === 'factory') {
     const factoryMap = {}
@@ -2134,13 +2137,14 @@ function refresh() {
   })
   document.getElementById('statusBoard').innerHTML = boardHtml
 
-  // 订单状态分布图表
+  // ===== 订单状态分布图表 - 颜色与状态对应 =====
   try {
     const chartStatusDom = document.getElementById('chartStatus')
     if (chartStatusDom) {
       const existingChart = echarts.getInstanceByDom(chartStatusDom)
       if (existingChart) existingChart.dispose()
       const chartStatus = echarts.init(chartStatusDom)
+      
       chartStatus.setOption({
         tooltip: { trigger: 'axis', formatter: '{b}<br/>订单数: {c}单' },
         xAxis: { 
@@ -2152,7 +2156,11 @@ function refresh() {
           name: '订单数量',
           type: 'bar',
           data: ORDER_STATUS.map(s => statusCount[s] || 0),
-          itemStyle: { color: '#0d6efd', borderRadius: [4,4,0,0] },
+          itemStyle: {
+            color: function(params) {
+              return STATUS_CHART_COLOR[ORDER_STATUS[params.dataIndex]] || '#0d6efd'
+            }
+          },
           label: { show: true, position: 'top', fontSize: 12, formatter: '{c}单' }
         }]
       })
@@ -2161,7 +2169,7 @@ function refresh() {
     console.error('状态图表渲染失败', e)
   }
 
-  // 三个工厂分布图表
+  // ===== 三个工厂分布图表 - 修复无数据时显示1的bug =====
   try {
     // 实物产品
     const chartRealDom = document.getElementById('chartFactoryReal')
@@ -2169,17 +2177,26 @@ function refresh() {
       const existingReal = echarts.getInstanceByDom(chartRealDom)
       if (existingReal) existingReal.dispose()
       const chartReal = echarts.init(chartRealDom)
+      
       const realData = Object.entries(factoryMapReal).map(([f, c]) => ({ name: f, value: c }))
-      chartReal.setOption({
-        tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
-        series: [{
-          type: 'pie',
-          radius: ['40%', '70%'],
-          data: realData.length ? realData : [{ name: '暂无数据', value: 1 }],
-          label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
-          emphasis: { scale: true }
-        }]
-      })
+      
+      if (realData.length === 0) {
+        chartReal.setOption({
+          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 12, color: '#999' } },
+          series: []
+        })
+      } else {
+        chartReal.setOption({
+          tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
+          series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            data: realData,
+            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
+            emphasis: { scale: true }
+          }]
+        })
+      }
     }
 
     // 配件
@@ -2188,17 +2205,26 @@ function refresh() {
       const existingPart = echarts.getInstanceByDom(chartPartDom)
       if (existingPart) existingPart.dispose()
       const chartPart = echarts.init(chartPartDom)
+      
       const partData = Object.entries(factoryMapPart).map(([f, c]) => ({ name: f, value: c }))
-      chartPart.setOption({
-        tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
-        series: [{
-          type: 'pie',
-          radius: ['40%', '70%'],
-          data: partData.length ? partData : [{ name: '暂无数据', value: 1 }],
-          label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
-          emphasis: { scale: true }
-        }]
-      })
+      
+      if (partData.length === 0) {
+        chartPart.setOption({
+          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 12, color: '#999' } },
+          series: []
+        })
+      } else {
+        chartPart.setOption({
+          tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
+          series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            data: partData,
+            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
+            emphasis: { scale: true }
+          }]
+        })
+      }
     }
 
     // 其他
@@ -2207,17 +2233,26 @@ function refresh() {
       const existingOther = echarts.getInstanceByDom(chartOtherDom)
       if (existingOther) existingOther.dispose()
       const chartOther = echarts.init(chartOtherDom)
+      
       const otherData = Object.entries(factoryMapOther).map(([f, c]) => ({ name: f, value: c }))
-      chartOther.setOption({
-        tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
-        series: [{
-          type: 'pie',
-          radius: ['40%', '70%'],
-          data: otherData.length ? otherData : [{ name: '暂无数据', value: 1 }],
-          label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
-          emphasis: { scale: true }
-        }]
-      })
+      
+      if (otherData.length === 0) {
+        chartOther.setOption({
+          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 12, color: '#999' } },
+          series: []
+        })
+      } else {
+        chartOther.setOption({
+          tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
+          series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            data: otherData,
+            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
+            emphasis: { scale: true }
+          }]
+        })
+      }
     }
   } catch (e) {
     console.error('工厂图表渲染失败', e)
