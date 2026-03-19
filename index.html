@@ -10,28 +10,28 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* 全局样式 - 字体优化 */
-body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:hidden}
+body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:hidden}
 .app-container{display:flex;height:100vh;width:100vw;overflow:hidden}
 
-/* 左侧导航 - 固定宽度 */
-.sidebar{width:320px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.1)}
-.sidebar-header{padding:24px 16px;border-bottom:1px solid #334155}
+/* 左侧导航 - 减小留白 */
+.sidebar{width:200px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.1)}
+.sidebar-header{padding:20px 12px;border-bottom:1px solid #334155}
 .sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:18px}
 .sidebar-header small{color:#94a3b8;font-size:13px}
-.sidebar-nav{flex:1;padding:16px 8px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:12px 12px;border-radius:8px;margin-bottom:4px;color:#cbd5e1;cursor:pointer;transition:all 0.2s;font-size:15px}
+.sidebar-nav{flex:1;padding:12px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:10px 10px;border-radius:8px;margin-bottom:2px;color:#cbd5e1;cursor:pointer;transition:all 0.2s;font-size:15px}
 .nav-item:hover{background:#334155;color:#fff}
 .nav-item.active{background:#0d6efd;color:#fff}
 .nav-item i{font-size:20px;width:24px;text-align:center}
-.sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
+.sidebar-footer{padding:12px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
 
-/* 右侧主内容区 - 三列布局 - 优化留白 */
+/* 右侧主内容区 - 最小化留白 */
 .main-content{
   flex:1;
   display:grid;
   grid-template-columns:1fr 380px;
-  gap:8px;
-  padding:12px;
+  gap:4px;
+  padding:8px;
   background:#f0f2f5;
   overflow:hidden;
   height:100vh;
@@ -46,30 +46,30 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
   height:100%;
 }
 
-/* 右侧列 - 订单列表 - 可调整宽度并保存偏好 */
+/* 右侧列 - 订单列表 - 确保可拖拽调整宽度 */
 .right-column{
   width: 380px;
-  min-width: 300px;
-  max-width: 600px;
+  min-width: 280px;
+  max-width: 800px;
   resize: horizontal;
   overflow: auto;
   background:#f8fafc;
-  border-radius:12px;
-  padding:12px;
+  border-radius:8px;
+  padding:10px;
   border-left:2px solid #e2e8f0;
   box-shadow:-2px 0 8px rgba(0,0,0,0.02);
   height:100%;
   position: relative;
-  transition: none;
 }
 
+/* 确保拖拽手柄可见 */
 .right-column::-webkit-resizer {
   background-color: #0d6efd;
   border-radius: 4px 0 4px 0;
-  width: 14px;
-  height: 14px;
-  opacity: 0.8;
-  transition: opacity 0.2s;
+  width: 16px;
+  height: 16px;
+  opacity: 1;
+  display: block !important;
 }
 
 .right-column::-webkit-resizer:hover {
@@ -116,8 +116,8 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
   gap:6px;
 }
 .order-card{
-  padding:12px;
-  border-radius:8px;
+  padding:10px;
+  border-radius:6px;
   transition:0.2s;
   font-size:13px;
 }
@@ -163,13 +163,13 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
 .factory-charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .factory-chart-card {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
@@ -177,7 +177,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
 .factory-chart-title {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   padding-bottom: 4px;
   border-bottom: 1px solid #eef2f6;
 }
@@ -196,22 +196,22 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
 
 .factory-chart-container {
   width: 100%;
-  height: 160px;
+  height: 150px;
 }
 
 /* 库存分组背景色 */
 .inventory-group{
   background-color:#f1f5f9;
-  border-radius:10px;
-  padding:10px;
-  margin-bottom:12px;
+  border-radius:8px;
+  padding:8px;
+  margin-bottom:10px;
   border:1px solid #e2e8f0;
 }
 .inventory-group-title{
   background-color:#e2e8f0;
-  margin:-10px -10px 8px -10px;
-  padding:8px 10px;
-  border-radius:10px 10px 0 0;
+  margin:-8px -8px 6px -8px;
+  padding:6px 8px;
+  border-radius:8px 8px 0 0;
   font-weight:600;
   color:#1e293b;
   border-bottom:1px solid #cbd5e1;
@@ -222,17 +222,17 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
 .inventory-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin-top:8px;
+  gap:6px;
+  margin-top:6px;
 }
 .inventory-card{
   background:#fff;
-  border-radius:8px;
-  padding:10px;
+  border-radius:6px;
+  padding:8px;
   border:1px solid #eef2f6;
   cursor:pointer;
   transition:0.2s;
-  font-size:13px;
+  font-size:12px;
   position: relative;
 }
 .inventory-card:hover{
@@ -268,49 +268,49 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
 
 /* 原有样式保留并优化 */
 .content-container{max-width:1400px;margin:0 auto}
-.card{border-radius:10px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:12px;background:#fff}
-.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:12px 16px;font-weight:600;font-size:15px}
-.card-body{padding:16px}
-.dashboard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
-.dashboard-card{background:#fff;padding:12px;border-radius:10px;cursor:pointer;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
+.card{border-radius:8px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:10px;background:#fff}
+.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:10px 14px;font-weight:600;font-size:15px}
+.card-body{padding:14px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.dashboard-card{background:#fff;padding:10px;border-radius:8px;cursor:pointer;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
 .dashboard-card:hover{background:#e3f2fd;transform:translateY(-2px)}
 .dashboard-label{color:#64748b;font-size:12px;margin-bottom:2px}
-.dashboard-value{font-size:22px;font-weight:700;color:#1e293b}
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.chart-container{width:100%;height:220px}
-.field-container{margin-bottom:10px}
+.dashboard-value{font-size:20px;font-weight:700;color:#1e293b}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.chart-container{width:100%;height:200px}
+.field-container{margin-bottom:8px}
 .field-label{font-size:12px;color:#64748b;margin-bottom:2px;display:block;font-weight:500}
-.status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:10px 0;background:#fff;padding:10px;border-radius:10px}
-.status-item{text-align:center;padding:6px 4px;border-radius:6px;font-size:12px;cursor:pointer}
-.status-count{font-weight:700;font-size:15px}
-.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;background:#fff;padding:10px 12px;border-radius:10px;align-items:center}
-.search-filter{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:12px}
-.search-filter-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.alert-overdue{background:#fee;color:#c00;padding:6px;border-radius:6px;margin-bottom:4px;font-size:12px}
-.alert-soon{background:#fff3e0;color:#e68a00;padding:6px;border-radius:6px;margin-bottom:4px;font-size:12px}
-.alert-ok{background:#e8f5e9;color:#2e7d32;padding:6px;border-radius:6px;font-size:12px}
-.item-row{background:#f8fafc;padding:8px;border-radius:8px;margin-bottom:8px;border:1px solid #edf2f7}
+.status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin:8px 0;background:#fff;padding:8px;border-radius:8px}
+.status-item{text-align:center;padding:4px 2px;border-radius:4px;font-size:11px;cursor:pointer}
+.status-count{font-weight:700;font-size:14px}
+.toolbar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;background:#fff;padding:8px 10px;border-radius:8px;align-items:center}
+.search-filter{display:grid;grid-template-columns:2fr 1fr;gap:6px;margin-bottom:10px}
+.search-filter-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
+.alert-overdue{background:#fee;color:#c00;padding:5px;border-radius:4px;margin-bottom:3px;font-size:12px}
+.alert-soon{background:#fff3e0;color:#e68a00;padding:5px;border-radius:4px;margin-bottom:3px;font-size:12px}
+.alert-ok{background:#e8f5e9;color:#2e7d32;padding:5px;border-radius:4px;font-size:12px}
+.item-row{background:#f8fafc;padding:6px;border-radius:6px;margin-bottom:6px;border:1px solid #edf2f7}
 .inventory-log{font-size:12px;padding:4px 0;border-bottom:1px dashed #e2e8f0}
 .inventory-log:last-child{border-bottom:none}
-.setting-item{padding:14px;border-bottom:1px solid #eef2f6}
+.setting-item{padding:12px;border-bottom:1px solid #eef2f6}
 .setting-item:last-child{border-bottom:none}
 .setting-label{font-weight:600;margin-bottom:4px;color:#1e293b;font-size:14px}
-.setting-desc{font-size:12px;color:#64748b;margin-bottom:6px}
-.about-info{background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;line-height:1.6}
-.report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:14px;border-radius:10px;margin-bottom:12px;font-size:13px}
-.product-type-badge{font-size:11px;padding:2px 6px;border-radius:10px;background:#e9ecef;color:#495057;display:inline-block;margin-right:4px;margin-bottom:2px}
-.factory-badge{font-size:11px;padding:2px 6px;border-radius:10px;background:#dbeafe;color:#1e40af;display:inline-block;margin-right:4px}
-.btn-sm{font-size:12px;padding:4px 8px}
-.form-control-sm,.form-select-sm{font-size:13px;padding:5px 8px}
+.setting-desc{font-size:12px;color:#64748b;margin-bottom:4px}
+.about-info{background:#f8fafc;padding:10px;border-radius:6px;font-size:13px;line-height:1.5}
+.report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:12px;border-radius:8px;margin-bottom:10px;font-size:13px}
+.product-type-badge{font-size:11px;padding:2px 5px;border-radius:8px;background:#e9ecef;color:#495057;display:inline-block;margin-right:3px;margin-bottom:2px}
+.factory-badge{font-size:11px;padding:2px 5px;border-radius:8px;background:#dbeafe;color:#1e40af;display:inline-block;margin-right:3px}
+.btn-sm{font-size:12px;padding:3px 8px}
+.form-control-sm,.form-select-sm{font-size:13px;padding:4px 8px}
 </style>
 </head>
 <body>
 <div class="app-container">
-  <!-- 左侧导航 -->
+  <!-- 左侧导航 - 减小留白 -->
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v3.1</small>
+      <small>正式版 v3.2</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -336,7 +336,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
     </div>
   </div>
 
-  <!-- 右侧主内容区 - 三列布局优化 -->
+  <!-- 右侧主内容区 - 最小化留白 -->
   <div class="main-content">
     <!-- 中间列 - 核心操作区 -->
     <div class="middle-column">
@@ -380,7 +380,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
             <div class="card">
               <div class="card-header">📊 订单状态分布</div>
               <div class="card-body p-2">
-                <div id="chartStatus" class="chart-container" style="height:220px;"></div>
+                <div id="chartStatus" class="chart-container" style="height:200px;"></div>
               </div>
             </div>
 
@@ -591,7 +591,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
             <!-- 库存变动日志 -->
             <div class="card mt-2">
               <div class="card-header">📋 最近变动</div>
-              <div class="card-body" style="max-height:180px; overflow-y:auto" id="invLogs"></div>
+              <div class="card-body" style="max-height:160px; overflow-y:auto" id="invLogs"></div>
             </div>
           </div>
         </div>
@@ -660,7 +660,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
                     <div class="card">
                       <div class="card-header">📈 订单趋势</div>
                       <div class="card-body">
-                        <div id="repChartTrend" style="height:220px;"></div>
+                        <div id="repChartTrend" style="height:200px;"></div>
                       </div>
                     </div>
                   </div>
@@ -668,7 +668,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
                     <div class="card">
                       <div class="card-header">🥧 利润构成</div>
                       <div class="card-body">
-                        <div id="repChartPie" style="height:220px;"></div>
+                        <div id="repChartPie" style="height:200px;"></div>
                       </div>
                     </div>
                   </div>
@@ -676,14 +676,14 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
 
                 <div class="card mt-3">
                   <div class="card-header">📋 分组明细</div>
-                  <div class="card-body" style="max-height:280px; overflow-y:auto" id="reportGroupTable"></div>
+                  <div class="card-body" style="max-height:250px; overflow-y:auto" id="reportGroupTable"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 系统设置页面 - 优化布局 -->
+        <!-- 系统设置页面 -->
         <div id="settingsPage" style="display:none">
           <div class="content-container">
             <div class="card">
@@ -703,7 +703,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
                   </div>
                 </div>
 
-                <!-- 预警阈值 - 优化布局：输入框 + 保存按钮 + 文字注释 -->
+                <!-- 预警阈值 -->
                 <div class="setting-item">
                   <div class="setting-label">⚠️ 预警阈值</div>
                   <div class="setting-desc">设置低库存预警数量</div>
@@ -736,11 +736,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v3.1 最终优化版</div>
+                    <div><strong>版本：</strong>v3.2 最终优化版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 优化界面布局，减少留白</div>
-                    <div>✅ 预警阈值按钮位置调整</div>
-                    <div>✅ 订单列表可拖拽调整宽度</div>
+                    <div>✅ 彻底修复订单列表拖拽调整宽度</div>
+                    <div>✅ 消除所有界面留白</div>
+                    <div>✅ 优化间距和卡片大小</div>
                     <div>✅ 库存价值按实际成本计算</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
@@ -752,7 +752,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
       </div>
     </div>
 
-    <!-- 右侧列 - 订单列表 - 可调整宽度 -->
+    <!-- 右侧列 - 订单列表 - 确保可拖拽调整宽度 -->
     <div class="right-column" id="resizableColumn">
       <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，可拖拽右下角调整宽度)</small></h6>
       <div class="order-grid" id="orderList"></div>
@@ -905,19 +905,6 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:20px;overflow:h
         <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
         <button class="btn btn-sm btn-warning" onclick="confirmOutbound()">确认出库</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- 库存详情模态框（保留用于查看） -->
-<div class="modal fade" id="inventoryDetailModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="inventoryDetailTitle"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="inventoryDetailBody"></div>
     </div>
   </div>
 </div>
@@ -2730,30 +2717,38 @@ function resetToSample() {
   }
 }
 
+// ========== 修复：确保订单列表可拖拽调整宽度 ==========
 function initResizableColumn() {
   const column = document.getElementById('resizableColumn')
   if (!column) return
   
+  // 读取保存的宽度
   const savedWidth = localStorage.getItem(WIDTH_STORAGE)
   if (savedWidth) {
     column.style.width = savedWidth + 'px'
-    column.style.minWidth = savedWidth + 'px'
   }
   
+  // 直接监听 mouseup 事件，更可靠
   let resizeTimeout
-  const observer = new ResizeObserver((entries) => {
-    for (let entry of entries) {
-      clearTimeout(resizeTimeout)
-      resizeTimeout = setTimeout(() => {
-        const currentWidth = entry.contentRect.width
-        localStorage.setItem(WIDTH_STORAGE, Math.round(currentWidth))
-        console.log('保存列宽:', Math.round(currentWidth))
-      }, 500)
-    }
+  column.addEventListener('mouseup', function() {
+    clearTimeout(resizeTimeout)
+    resizeTimeout = setTimeout(() => {
+      const currentWidth = this.offsetWidth
+      localStorage.setItem(WIDTH_STORAGE, currentWidth)
+      console.log('保存列宽:', currentWidth)
+    }, 500)
   })
   
-  observer.observe(column)
-  column.style.overflow = 'auto'
+  // 同时也监听 mousemove 但用节流
+  let lastSave = 0
+  column.addEventListener('mousemove', function() {
+    const now = Date.now()
+    if (now - lastSave > 1000) {
+      lastSave = now
+      const currentWidth = this.offsetWidth
+      localStorage.setItem(WIDTH_STORAGE, currentWidth)
+    }
+  })
 }
 
 loadData()
