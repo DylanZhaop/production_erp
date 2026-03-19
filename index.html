@@ -25,24 +25,16 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 .nav-item i{font-size:20px;width:24px;text-align:center}
 .sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
 
-/* 修改后 - 减小间距，让内容紧贴 */
+/* 右侧主内容区 - 三列布局 - 优化留白 */
 .main-content{
   flex:1;
   display:grid;
-  grid-template-columns:1fr 380px;  /* 右侧列宽度减小 */
-  gap:8px;  /* 间距从16px减小到8px */
-  padding:12px;  /* 内边距从16px减小到12px */
+  grid-template-columns:1fr 380px;
+  gap:8px;
+  padding:12px;
   background:#f0f2f5;
   overflow:hidden;
   height:100vh;
-}
-
-/* 右侧列宽度调整 */
-.right-column{
-  width: 380px;
-  min-width: 300px;
-  max-width: 600px;  /* 减小最大宽度 */
-  /* 其他样式不变 */
 }
 
 /* 中间列 - 核心操作区 */
@@ -50,33 +42,32 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   background:transparent;
   overflow-y:auto;
   overflow-x:hidden;
-  padding-right:4px;
+  padding-right:2px;
   height:100%;
 }
 
-
 /* 右侧列 - 订单列表 - 可调整宽度并保存偏好 */
-/*.right-column{
-  width: 400px;
+.right-column{
+  width: 380px;
   min-width: 300px;
-  max-width: 800px;
+  max-width: 600px;
   resize: horizontal;
   overflow: auto;
   background:#f8fafc;
-  border-radius:16px;
-  padding:16px;
+  border-radius:12px;
+  padding:12px;
   border-left:2px solid #e2e8f0;
   box-shadow:-2px 0 8px rgba(0,0,0,0.02);
   height:100%;
   position: relative;
   transition: none;
-} */
+}
 
 .right-column::-webkit-resizer {
   background-color: #0d6efd;
   border-radius: 4px 0 4px 0;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   opacity: 0.8;
   transition: opacity 0.2s;
 }
@@ -110,25 +101,25 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   position:sticky;
   top:0;
   background:#f8fafc;
-  padding:8px 0;
-  margin:0 0 12px 0;
+  padding:6px 0;
+  margin:0 0 8px 0;
   z-index:10;
   border-bottom:1px solid #e2e8f0;
   font-weight:600;
-  font-size:16px;
+  font-size:15px;
 }
 
 /* 订单列表交替背景 - 状态彩色标签 */
 .order-grid{
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:6px;
 }
 .order-card{
-  padding:14px;
-  border-radius:10px;
+  padding:12px;
+  border-radius:8px;
   transition:0.2s;
-  font-size:14px;
+  font-size:13px;
 }
 .order-card:hover{
   box-shadow:0 4px 12px rgba(0,0,0,0.05);
@@ -172,31 +163,31 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 .factory-charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .factory-chart-card {
   background: #fff;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
 
 .factory-chart-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
   border-bottom: 1px solid #eef2f6;
 }
 
 .factory-chart-title .product-badge {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin-left: 4px;
 }
 
 .product-badge.real { background: #dbeafe; color: #1e40af; }
@@ -205,43 +196,44 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 
 .factory-chart-container {
   width: 100%;
-  height: 180px;
+  height: 160px;
 }
 
-/* 库存分组背景色 - 优化版 */
+/* 库存分组背景色 */
 .inventory-group{
   background-color:#f1f5f9;
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:16px;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:12px;
   border:1px solid #e2e8f0;
 }
 .inventory-group-title{
   background-color:#e2e8f0;
-  margin:-12px -12px 12px -12px;
-  padding:10px 12px;
-  border-radius:12px 12px 0 0;
+  margin:-10px -10px 8px -10px;
+  padding:8px 10px;
+  border-radius:10px 10px 0 0;
   font-weight:600;
   color:#1e293b;
   border-bottom:1px solid #cbd5e1;
-  font-size:15px;
+  font-size:14px;
 }
 
-/* 库存卡片 - 合并显示样式 */
+/* 库存卡片 */
 .inventory-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  margin-top:12px;
+  gap:8px;
+  margin-top:8px;
 }
 .inventory-card{
   background:#fff;
   border-radius:8px;
-  padding:12px;
+  padding:10px;
   border:1px solid #eef2f6;
   cursor:pointer;
   transition:0.2s;
-  font-size:14px;
+  font-size:13px;
+  position: relative;
 }
 .inventory-card:hover{
   box-shadow:0 2px 8px rgba(0,0,0,0.1);
@@ -254,62 +246,62 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 
 /* 来源标签样式 */
 .source-order-badge{
-  font-size:11px;
-  padding:2px 6px;
-  border-radius:12px;
+  font-size:10px;
+  padding:2px 5px;
+  border-radius:10px;
   background:#f3e8ff;
   color:#6b21a8;
   display:inline-block;
-  margin-right:4px;
+  margin-right:3px;
   margin-bottom:2px;
 }
 .source-manual-badge{
-  font-size:11px;
-  padding:2px 6px;
-  border-radius:12px;
+  font-size:10px;
+  padding:2px 5px;
+  border-radius:10px;
   background:#e0e7ff;
   color:#3730a3;
   display:inline-block;
-  margin-right:4px;
+  margin-right:3px;
   margin-bottom:2px;
 }
 
-/* 原有样式保留 */
+/* 原有样式保留并优化 */
 .content-container{max-width:1400px;margin:0 auto}
-.card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:16px;background:#fff}
-.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:16px 20px;font-weight:600;font-size:16px}
-.card-body{padding:20px}
-.dashboard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-.dashboard-card{background:#fff;padding:16px;border-radius:12px;cursor:pointer;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
+.card{border-radius:10px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.03);margin-bottom:12px;background:#fff}
+.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:12px 16px;font-weight:600;font-size:15px}
+.card-body{padding:16px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.dashboard-card{background:#fff;padding:12px;border-radius:10px;cursor:pointer;transition:0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
 .dashboard-card:hover{background:#e3f2fd;transform:translateY(-2px)}
-.dashboard-label{color:#64748b;font-size:13px;margin-bottom:4px}
-.dashboard-value{font-size:24px;font-weight:700;color:#1e293b}
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.chart-container{width:100%;height:250px}
-.field-container{margin-bottom:12px}
+.dashboard-label{color:#64748b;font-size:12px;margin-bottom:2px}
+.dashboard-value{font-size:22px;font-weight:700;color:#1e293b}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.chart-container{width:100%;height:220px}
+.field-container{margin-bottom:10px}
 .field-label{font-size:12px;color:#64748b;margin-bottom:2px;display:block;font-weight:500}
-.status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:12px 0;background:#fff;padding:12px;border-radius:12px}
-.status-item{text-align:center;padding:8px 4px;border-radius:6px;font-size:13px;cursor:pointer}
-.status-count{font-weight:700;font-size:16px}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;background:#fff;padding:12px 16px;border-radius:12px;align-items:center}
-.search-filter{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:16px}
-.search-filter-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
-.alert-overdue{background:#fee;color:#c00;padding:8px;border-radius:8px;margin-bottom:4px;font-size:13px}
-.alert-soon{background:#fff3e0;color:#e68a00;padding:8px;border-radius:8px;margin-bottom:4px;font-size:13px}
-.alert-ok{background:#e8f5e9;color:#2e7d32;padding:8px;border-radius:8px;font-size:13px}
-.item-row{background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #edf2f7}
-.inventory-log{font-size:13px;padding:6px 0;border-bottom:1px dashed #e2e8f0}
+.status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:10px 0;background:#fff;padding:10px;border-radius:10px}
+.status-item{text-align:center;padding:6px 4px;border-radius:6px;font-size:12px;cursor:pointer}
+.status-count{font-weight:700;font-size:15px}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;background:#fff;padding:10px 12px;border-radius:10px;align-items:center}
+.search-filter{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:12px}
+.search-filter-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.alert-overdue{background:#fee;color:#c00;padding:6px;border-radius:6px;margin-bottom:4px;font-size:12px}
+.alert-soon{background:#fff3e0;color:#e68a00;padding:6px;border-radius:6px;margin-bottom:4px;font-size:12px}
+.alert-ok{background:#e8f5e9;color:#2e7d32;padding:6px;border-radius:6px;font-size:12px}
+.item-row{background:#f8fafc;padding:8px;border-radius:8px;margin-bottom:8px;border:1px solid #edf2f7}
+.inventory-log{font-size:12px;padding:4px 0;border-bottom:1px dashed #e2e8f0}
 .inventory-log:last-child{border-bottom:none}
-.setting-item{padding:16px;border-bottom:1px solid #eef2f6}
+.setting-item{padding:14px;border-bottom:1px solid #eef2f6}
 .setting-item:last-child{border-bottom:none}
-.setting-label{font-weight:600;margin-bottom:4px;color:#1e293b;font-size:15px}
-.setting-desc{font-size:13px;color:#64748b;margin-bottom:8px}
-.about-info{background:#f8fafc;padding:12px;border-radius:8px;font-size:14px;line-height:1.8}
-.report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:16px;border-radius:12px;margin-bottom:12px;font-size:14px}
-.product-type-badge{font-size:12px;padding:3px 8px;border-radius:12px;background:#e9ecef;color:#495057;display:inline-block;margin-right:4px;margin-bottom:2px}
-.factory-badge{font-size:12px;padding:3px 8px;border-radius:12px;background:#dbeafe;color:#1e40af;display:inline-block;margin-right:4px}
-.btn-sm{font-size:13px;padding:4px 10px}
-.form-control-sm,.form-select-sm{font-size:14px;padding:6px 10px}
+.setting-label{font-weight:600;margin-bottom:4px;color:#1e293b;font-size:14px}
+.setting-desc{font-size:12px;color:#64748b;margin-bottom:6px}
+.about-info{background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;line-height:1.6}
+.report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:14px;border-radius:10px;margin-bottom:12px;font-size:13px}
+.product-type-badge{font-size:11px;padding:2px 6px;border-radius:10px;background:#e9ecef;color:#495057;display:inline-block;margin-right:4px;margin-bottom:2px}
+.factory-badge{font-size:11px;padding:2px 6px;border-radius:10px;background:#dbeafe;color:#1e40af;display:inline-block;margin-right:4px}
+.btn-sm{font-size:12px;padding:4px 8px}
+.form-control-sm,.form-select-sm{font-size:13px;padding:5px 8px}
 </style>
 </head>
 <body>
@@ -318,7 +310,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v2.3</small>
+      <small>正式版 v3.1</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -340,11 +332,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
     </div>
     <div class="sidebar-footer">
       <div>💵 汇率: <span id="usdRateSide">7.20</span></div>
-      <div style="font-size:12px; margin-top:4px;">⚡ 数据自动保存</div>
+      <div style="font-size:11px; margin-top:4px;">⚡ 数据自动保存</div>
     </div>
   </div>
 
-  <!-- 右侧主内容区 - 三列布局 -->
+  <!-- 右侧主内容区 - 三列布局优化 -->
   <div class="main-content">
     <!-- 中间列 - 核心操作区 -->
     <div class="middle-column">
@@ -388,12 +380,12 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
             <div class="card">
               <div class="card-header">📊 订单状态分布</div>
               <div class="card-body p-2">
-                <div id="chartStatus" class="chart-container" style="height:250px;"></div>
+                <div id="chartStatus" class="chart-container" style="height:220px;"></div>
               </div>
             </div>
 
             <!-- 三个工厂分布图 -->
-            <div class="card mt-3">
+            <div class="card mt-2">
               <div class="card-header">🏭 工厂分布 <small class="text-muted">(按产品类型分类)</small></div>
               <div class="card-body">
                 <div class="factory-charts-grid">
@@ -540,7 +532,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
           </div>
         </div>
 
-        <!-- 库存管理页面 - 优化合并显示 -->
+        <!-- 库存管理页面 -->
         <div id="inventoryPage" style="display:none">
           <div class="content-container">
             <!-- 库存仪表盘 -->
@@ -588,18 +580,18 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
               </select>
             </div>
 
-            <!-- 库存列表 - 合并显示 -->
+            <!-- 库存列表 -->
             <div class="card">
-              <div class="card-header">📦 库存列表 <small class="text-muted">(按产品类型分组，相同产品合并显示)</small></div>
+              <div class="card-header">📦 库存列表 <small class="text-muted">(点击卡片可编辑)</small></div>
               <div class="card-body">
                 <div id="inventoryGroupedList"></div>
               </div>
             </div>
 
             <!-- 库存变动日志 -->
-            <div class="card mt-3">
+            <div class="card mt-2">
               <div class="card-header">📋 最近变动</div>
-              <div class="card-body" style="max-height:200px; overflow-y:auto" id="invLogs"></div>
+              <div class="card-body" style="max-height:180px; overflow-y:auto" id="invLogs"></div>
             </div>
           </div>
         </div>
@@ -668,7 +660,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                     <div class="card">
                       <div class="card-header">📈 订单趋势</div>
                       <div class="card-body">
-                        <div id="repChartTrend" style="height:250px;"></div>
+                        <div id="repChartTrend" style="height:220px;"></div>
                       </div>
                     </div>
                   </div>
@@ -676,7 +668,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                     <div class="card">
                       <div class="card-header">🥧 利润构成</div>
                       <div class="card-body">
-                        <div id="repChartPie" style="height:250px;"></div>
+                        <div id="repChartPie" style="height:220px;"></div>
                       </div>
                     </div>
                   </div>
@@ -684,35 +676,34 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 
                 <div class="card mt-3">
                   <div class="card-header">📋 分组明细</div>
-                  <div class="card-body" style="max-height:300px; overflow-y:auto" id="reportGroupTable"></div>
+                  <div class="card-body" style="max-height:280px; overflow-y:auto" id="reportGroupTable"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 系统设置页面 -->
+        <!-- 系统设置页面 - 优化布局 -->
         <div id="settingsPage" style="display:none">
           <div class="content-container">
             <div class="card">
               <div class="card-header">⚙️ 系统设置</div>
               <div class="card-body">
+                <!-- 汇率设置 -->
                 <div class="setting-item">
                   <div class="setting-label">🌐 默认汇率</div>
                   <div class="setting-desc">设置USD兑CNY的默认汇率</div>
-                  <!-- 修改后 -->
                   <div class="row g-2 align-items-center">
                     <div class="col-md-2">
-                      <input type="number" class="form-control form-control-sm" id="settingsLowStock" value="10" min="1">
+                      <input type="number" class="form-control form-control-sm" id="settingsUsdRate" value="7.20" step="0.01">
                     </div>
                     <div class="col-md-2">
-                      <button class="btn btn-sm btn-primary" onclick="saveSettingsThreshold()">保存</button>
-                    </div>
-                    <div class="col-md-3">
-                      <span class="text-muted">低于此值显示预警</span>
+                      <button class="btn btn-sm btn-primary" onclick="saveSettingsRate()">保存</button>
                     </div>
                   </div>
+                </div>
 
+                <!-- 预警阈值 - 优化布局：输入框 + 保存按钮 + 文字注释 -->
                 <div class="setting-item">
                   <div class="setting-label">⚠️ 预警阈值</div>
                   <div class="setting-desc">设置低库存预警数量</div>
@@ -720,15 +711,16 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                     <div class="col-md-2">
                       <input type="number" class="form-control form-control-sm" id="settingsLowStock" value="10" min="1">
                     </div>
-                    <div class="col-md-3">
-                      <span class="text-muted">低于此值显示预警</span>
-                    </div>
                     <div class="col-md-2">
                       <button class="btn btn-sm btn-primary" onclick="saveSettingsThreshold()">保存</button>
+                    </div>
+                    <div class="col-md-3">
+                      <span class="text-muted">低于此值显示预警</span>
                     </div>
                   </div>
                 </div>
 
+                <!-- 数据管理 -->
                 <div class="setting-item">
                   <div class="setting-label">💾 数据管理</div>
                   <div class="setting-desc">备份、恢复或初始化数据</div>
@@ -740,14 +732,16 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                   </div>
                 </div>
 
+                <!-- 关于信息 -->
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v2.3 库存合并版</div>
+                    <div><strong>版本：</strong>v3.1 最终优化版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 相同产品合并显示，区分订单/手动来源</div>
-                    <div>✅ 库存卡片显示订单和手动数量标签</div>
-                    <div>✅ 修复其他分类显示1的bug</div>
+                    <div>✅ 优化界面布局，减少留白</div>
+                    <div>✅ 预警阈值按钮位置调整</div>
+                    <div>✅ 订单列表可拖拽调整宽度</div>
+                    <div>✅ 库存价值按实际成本计算</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -758,7 +752,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
       </div>
     </div>
 
-    <!-- 右侧列 - 订单列表 -->
+    <!-- 右侧列 - 订单列表 - 可调整宽度 -->
     <div class="right-column" id="resizableColumn">
       <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，可拖拽右下角调整宽度)</small></h6>
       <div class="order-grid" id="orderList"></div>
@@ -806,10 +800,74 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
           <span class="field-label">🏭 工厂 *</span>
           <input class="form-control form-control-sm" id="manualFactory" placeholder="例如: TH">
         </div>
+        <div class="field-container">
+          <span class="field-label">💰 采购成本(单价) *</span>
+          <input class="form-control form-control-sm" id="manualPrice" type="number" min="0" step="0.01" value="100" placeholder="例如: 3500">
+          <small class="text-muted">单位：人民币(¥)</small>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
         <button class="btn btn-sm btn-primary" onclick="addManualInventory()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑库存模态框 -->
+<div class="modal fade" id="editInventoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">✏️ 编辑库存</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editInventoryId">
+        <div class="field-container">
+          <span class="field-label">📝 产品名称</span>
+          <input class="form-control form-control-sm" id="editProductName" readonly>
+        </div>
+        <div class="field-container">
+          <span class="field-label">📊 产品类型</span>
+          <select class="form-select form-select-sm" id="editProductType">
+            <option>一体式直流充电桩</option>
+            <option>壁挂小直流</option>
+            <option>分体式直流充电堆</option>
+            <option>交流立柱式充电桩</option>
+            <option>交流壁挂充电桩</option>
+            <option>便携式交流充电桩</option>
+            <option>便携式直流充电桩</option>
+            <option>移动储能充电设备</option>
+            <option>储能设备</option>
+            <option>光伏类设备</option>
+            <option>配件</option>
+            <option>定制费</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <div class="field-container">
+          <span class="field-label">🏭 工厂</span>
+          <input class="form-control form-control-sm" id="editFactory" placeholder="工厂">
+        </div>
+        <div class="field-container">
+          <span class="field-label">🔢 数量</span>
+          <input class="form-control form-control-sm" id="editQuantity" type="number" min="0" step="1">
+        </div>
+        <div class="field-container">
+          <span class="field-label">💰 采购成本(单价)</span>
+          <input class="form-control form-control-sm" id="editPrice" type="number" min="0" step="0.01">
+          <small class="text-muted">单位：人民币(¥)</small>
+        </div>
+        <div class="field-container">
+          <span class="field-label">📦 来源</span>
+          <input class="form-control form-control-sm" id="editSource" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button class="btn btn-sm btn-primary" onclick="saveInventoryEdit()">保存修改</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteInventoryItem()">删除</button>
       </div>
     </div>
   </div>
@@ -851,7 +909,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   </div>
 </div>
 
-<!-- 库存详情模态框 -->
+<!-- 库存详情模态框（保留用于查看） -->
 <div class="modal fade" id="inventoryDetailModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -982,6 +1040,13 @@ function loadData() {
   if (savedInventory) {
     try {
       inventory = JSON.parse(savedInventory)
+      // 兼容旧数据：为没有price字段的库存添加默认价格
+      inventory = inventory.map(item => {
+        if (item.price === undefined) {
+          item.price = 100
+        }
+        return item
+      })
     } catch (e) {
       inventory = []
     }
@@ -1086,6 +1151,7 @@ function deductInventoryForOrder(order) {
         name: item.name,
         productType: item.productType,
         qty: deduct,
+        price: stock.price,
         factory: item.factory,
         reason: `订单 ${order.no} 发货`,
         time: new Date().toLocaleString()
@@ -1119,6 +1185,7 @@ function addInventoryForOrder(order) {
         name: item.name,
         productType: item.productType,
         qty: item.qty,
+        price: item.price,
         factory: item.factory,
         source: 'order',
         sourceOrderNo: order.no,
@@ -1133,6 +1200,7 @@ function addInventoryForOrder(order) {
       name: item.name,
       productType: item.productType,
       qty: item.qty,
+      price: item.price,
       factory: item.factory,
       reason: `订单 ${order.no} 取消发货`,
       time: new Date().toLocaleString()
@@ -1152,7 +1220,9 @@ function deduplicateInventory() {
     const key = `${item.sourceOrderNo || 'manual'}-${item.name}-${item.factory}`
     if (uniqueMap.has(key)) {
       duplicateCount++
-      uniqueMap.get(key).qty += item.qty
+      const existing = uniqueMap.get(key)
+      existing.qty += item.qty
+      existing.price = Math.max(existing.price, item.price)
     } else {
       uniqueMap.set(key, { ...item })
     }
@@ -1189,6 +1259,7 @@ function rebuildInventoryFromOrders() {
             name: item.name,
             productType: item.productType,
             qty: item.qty,
+            price: item.price,
             factory: item.factory,
             source: 'order',
             sourceOrderNo: order.no,
@@ -1334,6 +1405,7 @@ function syncInventoryFromOrder(order) {
     
     if (existingIndex >= 0) {
       inventory[existingIndex].qty = item.qty
+      inventory[existingIndex].price = item.price
       inventory[existingIndex].lastUpdated = new Date().toISOString()
     } else {
       inventory.push({
@@ -1341,6 +1413,7 @@ function syncInventoryFromOrder(order) {
         name: item.name,
         productType: item.productType,
         qty: item.qty,
+        price: item.price,
         factory: item.factory,
         source: 'order',
         sourceOrderNo: order.no,
@@ -1608,6 +1681,11 @@ function clearFilter() {
 
 // ========== 库存管理函数 ==========
 function showManualInventoryModal() {
+  document.getElementById('manualProductName').value = ''
+  document.getElementById('manualProductType').value = ''
+  document.getElementById('manualQuantity').value = '10'
+  document.getElementById('manualFactory').value = ''
+  document.getElementById('manualPrice').value = '100'
   new bootstrap.Modal(document.getElementById('manualInventoryModal')).show()
 }
 
@@ -1616,42 +1694,105 @@ function addManualInventory() {
   const productType = document.getElementById('manualProductType').value
   const qty = parseInt(document.getElementById('manualQuantity').value) || 0
   const factory = document.getElementById('manualFactory').value.trim()
+  const price = parseFloat(document.getElementById('manualPrice').value) || 0
   
   if (!name || qty <= 0 || !factory) return alert('请填写产品名称、数量、工厂')
   if (!productType) return alert('请选择产品类型')
+  if (price <= 0) return alert('请填写有效的采购成本')
   
-  const existing = inventory.find(i => 
-    i.source === 'manual' && 
-    i.name === name && 
-    i.factory === factory
-  )
-  
-  if (existing) {
-    existing.qty += qty
-    existing.lastUpdated = new Date().toISOString()
-  } else {
-    inventory.push({
-      id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-      name, productType, qty, factory,
-      source: 'manual',
-      sourceOrderNo: '',
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString()
-    })
-  }
+  inventory.push({
+    id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+    name, productType, qty, factory, price,
+    source: 'manual',
+    sourceOrderNo: '',
+    createdAt: new Date().toISOString(),
+    lastUpdated: new Date().toISOString()
+  })
   
   inventoryLogs.unshift({
     id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-    type: 'in', name, productType, qty, factory,
+    type: 'in', name, productType, qty, factory, price,
     reason: '手动录入',
     time: new Date().toLocaleString()
   })
   
   saveInventory(); saveLogs()
   bootstrap.Modal.getInstance(document.getElementById('manualInventoryModal')).hide()
-  document.getElementById('manualProductName').value = ''
-  document.getElementById('manualQuantity').value = '10'
-  document.getElementById('manualFactory').value = ''
+  renderInventory()
+}
+
+// 编辑库存
+function editInventoryItem(id) {
+  const item = inventory.find(i => i.id === id)
+  if (!item) return
+  
+  document.getElementById('editInventoryId').value = item.id
+  document.getElementById('editProductName').value = item.name
+  document.getElementById('editProductType').value = item.productType || '配件'
+  document.getElementById('editFactory').value = item.factory
+  document.getElementById('editQuantity').value = item.qty
+  document.getElementById('editPrice').value = item.price
+  document.getElementById('editSource').value = item.source === 'order' ? `订单 ${item.sourceOrderNo}` : '手动录入'
+  
+  new bootstrap.Modal(document.getElementById('editInventoryModal')).show()
+}
+
+function saveInventoryEdit() {
+  const id = document.getElementById('editInventoryId').value
+  const index = inventory.findIndex(i => i.id === id)
+  if (index === -1) return
+  
+  const oldItem = { ...inventory[index] }
+  
+  inventory[index].productType = document.getElementById('editProductType').value
+  inventory[index].factory = document.getElementById('editFactory').value.trim()
+  inventory[index].qty = parseInt(document.getElementById('editQuantity').value) || 0
+  inventory[index].price = parseFloat(document.getElementById('editPrice').value) || 0
+  inventory[index].lastUpdated = new Date().toISOString()
+  
+  if (inventory[index].qty <= 0) {
+    inventory.splice(index, 1)
+  }
+  
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+    type: 'edit',
+    name: inventory[index]?.name || oldItem.name,
+    qty: inventory[index]?.qty || 0,
+    factory: inventory[index]?.factory || oldItem.factory,
+    reason: '编辑库存',
+    time: new Date().toLocaleString()
+  })
+  
+  saveInventory()
+  saveLogs()
+  bootstrap.Modal.getInstance(document.getElementById('editInventoryModal')).hide()
+  renderInventory()
+}
+
+function deleteInventoryItem() {
+  if (!confirm('确定要删除这条库存记录吗？')) return
+  
+  const id = document.getElementById('editInventoryId').value
+  const index = inventory.findIndex(i => i.id === id)
+  if (index === -1) return
+  
+  const item = inventory[index]
+  
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+    type: 'delete',
+    name: item.name,
+    qty: item.qty,
+    factory: item.factory,
+    reason: '删除库存',
+    time: new Date().toLocaleString()
+  })
+  
+  inventory.splice(index, 1)
+  saveInventory()
+  saveLogs()
+  bootstrap.Modal.getInstance(document.getElementById('editInventoryModal')).hide()
   renderInventory()
 }
 
@@ -1663,18 +1804,22 @@ function showOutboundModal() {
     const key = `${item.name}|${item.factory}`
     if (!uniqueMap.has(key)) {
       uniqueMap.set(key, {
-        id: item.id,
+        ids: [item.id],
         name: item.name,
         factory: item.factory,
-        totalQty: 0
+        totalQty: 0,
+        totalValue: 0
       })
     }
-    uniqueMap.get(key).totalQty += item.qty
+    const record = uniqueMap.get(key)
+    record.totalQty += item.qty
+    record.totalValue += item.qty * item.price
+    record.ids.push(item.id)
   })
   
   let options = '<option value="">请选择产品</option>'
-  uniqueMap.forEach(item => {
-    options += `<option value="${item.id}" data-name="${item.name}" data-factory="${item.factory}" data-qty="${item.totalQty}">${item.name} (${item.factory}) - 库存:${item.totalQty}</option>`
+  uniqueMap.forEach((item, key) => {
+    options += `<option value="${key}" data-ids='${JSON.stringify(item.ids)}' data-name="${item.name}" data-factory="${item.factory}" data-qty="${item.totalQty}">${item.name} (${item.factory}) - 库存:${item.totalQty} 价值:¥${item.totalValue}</option>`
   })
   select.innerHTML = options
   
@@ -1709,6 +1854,7 @@ function confirmOutbound() {
   const productName = selectedOption.dataset.name
   const factory = selectedOption.dataset.factory
   const currentQty = parseInt(selectedOption.dataset.qty)
+  const ids = JSON.parse(selectedOption.dataset.ids)
   
   if (qty > currentQty) {
     return alert(`库存不足！当前库存: ${currentQty}`)
@@ -1716,15 +1862,18 @@ function confirmOutbound() {
   
   // 找到所有匹配的库存记录，按先进先出扣减
   const relevantItems = inventory
-    .filter(i => i.name === productName && i.factory === factory)
+    .filter(i => ids.includes(i.id))
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
   
   let remaining = qty
+  let totalValue = 0
+  
   for (let item of relevantItems) {
     if (remaining <= 0) break
     const deduct = Math.min(item.qty, remaining)
     item.qty -= deduct
     remaining -= deduct
+    totalValue += deduct * item.price
     item.lastUpdated = new Date().toISOString()
   }
   
@@ -1736,6 +1885,7 @@ function confirmOutbound() {
     name: productName,
     qty: qty,
     factory: factory,
+    value: totalValue,
     reason: reason || '手动出库',
     time: new Date().toLocaleString()
   })
@@ -1748,31 +1898,13 @@ function confirmOutbound() {
   alert('✅ 出库成功')
 }
 
-function showInventoryDetail(id) {
-  const item = inventory.find(i => i.id === id)
-  if (!item) return
-  const logs = inventoryLogs.filter(l => l.name === item.name && l.factory === item.factory).slice(0,10)
-  document.getElementById('inventoryDetailTitle').innerText = `${item.name} 库存详情`
-  document.getElementById('inventoryDetailBody').innerHTML = `
-    <div class="field-container"><span class="field-label">📝 产品名称</span><div class="form-control bg-light">${item.name}</div></div>
-    <div class="field-container"><span class="field-label">📊 产品类型</span><div class="form-control bg-light">${item.productType || '-'}</div></div>
-    <div class="field-container"><span class="field-label">🔢 当前库存</span><div class="form-control bg-light fw-bold ${item.qty < lowStockThreshold ? 'text-warning' : ''}">${item.qty}</div></div>
-    <div class="field-container"><span class="field-label">🏭 工厂</span><div class="form-control bg-light">${item.factory}</div></div>
-    <div class="field-container"><span class="field-label">📦 来源</span><div class="form-control bg-light">${item.source === 'order' ? `订单 ${item.sourceOrderNo}` : '手动录入'}</div></div>
-    <div class="field-container"><span class="field-label">📋 最近变动</span><div style="max-height:150px; overflow-y:auto">${
-      logs.map(l => `<div class="inventory-log ${l.type === 'in' ? 'text-success' : 'text-danger'}">${l.type === 'in' ? '📥 +' : '📤 -'}${l.qty} | ${l.reason} | ${l.time}</div>`).join('') || '暂无变动'
-    }</div></div>
-  `
-  new bootstrap.Modal(document.getElementById('inventoryDetailModal')).show()
-}
-
-// ========== 核心：合并显示库存 ==========
+// ========== 核心：合并显示库存，支持编辑 ==========
 function renderInventory() {
   const kw = document.getElementById('invSearch')?.value.toLowerCase() || ''
   const facFilter = document.getElementById('invFactoryFilter')?.value || ''
   const typeFilter = document.getElementById('invProductTypeFilter')?.value || ''
   
-  // 按产品名+工厂合并，分别统计订单和手动数量
+  // 按产品名+工厂合并，分别统计订单和手动数量，计算总价值和平均价格
   const mergedMap = new Map()
   
   inventory.forEach(item => {
@@ -1784,12 +1916,16 @@ function renderInventory() {
         productType: item.productType,
         orderQty: 0,
         manualQty: 0,
+        totalValue: 0,
+        avgPrice: 0,
         sourceOrders: [],
-        ids: [] // 保留所有ID用于详情（用第一个）
+        ids: []
       })
     }
     
     const record = mergedMap.get(key)
+    record.ids.push(item.id)
+    
     if (item.source === 'order') {
       record.orderQty += item.qty
       if (item.sourceOrderNo && !record.sourceOrders.includes(item.sourceOrderNo)) {
@@ -1798,21 +1934,28 @@ function renderInventory() {
     } else {
       record.manualQty += item.qty
     }
-    record.ids.push(item.id)
+    
+    record.totalValue += item.qty * item.price
+  })
+  
+  // 计算平均价格
+  mergedMap.forEach(record => {
+    const totalQty = record.orderQty + record.manualQty
+    record.avgPrice = totalQty > 0 ? Math.round(record.totalValue / totalQty) : 0
   })
   
   const mergedInventory = Array.from(mergedMap.values())
   
   const totalProducts = mergedInventory.length
   const totalQty = mergedInventory.reduce((sum, i) => sum + i.orderQty + i.manualQty, 0)
+  const totalValue = mergedInventory.reduce((sum, i) => sum + i.totalValue, 0)
   const lowStock = mergedInventory.filter(i => (i.orderQty + i.manualQty) < lowStockThreshold).length
-  const totalValue = mergedInventory.reduce((sum, i) => sum + ((i.orderQty + i.manualQty) * 100), 0)
   const factories = [...new Set(mergedInventory.map(i => i.factory))]
   
   document.getElementById('invTotalProducts').innerText = totalProducts
   document.getElementById('invTotalQty').innerText = totalQty
   document.getElementById('invLowStock').innerText = lowStock
-  document.getElementById('invTotalValue').innerText = totalValue + '¥'
+  document.getElementById('invTotalValue').innerText = totalValue.toFixed(0) + '¥'
   document.getElementById('invFactories').innerText = factories.length
   
   const sel = document.getElementById('invFactoryFilter')
@@ -1839,11 +1982,12 @@ function renderInventory() {
     Object.keys(grouped).sort().forEach(type => {
       const items = grouped[type]
       const typeTotal = items.reduce((sum, i) => sum + i.orderQty + i.manualQty, 0)
+      const typeValue = items.reduce((sum, i) => sum + i.totalValue, 0)
       html += `
         <div class="inventory-group">
           <div class="inventory-group-title">
             ${type} 
-            <span class="badge bg-secondary float-end">${items.length}种 · 共${typeTotal}件</span>
+            <span class="badge bg-secondary float-end">${items.length}种 · 共${typeTotal}件 · 价值¥${typeValue.toFixed(0)}</span>
           </div>
           <div class="inventory-grid">
       `
@@ -1858,7 +2002,7 @@ function renderInventory() {
         }
         
         html += `
-          <div class="inventory-card ${totalQty < lowStockThreshold ? 'low-stock' : ''}" onclick="showInventoryDetail('${item.ids[0]}')">
+          <div class="inventory-card ${totalQty < lowStockThreshold ? 'low-stock' : ''}" onclick="editInventoryItem('${item.ids[0]}')">
             <div class="d-flex justify-content-between">
               <div><strong>${item.name}</strong></div>
               <span class="badge ${totalQty < lowStockThreshold ? 'bg-warning' : 'bg-info'}">${totalQty}</span>
@@ -1868,6 +2012,9 @@ function renderInventory() {
             </div>
             <div class="small mt-1">
               ${sourceDisplay.join(' ')}
+            </div>
+            <div class="small text-primary">
+              💰 ¥${item.avgPrice}/件
             </div>
             ${item.sourceOrders.length > 0 ? 
               `<div class="small text-muted mt-1">📋 ${item.sourceOrders.slice(0,2).join(', ')}${item.sourceOrders.length > 2 ? '...' : ''}</div>` : 
@@ -1884,11 +2031,12 @@ function renderInventory() {
   }
   
   const logs = document.getElementById('invLogs')
-  logs.innerHTML = inventoryLogs.slice(0,20).map(l => `
-    <div class="inventory-log ${l.type === 'in' ? 'text-success' : 'text-danger'}">
-      ${l.type === 'in' ? '📥 +' : '📤 -'}${l.qty} | ${l.name} | ${l.reason} | ${l.time}
-    </div>
-  `).join('') || '<div class="text-center p-2">暂无变动记录</div>'
+  logs.innerHTML = inventoryLogs.slice(0,20).map(l => {
+    let valueText = l.value ? ` (¥${l.value})` : (l.price ? ` (单价¥${l.price})` : '')
+    return `<div class="inventory-log ${l.type === 'in' ? 'text-success' : l.type === 'out' ? 'text-danger' : 'text-info'}">
+      ${l.type === 'in' ? '📥 +' : l.type === 'out' ? '📤 -' : '✏️'}${l.qty}${valueText} | ${l.name} | ${l.reason} | ${l.time}
+    </div>`
+  }).join('') || '<div class="text-center p-2">暂无变动记录</div>'
 }
 
 function filterLowStock() { 
@@ -1899,9 +2047,8 @@ function filterLowStock() {
 }
 
 function exportInventory() {
-  const data = [['产品名称','产品类型','数量','工厂','来源订单','最后更新']]
+  const data = [['产品名称','产品类型','数量','工厂','平均单价(¥)','总价值(¥)','来源订单','最后更新']]
   
-  // 按合并后的方式导出
   const mergedMap = new Map()
   inventory.forEach(item => {
     const key = `${item.name}|${item.factory}`
@@ -1911,11 +2058,13 @@ function exportInventory() {
         factory: item.factory,
         productType: item.productType,
         totalQty: 0,
+        totalValue: 0,
         sources: []
       })
     }
     const record = mergedMap.get(key)
     record.totalQty += item.qty
+    record.totalValue += item.qty * item.price
     if (item.sourceOrderNo) {
       record.sources.push(item.sourceOrderNo)
     } else {
@@ -1924,7 +2073,8 @@ function exportInventory() {
   })
   
   mergedMap.forEach(item => {
-    data.push([item.name, item.productType||'', item.totalQty, item.factory, item.sources.join(', '), new Date().toLocaleString()])
+    const avgPrice = item.totalQty > 0 ? (item.totalValue / item.totalQty).toFixed(0) : 0
+    data.push([item.name, item.productType||'', item.totalQty, item.factory, avgPrice, item.totalValue.toFixed(0), item.sources.join(', '), new Date().toLocaleString()])
   })
   
   const wb = XLSX.utils.book_new()
@@ -2385,12 +2535,12 @@ function refresh() {
           </div>
         </div>
         
-        <div class="small mt-1" style="font-size:13px">
+        <div class="small mt-1" style="font-size:12px">
           <span class="factory-badge">🏭 ${uniqueFactories}</span>
           <span class="ms-2">👥 ${o.customer || '-'}</span>
         </div>
         
-        <div class="small mt-1" style="font-size:13px">
+        <div class="small mt-1" style="font-size:12px">
           ${o.items?.map(item => `
             <span class="product-type-badge" title="${item.productType || '无类型'}">
               ${item.name || '未知'} (${item.qty || 0}×${item.price || 0})
@@ -2398,19 +2548,19 @@ function refresh() {
           `).join(' ') || '无产品'}
         </div>
         
-        <div class="small mt-1" style="font-size:13px">
+        <div class="small mt-1" style="font-size:12px">
           📅 交付:${o.delivery || '-'}${shipDateDisplay} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}
         </div>
         
         <div class="d-flex gap-1 mt-2">
-          <button class="btn btn-sm btn-outline-secondary" style="font-size:12px" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
-          <button class="btn btn-sm btn-outline-danger" style="font-size:12px" onclick="deleteOrder(${originalIndex})">🗑️ 删除</button>
+          <button class="btn btn-sm btn-outline-secondary" style="font-size:11px" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
+          <button class="btn btn-sm btn-outline-danger" style="font-size:11px" onclick="deleteOrder(${originalIndex})">🗑️ 删除</button>
         </div>
       </div>
     `
   })
   
-  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-3" style="font-size:14px">暂无订单，请点击"新增订单"创建</div>'
+  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-3" style="font-size:13px">暂无订单，请点击"新增订单"创建</div>'
 }
 
 function switchTab(tab) {
@@ -2453,7 +2603,14 @@ function restore() {
         console.log('恢复的数据:', data)
         
         if (data.orders) orders = data.orders
-        if (data.inventory) inventory = data.inventory
+        if (data.inventory) {
+          inventory = data.inventory
+          // 兼容旧数据
+          inventory = inventory.map(item => {
+            if (item.price === undefined) item.price = 100
+            return item
+          })
+        }
         if (data.logs) inventoryLogs = data.logs
         if (data.settings) {
           settings = data.settings
@@ -2552,6 +2709,7 @@ function resetToSample() {
             name: item.name,
             productType: item.productType,
             qty: item.qty,
+            price: item.price,
             factory: item.factory,
             source: 'order',
             sourceOrderNo: order.no,
