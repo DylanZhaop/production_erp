@@ -292,7 +292,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v2.0</small>
+      <small>正式版 v2.1</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -524,7 +524,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
           </div>
         </div>
 
-        <!-- 库存管理页面 -->
+        <!-- 库存管理页面 - 增加手动出库功能 -->
         <div id="inventoryPage" style="display:none">
           <div class="content-container">
             <!-- 库存仪表盘 -->
@@ -551,9 +551,10 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
               </div>
             </div>
 
-            <!-- 库存工具栏 -->
+            <!-- 库存工具栏 - 增加手动出库按钮 -->
             <div class="toolbar">
               <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入</button>
+              <button class="btn btn-sm btn-warning" onclick="showOutboundModal()">📤 手动出库</button>
               <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
               <button class="btn btn-sm btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
               <button class="btn btn-sm btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
@@ -727,14 +728,12 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v2.0 交期预警优化版</div>
+                    <div><strong>版本：</strong>v2.1 库存联动版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 新增发货日期字段，已发货订单不再预警</div>
-                    <div>✅ 补录历史订单自动识别不预警</div>
-                    <div>✅ 订单状态变更为已发货后立即停止预警</div>
-                    <div>✅ 工厂分布图表直接显示名称和数字</div>
-                    <div>✅ 订单状态颜色区分优化</div>
-                    <div>✅ 订单列表宽度可手动拖拽调整</div>
+                    <div>✅ 订单状态变更自动更新库存</div>
+                    <div>✅ 新增手动出库功能</div>
+                    <div>✅ 所有库存变动记录日志</div>
+                    <div>✅ 修复已发货订单预警问题</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -797,6 +796,42 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
       <div class="modal-footer">
         <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
         <button class="btn btn-sm btn-primary" onclick="addManualInventory()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 手动出库模态框 -->
+<div class="modal fade" id="outboundModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">📤 手动出库</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="field-container">
+          <span class="field-label">📝 选择产品</span>
+          <select class="form-select form-select-sm" id="outboundProductSelect">
+            <option value="">请选择产品</option>
+          </select>
+        </div>
+        <div class="field-container">
+          <span class="field-label">🔢 当前库存</span>
+          <input type="text" class="form-control form-control-sm" id="outboundCurrentStock" readonly>
+        </div>
+        <div class="field-container">
+          <span class="field-label">🔢 出库数量</span>
+          <input type="number" class="form-control form-control-sm" id="outboundQuantity" min="1" value="1">
+        </div>
+        <div class="field-container">
+          <span class="field-label">📝 出库原因</span>
+          <input class="form-control form-control-sm" id="outboundReason" placeholder="例如: 线下发货、损耗等">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button class="btn btn-sm btn-warning" onclick="confirmOutbound()">确认出库</button>
       </div>
     </div>
   </div>
@@ -982,6 +1017,121 @@ function saveSettings() {
   localStorage.setItem(SETTINGS_STORAGE, JSON.stringify(settings)) 
 }
 
+// ========== 库存扣减函数（订单发货时调用）==========
+function deductInventoryForOrder(order) {
+  if (!order.items) return true
+  
+  let canShip = true
+  const errors = []
+  
+  // 先检查库存是否充足
+  order.items.forEach(item => {
+    if (item.type !== '实物产品' || item.qty <= 0) return
+    
+    // 查找该产品的库存记录（按产品名+工厂）
+    const stockItems = inventory.filter(i => 
+      i.name === item.name && 
+      i.factory === item.factory
+    )
+    
+    const totalStock = stockItems.reduce((sum, i) => sum + i.qty, 0)
+    
+    if (totalStock < item.qty) {
+      canShip = false
+      errors.push(`${item.name} (${item.factory}) 库存不足（需要:${item.qty}，库存:${totalStock}）`)
+    }
+  })
+  
+  if (!canShip) {
+    alert('发货失败：\n' + errors.join('\n'))
+    return false
+  }
+  
+  // 扣减库存（先进先出原则）
+  order.items.forEach(item => {
+    if (item.type !== '实物产品' || item.qty <= 0) return
+    
+    let remaining = item.qty
+    
+    // 按创建时间排序，先入库的先出
+    const relevantStock = inventory
+      .filter(i => i.name === item.name && i.factory === item.factory)
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    
+    for (let stock of relevantStock) {
+      if (remaining <= 0) break
+      
+      const deduct = Math.min(stock.qty, remaining)
+      stock.qty -= deduct
+      remaining -= deduct
+      stock.lastUpdated = new Date().toISOString()
+      
+      // 记录出库日志
+      inventoryLogs.unshift({
+        id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+        type: 'out',
+        name: item.name,
+        productType: item.productType,
+        qty: deduct,
+        factory: item.factory,
+        reason: `订单 ${order.no} 发货`,
+        time: new Date().toLocaleString()
+      })
+    }
+  })
+  
+  // 清理数量为0的库存记录
+  inventory = inventory.filter(i => i.qty > 0)
+  
+  saveInventory()
+  saveLogs()
+  return true
+}
+
+// ========== 库存增加函数（订单取消发货时调用）==========
+function addInventoryForOrder(order) {
+  order.items.forEach(item => {
+    if (item.type !== '实物产品' || item.qty <= 0) return
+    
+    const existingIndex = inventory.findIndex(i => 
+      i.sourceOrderNo === order.no &&
+      i.name === item.name &&
+      i.factory === item.factory
+    )
+    
+    if (existingIndex >= 0) {
+      inventory[existingIndex].qty += item.qty
+      inventory[existingIndex].lastUpdated = new Date().toISOString()
+    } else {
+      inventory.push({
+        id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+        name: item.name,
+        productType: item.productType,
+        qty: item.qty,
+        factory: item.factory,
+        source: 'order',
+        sourceOrderNo: order.no,
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
+      })
+    }
+    
+    inventoryLogs.unshift({
+      id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+      type: 'in',
+      name: item.name,
+      productType: item.productType,
+      qty: item.qty,
+      factory: item.factory,
+      reason: `订单 ${order.no} 取消发货`,
+      time: new Date().toLocaleString()
+    })
+  })
+  
+  saveInventory()
+  saveLogs()
+}
+
 // ========== 库存去重函数 ==========
 function deduplicateInventory() {
   const uniqueMap = new Map()
@@ -1034,21 +1184,24 @@ function rebuildInventoryFromOrders() {
   const newInventory = []
   
   orders.forEach(order => {
-    order.items.forEach(item => {
-      if (item.type === '实物产品' && item.qty > 0 && item.factory) {
-        newInventory.push({
-          id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-          name: item.name,
-          productType: item.productType,
-          qty: item.qty,
-          factory: item.factory,
-          source: 'order',
-          sourceOrderNo: order.no,
-          createdAt: new Date().toISOString(),
-          lastUpdated: new Date().toISOString()
-        })
-      }
-    })
+    // 只同步未发货的订单
+    if (order.status !== '已发货' && order.status !== '已签收') {
+      order.items.forEach(item => {
+        if (item.type === '实物产品' && item.qty > 0 && item.factory) {
+          newInventory.push({
+            id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+            name: item.name,
+            productType: item.productType,
+            qty: item.qty,
+            factory: item.factory,
+            source: 'order',
+            sourceOrderNo: order.no,
+            createdAt: new Date().toISOString(),
+            lastUpdated: new Date().toISOString()
+          })
+        }
+      })
+    }
   })
   
   inventory = newInventory
@@ -1245,7 +1398,6 @@ function saveOrder() {
   const taxRateValue = document.getElementById('taxRate').value
   const taxRate = taxRateValue === '' ? 13 : parseFloat(taxRateValue)
   
-  // 只有状态为已发货时才保存发货日期和物流单号
   const shipDate = status === '已发货' ? document.getElementById('shipDate').value : ''
   const logistics = status === '已发货' ? document.getElementById('logistics').value.trim() : ''
   
@@ -1254,7 +1406,7 @@ function saveOrder() {
     contract: document.getElementById('contractNo').value.trim(),
     customer: document.getElementById('customer').value.trim(),
     delivery: document.getElementById('delivery').value,
-    shipDate: shipDate,  // 新增发货日期
+    shipDate: shipDate,
     prepaymentDate: document.getElementById('prepaymentDate').value,
     contractSignDate: document.getElementById('contractSignDate').value,
     taxRate: taxRate,
@@ -1268,7 +1420,9 @@ function saveOrder() {
   
   if (!order.no || !order.contract) return alert('请填写订单号、合同号')
   
+  let oldStatus = ''
   if (idx !== '') {
+    oldStatus = orders[idx].status
     const oldOrderNo = orders[idx].no
     inventory = inventory.filter(item => item.sourceOrderNo !== oldOrderNo)
   }
@@ -1276,13 +1430,28 @@ function saveOrder() {
   if (idx === '') orders.unshift(order)
   else orders[idx] = order
   
-  syncInventoryFromOrder(order)
+  // 如果状态是已发货，需要扣减库存
+  if (status === '已发货') {
+    if (!deductInventoryForOrder(order)) {
+      // 库存不足，回滚操作
+      if (idx !== '') {
+        // 恢复旧订单
+        orders[idx] = orders[idx]
+      } else {
+        orders.shift()
+      }
+      return
+    }
+  } else {
+    // 非发货状态，正常同步库存
+    syncInventoryFromOrder(order)
+  }
   
   inventoryLogs.unshift({
     id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-    type: 'in',
+    type: 'system',
     name: '系统',
-    reason: `订单 ${order.no} 同步库存`,
+    reason: `订单 ${order.no} 保存，状态: ${status}`,
     time: new Date().toLocaleString()
   })
   
@@ -1398,15 +1567,42 @@ function deleteOrder(i) {
   }
 }
 
+// ========== 修复：状态变更时同步库存 ==========
 function updateOrderStatus(i, newStatus) {
+  const oldStatus = orders[i].status
+  const order = orders[i]
+  
+  // 如果是从非发货状态改为发货状态
+  if (oldStatus !== '已发货' && newStatus === '已发货') {
+    if (!deductInventoryForOrder(order)) {
+      return // 库存不足，阻止状态变更
+    }
+  }
+  
+  // 如果是从发货状态改为其他状态
+  if (oldStatus === '已发货' && newStatus !== '已发货') {
+    addInventoryForOrder(order)
+  }
+  
   orders[i].status = newStatus
-  // 如果状态不是已发货，清空物流单号和发货日期
   if (newStatus !== '已发货') {
     orders[i].logistics = ''
     orders[i].shipDate = ''
   }
+  
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now(),
+    type: 'system',
+    name: '系统',
+    reason: `订单 ${order.no} 状态变更: ${oldStatus} → ${newStatus}`,
+    time: new Date().toLocaleString()
+  })
+  
   saveOrders()
+  saveInventory()
+  saveLogs()
   refresh()
+  renderInventory()
 }
 
 function filterByStatus(status) { 
@@ -1470,6 +1666,95 @@ function addManualInventory() {
   document.getElementById('manualQuantity').value = '10'
   document.getElementById('manualFactory').value = ''
   renderInventory()
+}
+
+// ========== 手动出库函数 ==========
+function showOutboundModal() {
+  // 更新产品下拉列表
+  const select = document.getElementById('outboundProductSelect')
+  const uniqueProducts = new Map()
+  
+  inventory.forEach(item => {
+    const key = `${item.name}|${item.factory}`
+    if (!uniqueProducts.has(key) || item.qty > 0) {
+      uniqueProducts.set(key, item)
+    }
+  })
+  
+  let options = '<option value="">请选择产品</option>'
+  uniqueProducts.forEach(item => {
+    if (item.qty > 0) {
+      options += `<option value="${item.id}" data-name="${item.name}" data-factory="${item.factory}" data-qty="${item.qty}">${item.name} (${item.factory}) - 库存:${item.qty}</option>`
+    }
+  })
+  select.innerHTML = options
+  
+  document.getElementById('outboundCurrentStock').value = ''
+  document.getElementById('outboundQuantity').value = '1'
+  document.getElementById('outboundReason').value = ''
+  
+  new bootstrap.Modal(document.getElementById('outboundModal')).show()
+}
+
+// 选择产品时更新当前库存
+document.getElementById('outboundProductSelect')?.addEventListener('change', function(e) {
+  const selected = e.target.selectedOptions[0]
+  if (selected && selected.dataset.qty) {
+    document.getElementById('outboundCurrentStock').value = selected.dataset.qty
+  }
+})
+
+function confirmOutbound() {
+  const select = document.getElementById('outboundProductSelect')
+  const selectedOption = select.selectedOptions[0]
+  const qty = parseInt(document.getElementById('outboundQuantity').value)
+  const reason = document.getElementById('outboundReason').value.trim()
+  
+  if (!selectedOption || !selectedOption.value) {
+    return alert('请选择产品')
+  }
+  
+  if (!qty || qty <= 0) {
+    return alert('请输入有效的出库数量')
+  }
+  
+  const productId = selectedOption.value
+  const productName = selectedOption.dataset.name
+  const factory = selectedOption.dataset.factory
+  const currentQty = parseInt(selectedOption.dataset.qty)
+  
+  if (qty > currentQty) {
+    return alert(`库存不足！当前库存: ${currentQty}`)
+  }
+  
+  // 找到对应的库存记录
+  const itemIndex = inventory.findIndex(i => i.id === productId)
+  if (itemIndex === -1) return
+  
+  // 扣减库存
+  inventory[itemIndex].qty -= qty
+  inventory[itemIndex].lastUpdated = new Date().toISOString()
+  
+  // 记录日志
+  inventoryLogs.unshift({
+    id: 'LOG-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+    type: 'out',
+    name: productName,
+    qty: qty,
+    factory: factory,
+    reason: reason || '手动出库',
+    time: new Date().toLocaleString()
+  })
+  
+  // 清理数量为0的记录
+  inventory = inventory.filter(i => i.qty > 0)
+  
+  saveInventory()
+  saveLogs()
+  
+  bootstrap.Modal.getInstance(document.getElementById('outboundModal')).hide()
+  renderInventory()
+  alert('✅ 出库成功')
 }
 
 function showInventoryDetail(id) {
@@ -1938,12 +2223,11 @@ function refresh() {
     console.error('工厂图表渲染失败', e)
   }
 
-  // ===== 优化版交期预警 =====
+  // 交期预警 - 已发货和已签收的订单不预警
   const now = new Date()
   let alertHtml = ''
   
   orders.forEach(o => {
-    // 已发货和已签收的订单不预警
     if (o.status === '已发货' || o.status === '已签收') return
     if (!o.delivery) return
     
@@ -1995,7 +2279,6 @@ function refresh() {
     
     const cardClass = STATUS_CARD_CLASS[o.status] || ''
     
-    // 显示发货日期（如果有）
     const shipDateDisplay = o.shipDate ? ` | 发货:${o.shipDate}` : ''
     
     listHtml += `
