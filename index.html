@@ -25,20 +25,21 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 .nav-item i{font-size:20px;width:24px;text-align:center}
 .sidebar-footer{padding:12px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
 
-/* 右侧主内容区 - 最小化留白 */
+/* 右侧主内容区 - 改为flex布局支持拖拽 */
 .main-content{
   flex:1;
-  display:grid;
-  grid-template-columns:1fr 380px;
-  gap:4px;
+  display:flex;
+  gap:0;
   padding:8px;
   background:#f0f2f5;
   overflow:hidden;
   height:100vh;
 }
 
-/* 中间列 - 核心操作区 */
+/* 中间列 - 核心操作区，自适应宽度 */
 .middle-column{
+  flex:1;
+  min-width:300px;
   background:transparent;
   overflow-y:auto;
   overflow-x:hidden;
@@ -46,55 +47,34 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   height:100%;
 }
 
-/* 右侧列 - 订单列表 - 确保可拖拽调整宽度 */
+/* 拖拽分隔条 */
+.resizer {
+  width: 6px;
+  background: transparent;
+  cursor: col-resize;
+  transition: background 0.2s;
+  margin: 0 2px;
+  height: 100%;
+}
+
+.resizer:hover,
+.resizer:active {
+  background: #0d6efd;
+  opacity: 0.5;
+}
+
+/* 右侧列 - 订单列表，固定初始宽度，由JS控制 */
 .right-column{
   width: 380px;
-  min-width: 280px;
+  min-width: 250px;
   max-width: 800px;
-  resize: horizontal;
-  overflow: auto;
   background:#f8fafc;
   border-radius:8px;
   padding:10px;
   border-left:2px solid #e2e8f0;
   box-shadow:-2px 0 8px rgba(0,0,0,0.02);
   height:100%;
-  position: relative;
-}
-
-/* 确保拖拽手柄可见 */
-.right-column::-webkit-resizer {
-  background-color: #0d6efd;
-  border-radius: 4px 0 4px 0;
-  width: 16px;
-  height: 16px;
-  opacity: 1;
-  display: block !important;
-}
-
-.right-column::-webkit-resizer:hover {
-  opacity: 1;
-  background-color: #0b5ed7;
-}
-
-.right-column::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: transparent;
-  transition: background 0.2s;
-  pointer-events: none;
-}
-
-.right-column:hover::after {
-  background: rgba(13, 110, 253, 0.2);
-}
-
-.right-column:active::after {
-  background: rgba(13, 110, 253, 0.4);
+  overflow-y:auto;
 }
 
 .right-column h6{
@@ -306,11 +286,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 </head>
 <body>
 <div class="app-container">
-  <!-- 左侧导航 - 减小留白 -->
+  <!-- 左侧导航 -->
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v3.2</small>
+      <small>正式版 v3.3</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -336,7 +316,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
     </div>
   </div>
 
-  <!-- 右侧主内容区 - 最小化留白 -->
+  <!-- 右侧主内容区 - flex布局支持拖拽 -->
   <div class="main-content">
     <!-- 中间列 - 核心操作区 -->
     <div class="middle-column">
@@ -736,12 +716,12 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v3.2 最终优化版</div>
+                    <div><strong>版本：</strong>v3.3 完美拖拽版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 彻底修复订单列表拖拽调整宽度</div>
+                    <div>✅ 订单列表可拖拽调整宽度（使用分隔条）</div>
                     <div>✅ 消除所有界面留白</div>
-                    <div>✅ 优化间距和卡片大小</div>
                     <div>✅ 库存价值按实际成本计算</div>
+                    <div>✅ 状态颜色与图表一致</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -752,9 +732,9 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
       </div>
     </div>
 
-    <!-- 右侧列 - 订单列表 - 确保可拖拽调整宽度 -->
+    <!-- 右侧列 - 订单列表 -->
     <div class="right-column" id="resizableColumn">
-      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，可拖拽右下角调整宽度)</small></h6>
+      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，拖动左边分隔条调整宽度)</small></h6>
       <div class="order-grid" id="orderList"></div>
     </div>
   </div>
@@ -2717,38 +2697,54 @@ function resetToSample() {
   }
 }
 
-// ========== 修复：确保订单列表可拖拽调整宽度 ==========
+// ========== 初始化可拖拽分隔条 ==========
 function initResizableColumn() {
-  const column = document.getElementById('resizableColumn')
-  if (!column) return
+  const container = document.querySelector('.main-content')
+  const leftColumn = document.querySelector('.middle-column')
+  const rightColumn = document.getElementById('resizableColumn')
+  
+  // 创建分隔条
+  const resizer = document.createElement('div')
+  resizer.className = 'resizer'
+  
+  // 将分隔条插入到中间列和右侧列之间
+  container.insertBefore(resizer, rightColumn)
+  
+  let startX, startWidth
   
   // 读取保存的宽度
   const savedWidth = localStorage.getItem(WIDTH_STORAGE)
   if (savedWidth) {
-    column.style.width = savedWidth + 'px'
+    rightColumn.style.width = savedWidth + 'px'
   }
   
-  // 直接监听 mouseup 事件，更可靠
-  let resizeTimeout
-  column.addEventListener('mouseup', function() {
-    clearTimeout(resizeTimeout)
-    resizeTimeout = setTimeout(() => {
-      const currentWidth = this.offsetWidth
-      localStorage.setItem(WIDTH_STORAGE, currentWidth)
-      console.log('保存列宽:', currentWidth)
-    }, 500)
+  // 鼠标按下事件
+  resizer.addEventListener('mousedown', function(e) {
+    startX = e.clientX
+    startWidth = rightColumn.offsetWidth
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+    e.preventDefault()
   })
   
-  // 同时也监听 mousemove 但用节流
-  let lastSave = 0
-  column.addEventListener('mousemove', function() {
-    const now = Date.now()
-    if (now - lastSave > 1000) {
-      lastSave = now
-      const currentWidth = this.offsetWidth
-      localStorage.setItem(WIDTH_STORAGE, currentWidth)
-    }
-  })
+  function onMouseMove(e) {
+    const diff = e.clientX - startX
+    let newWidth = startWidth - diff // 向左拖动减小宽度，向右增加
+    
+    // 限制宽度范围
+    newWidth = Math.min(Math.max(newWidth, 250), 800)
+    rightColumn.style.width = newWidth + 'px'
+  }
+  
+  function onMouseUp() {
+    document.removeEventListener('mousemove', onMouseMove)
+    document.removeEventListener('mouseup', onMouseUp)
+    
+    // 保存当前宽度
+    const currentWidth = rightColumn.offsetWidth
+    localStorage.setItem(WIDTH_STORAGE, currentWidth)
+    console.log('保存列宽:', currentWidth)
+  }
 }
 
 loadData()
