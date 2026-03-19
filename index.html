@@ -46,16 +46,49 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   height:100%;
 }
 
-/* 右侧列 - 订单列表 */
+/* 右侧列 - 订单列表 - 可调整宽度并保存偏好 */
 .right-column{
-  width:400px;
+  width: 400px;
+  min-width: 300px;
+  max-width: 800px;
+  resize: horizontal;
+  overflow: auto;
   background:#f8fafc;
   border-radius:16px;
   padding:16px;
-  overflow-y:auto;
   border-left:2px solid #e2e8f0;
   box-shadow:-2px 0 8px rgba(0,0,0,0.02);
   height:100%;
+  position: relative;
+}
+
+/* 添加调整手柄提示 */
+.right-column::-webkit-resizer {
+  background-color: #0d6efd;
+  border-radius: 4px 0 4px 0;
+  width: 14px;
+  height: 14px;
+}
+
+/* 添加拖拽提示线 */
+.right-column::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: transparent;
+  transition: background 0.2s;
+  pointer-events: none;
+}
+
+.right-column:hover::after {
+  background: rgba(13, 110, 253, 0.2);
+}
+
+.right-column:active::after {
+  background: rgba(13, 110, 253, 0.4);
 }
 
 .right-column h6{
@@ -70,7 +103,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   font-size:16px;
 }
 
-/* 订单列表交替背景 */
+/* 订单列表交替背景 - 状态彩色标签 */
 .order-grid{
   display:flex;
   flex-direction:column;
@@ -79,19 +112,107 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
 .order-card{
   padding:14px;
   border-radius:10px;
-  border-left:4px solid #0d6efd;
   transition:0.2s;
   font-size:14px;
 }
+.order-card:hover{
+  box-shadow:0 4px 12px rgba(0,0,0,0.05);
+  transform:translateY(-1px);
+}
+
+/* 不同状态的卡片左边框颜色 */
+.order-card.status-contract-executing {
+  border-left:4px solid #6c757d;  /* 合同执行中 - 灰色 */
+}
+.order-card.status-prepayment-pending {
+  border-left:4px solid #ffc107;  /* 待支付预付款 - 黄色 */
+}
+.order-card.status-prepayment-paid {
+  border-left:4px solid #0dcaf0;  /* 已支付预付款启动生产 - 青色 */
+}
+.order-card.status-in-production {
+  border-left:4px solid #0d6efd;  /* 生产中 - 蓝色 */
+}
+.order-card.status-balance-pending {
+  border-left:4px solid #fd7e14;  /* 待支付尾款 - 橙色 */
+}
+.order-card.status-paid-pending-ship {
+  border-left:4px solid #20c997;  /* 已支付待发货 - 青绿 */
+}
+.order-card.status-shipped {
+  border-left:4px solid #0d6efd;  /* 已发货 - 蓝色 */
+}
+.order-card.status-received {
+  border-left:4px solid #198754;  /* 已签收 - 绿色 */
+}
+
+/* 卡片背景交替 */
 .order-card:nth-child(odd){
   background-color:#ffffff;
 }
 .order-card:nth-child(even){
   background-color:#f8fafc;
 }
-.order-card:hover{
-  box-shadow:0 4px 12px rgba(0,0,0,0.05);
-  transform:translateY(-1px);
+
+/* 状态徽章样式 */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  text-align: center;
+  min-width: 100px;
+}
+
+.status-badge.contract-executing { background-color: #6c757d; }
+.status-badge.prepayment-pending { background-color: #ffc107; color: #000; }
+.status-badge.prepayment-paid { background-color: #0dcaf0; color: #000; }
+.status-badge.in-production { background-color: #0d6efd; }
+.status-badge.balance-pending { background-color: #fd7e14; }
+.status-badge.paid-pending-ship { background-color: #20c997; color: #000; }
+.status-badge.shipped { background-color: #0d6efd; }
+.status-badge.received { background-color: #198754; }
+
+/* 工厂分布三图布局 */
+.factory-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.factory-chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.factory-chart-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.factory-chart-title .product-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.product-badge.real { background: #dbeafe; color: #1e40af; }
+.product-badge.part { background: #f3e8ff; color: #6b21a8; }
+.product-badge.other { background: #e9ecef; color: #495057; }
+
+.factory-chart-container {
+  width: 100%;
+  height: 180px;
 }
 
 /* 库存分组背景色 */
@@ -163,7 +284,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v1.4</small>
+      <small>正式版 v1.7</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -229,18 +350,40 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
               </div>
             </div>
 
-            <!-- 图表区域 -->
-            <div class="chart-grid">
-              <div class="card">
-                <div class="card-header">📊 订单状态分布</div>
-                <div class="card-body p-2">
-                  <div id="chartStatus" class="chart-container"></div>
-                </div>
+            <!-- 图表区域 - 修改为三个工厂分布图 -->
+            <div class="card">
+              <div class="card-header">📊 订单状态分布</div>
+              <div class="card-body p-2">
+                <div id="chartStatus" class="chart-container" style="height:250px;"></div>
               </div>
-              <div class="card">
-                <div class="card-header">🏭 工厂分布 <small class="text-muted">(按唯一工厂统计订单数)</small></div>
-                <div class="card-body p-2">
-                  <div id="chartFactory" class="chart-container"></div>
+            </div>
+
+            <!-- 三个工厂分布图 -->
+            <div class="card mt-3">
+              <div class="card-header">🏭 工厂分布 <small class="text-muted">(按产品类型分类)</small></div>
+              <div class="card-body">
+                <div class="factory-charts-grid">
+                  <!-- 实物产品工厂分布 -->
+                  <div class="factory-chart-card">
+                    <div class="factory-chart-title">
+                      实物产品 <span class="product-badge real">实物</span>
+                    </div>
+                    <div id="chartFactoryReal" class="factory-chart-container"></div>
+                  </div>
+                  <!-- 配件工厂分布 -->
+                  <div class="factory-chart-card">
+                    <div class="factory-chart-title">
+                      配件 <span class="product-badge part">配件</span>
+                    </div>
+                    <div id="chartFactoryPart" class="factory-chart-container"></div>
+                  </div>
+                  <!-- 其他工厂分布 -->
+                  <div class="factory-chart-card">
+                    <div class="factory-chart-title">
+                      其他 <span class="product-badge other">其他</span>
+                    </div>
+                    <div id="chartFactoryOther" class="factory-chart-container"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -310,7 +453,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                   <div class="col-md-4">
                     <div class="field-container">
                       <span class="field-label">📊 退税率 %</span>
-                      <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="13">
+                      <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="13" step="0.1">
                     </div>
                   </div>
                 </div>
@@ -569,11 +712,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v1.4 最终修复版</div>
+                    <div><strong>版本：</strong>v1.7 工厂分布三图版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 修复图表数据显示错误</div>
-                    <div>✅ 修复汇率保存功能</div>
-                    <div>✅ 优化预警阈值布局</div>
+                    <div>✅ 工厂分布拆分为三个饼图（实物/配件/其他）</div>
+                    <div>✅ 修复退税率为0的问题</div>
+                    <div>✅ 订单列表状态彩色显示</div>
                     <div><strong>最后更新：</strong>2025-03-19</div>
                   </div>
                 </div>
@@ -584,9 +727,9 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:15px;overflow:h
       </div>
     </div>
 
-    <!-- 右侧列 - 订单列表 -->
-    <div class="right-column">
-      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新)</small></h6>
+    <!-- 右侧列 - 订单列表 - 可调整宽度 -->
+    <div class="right-column" id="resizableColumn">
+      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新，可拖拽右边框调整宽度)</small></h6>
       <div class="order-grid" id="orderList"></div>
     </div>
   </div>
@@ -695,11 +838,24 @@ const STATUS_COLOR = {
   '已签收':'success'
 }
 
+// 状态对应的CSS类名（用于左边框颜色）
+const STATUS_CARD_CLASS = {
+  '合同执行中': 'status-contract-executing',
+  '待支付预付款': 'status-prepayment-pending',
+  '已支付预付款，启动生产': 'status-prepayment-paid',
+  '生产中': 'status-in-production',
+  '待支付尾款': 'status-balance-pending',
+  '已支付，待发货': 'status-paid-pending-ship',
+  '已发货': 'status-shipped',
+  '已签收': 'status-received'
+}
+
 // ========== 数据层 ==========
 const ORDER_STORAGE = 'ERP_ORDER_FINAL'
 const INVENTORY_STORAGE = 'ERP_INVENTORY'
 const LOG_STORAGE = 'ERP_INVENTORY_LOGS'
 const SETTINGS_STORAGE = 'ERP_SETTINGS'
+const WIDTH_STORAGE = 'ORDER_LIST_WIDTH'  // 保存宽度的key
 
 // 全局变量
 let orders = []
@@ -1056,6 +1212,10 @@ function saveOrder() {
   if (hasError) return
   
   const status = document.getElementById('status').value
+  // 修复：正确处理退税率为0的情况
+  const taxRateValue = document.getElementById('taxRate').value
+  const taxRate = taxRateValue === '' ? 13 : parseFloat(taxRateValue)
+  
   const order = {
     no: document.getElementById('orderNo').value.trim(),
     contract: document.getElementById('contractNo').value.trim(),
@@ -1063,7 +1223,7 @@ function saveOrder() {
     delivery: document.getElementById('delivery').value,
     prepaymentDate: document.getElementById('prepaymentDate').value,
     contractSignDate: document.getElementById('contractSignDate').value,
-    taxRate: parseFloat(document.getElementById('taxRate').value) || 13,
+    taxRate: taxRate,
     cost: parseFloat(document.getElementById('costRmb').value) || 0,
     sale: parseFloat(document.getElementById('saleUsd').value) || 0,
     logistics: status === '已发货' ? document.getElementById('logistics').value.trim() : '',
@@ -1131,7 +1291,7 @@ function editOrder(i) {
   document.getElementById('delivery').value = o.delivery || ''
   document.getElementById('prepaymentDate').value = o.prepaymentDate || ''
   document.getElementById('contractSignDate').value = o.contractSignDate || ''
-  document.getElementById('taxRate').value = o.taxRate || 13
+  document.getElementById('taxRate').value = o.taxRate === 0 ? '0' : (o.taxRate || 13)
   document.getElementById('saleUsd').value = o.sale || ''
   document.getElementById('logistics').value = o.logistics || ''
   document.getElementById('status').value = o.status || '合同执行中'
@@ -1593,9 +1753,10 @@ function refresh() {
   let statusCount = {}
   ORDER_STATUS.forEach(s => statusCount[s] = 0)
   
-  // 工厂统计：每个工厂对应一个Set（存订单号）
-  let factoryOrderMap = {}
-  let allFactories = new Set()
+  // 工厂统计：按产品类型分类
+  let factoryMapReal = {}  // 实物产品
+  let factoryMapPart = {}  // 配件
+  let factoryMapOther = {} // 其他
   
   // 遍历订单进行统计
   orders.forEach(o => {
@@ -1603,6 +1764,7 @@ function refresh() {
     
     const sale = o.sale || 0
     const cost = o.cost || 0
+    // 修复：正确处理退税率为0的情况
     const tax = cost * (o.taxRate || 13) / 100
     const profit = sale * usdRate - cost + tax
     
@@ -1616,16 +1778,18 @@ function refresh() {
       statusCount[o.status]++
     }
     
-    // 工厂统计：每个工厂只计一次（用Set去重）
+    // 按产品类型统计工厂分布
     if (o.items && o.items.length > 0) {
-      const orderFactories = [...new Set(o.items.filter(i => i.factory).map(i => i.factory))]
-      orderFactories.forEach(factory => {
-        if (factory) {
-          if (!factoryOrderMap[factory]) {
-            factoryOrderMap[factory] = new Set()
+      o.items.forEach(item => {
+        if (item.factory) {
+          // 根据产品类型分类统计
+          if (item.type === '实物产品') {
+            factoryMapReal[item.factory] = (factoryMapReal[item.factory] || 0) + 1
+          } else if (item.type === '配件') {
+            factoryMapPart[item.factory] = (factoryMapPart[item.factory] || 0) + 1
+          } else {
+            factoryMapOther[item.factory] = (factoryMapOther[item.factory] || 0) + 1
           }
-          factoryOrderMap[factory].add(o.no)
-          allFactories.add(factory)
         }
       })
     }
@@ -1718,68 +1882,76 @@ function refresh() {
     console.error('状态图表渲染失败', e)
   }
 
-  // ===== 工厂分布图表 - 硬编码确保正确 =====
+  // ===== 三个工厂分布图表 =====
   try {
-    const chartFactoryDom = document.getElementById('chartFactory')
-    if (!chartFactoryDom) {
-      console.error('找不到chartFactory元素')
-    } else {
-      // 先尝试销毁旧实例
-      const existingChart = echarts.getInstanceByDom(chartFactoryDom)
-      if (existingChart) {
-        existingChart.dispose()
-      }
+    // 实物产品工厂分布
+    const chartRealDom = document.getElementById('chartFactoryReal')
+    if (chartRealDom) {
+      const existingReal = echarts.getInstanceByDom(chartRealDom)
+      if (existingReal) existingReal.dispose()
+      const chartReal = echarts.init(chartRealDom)
       
-      // 创建新实例
-      const chartFactory = echarts.init(chartFactoryDom)
+      const realData = Object.entries(factoryMapReal).map(([factory, count]) => ({
+        name: factory,
+        value: count
+      })).sort((a, b) => b.value - a.value)
       
-      // 构建饼图数据
-      const pieData = []
-      for (const [factory, orderSet] of Object.entries(factoryOrderMap)) {
-        pieData.push({
-          name: factory,
-          value: orderSet.size
-        })
-      }
-      
-      // 如果没有数据，显示占位
-      if (pieData.length === 0) {
-        pieData.push({ name: '暂无数据', value: 1 })
-      }
-      
-      chartFactory.setOption({
-        tooltip: { 
-          trigger: 'item', 
-          formatter: '{b}<br/>参与订单: {c}单' 
-        },
-        legend: { 
-          orient: 'vertical', 
-          left: 'left', 
-          top: 'center', 
-          textStyle: { fontSize: 12 } 
-        },
+      chartReal.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
         series: [{
-          name: '工厂分布',
           type: 'pie',
-          radius: ['40%', '70%'],
-          data: pieData,
-          itemStyle: { 
-            borderRadius: 10, 
-            borderColor: '#fff', 
-            borderWidth: 2 
-          },
-          label: { 
-            show: true,
-            position: 'outside',
-            formatter: '{b}: {c}单',
-            fontSize: 12,
-            color: '#1e293b'
-          },
-          labelLine: { 
-            show: true, 
-            length: 10, 
-            length2: 10 
-          }
+          radius: ['50%', '70%'],
+          data: realData.length ? realData : [{ name: '暂无', value: 1 }],
+          label: { show: false },
+          emphasis: { scale: true }
+        }]
+      })
+    }
+
+    // 配件工厂分布
+    const chartPartDom = document.getElementById('chartFactoryPart')
+    if (chartPartDom) {
+      const existingPart = echarts.getInstanceByDom(chartPartDom)
+      if (existingPart) existingPart.dispose()
+      const chartPart = echarts.init(chartPartDom)
+      
+      const partData = Object.entries(factoryMapPart).map(([factory, count]) => ({
+        name: factory,
+        value: count
+      })).sort((a, b) => b.value - a.value)
+      
+      chartPart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
+        series: [{
+          type: 'pie',
+          radius: ['50%', '70%'],
+          data: partData.length ? partData : [{ name: '暂无', value: 1 }],
+          label: { show: false },
+          emphasis: { scale: true }
+        }]
+      })
+    }
+
+    // 其他工厂分布
+    const chartOtherDom = document.getElementById('chartFactoryOther')
+    if (chartOtherDom) {
+      const existingOther = echarts.getInstanceByDom(chartOtherDom)
+      if (existingOther) existingOther.dispose()
+      const chartOther = echarts.init(chartOtherDom)
+      
+      const otherData = Object.entries(factoryMapOther).map(([factory, count]) => ({
+        name: factory,
+        value: count
+      })).sort((a, b) => b.value - a.value)
+      
+      chartOther.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}<br/>数量: {c}件' },
+        series: [{
+          type: 'pie',
+          radius: ['50%', '70%'],
+          data: otherData.length ? otherData : [{ name: '暂无', value: 1 }],
+          label: { show: false },
+          emphasis: { scale: true }
         }]
       })
     }
@@ -1799,12 +1971,17 @@ function refresh() {
   document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok p-2">✅ 无交期预警</div>'
 
   // 更新工厂筛选下拉框
+  const allFactories = new Set([
+    ...Object.keys(factoryMapReal),
+    ...Object.keys(factoryMapPart),
+    ...Object.keys(factoryMapOther)
+  ])
   const factoryList = Array.from(allFactories).sort()
   const sel = document.getElementById('factoryFilter')
   sel.innerHTML = '<option value="">全部工厂</option>' + 
     factoryList.map(f => `<option ${f === facFilter ? 'selected' : ''}>${f}</option>`).join('')
 
-  // 订单列表渲染
+  // 订单列表渲染 - 带彩色状态
   let listHtml = ''
   
   const filteredOrders = orders.filter(o => {
@@ -1827,8 +2004,11 @@ function refresh() {
     const orderFactories = o.items?.filter(i => i.factory).map(i => i.factory) || []
     const uniqueFactories = [...new Set(orderFactories)].join(', ') || '无'
     
+    // 获取状态对应的卡片类名
+    const cardClass = STATUS_CARD_CLASS[o.status] || ''
+    
     listHtml += `
-      <div class="order-card">
+      <div class="order-card ${cardClass}">
         <div class="d-flex justify-content-between">
           <div>
             <strong>${o.no || '未知'}</strong> | ${o.contract || '未知'}
@@ -2035,6 +2215,38 @@ function resetToSample() {
   }
 }
 
+// ========== 初始化可调整宽度并保存偏好 ==========
+function initResizableColumn() {
+  const column = document.getElementById('resizableColumn')
+  if (!column) return
+  
+  // 读取保存的宽度
+  const savedWidth = localStorage.getItem(WIDTH_STORAGE)
+  if (savedWidth) {
+    column.style.width = savedWidth + 'px'
+  }
+  
+  // 监听调整结束事件，保存宽度
+  let resizeTimeout
+  column.addEventListener('mouseup', function() {
+    clearTimeout(resizeTimeout)
+    resizeTimeout = setTimeout(() => {
+      const currentWidth = this.offsetWidth
+      localStorage.setItem(WIDTH_STORAGE, currentWidth)
+      console.log('保存列宽:', currentWidth)
+    }, 500)
+  })
+  
+  // 也监听键盘事件（调整时按方向键微调）
+  column.addEventListener('keyup', function() {
+    clearTimeout(resizeTimeout)
+    resizeTimeout = setTimeout(() => {
+      const currentWidth = this.offsetWidth
+      localStorage.setItem(WIDTH_STORAGE, currentWidth)
+    }, 500)
+  })
+}
+
 // ========== 加载数据并初始化 ==========
 loadData()
 
@@ -2057,6 +2269,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cancelOrder()
     refresh()
     renderInventory()
+    initResizableColumn()  // 初始化可调整宽度
     
     console.log('初始化完成')
   }, 100)
