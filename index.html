@@ -9,212 +9,451 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-/* 全局样式 - 优化留白 */
-body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:hidden}
+/* ========== 全局样式优化 ========== */
+body{background:#f0f2f5;margin:0;font-family:system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;font-size:15px;overflow:hidden}
 .app-container{display:flex;height:100vh;width:100vw;overflow:hidden}
 
-/* 左侧导航 - 减小内边距，确保选中状态可见 */
-.sidebar{width:200px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 8px rgba(0,0,0,0.1)}
-.sidebar-header{padding:16px 10px;border-bottom:1px solid #334155}
-.sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:16px}
-.sidebar-header small{color:#94a3b8;font-size:12px}
-.sidebar-nav{flex:1;padding:8px 4px}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 8px;border-radius:6px;margin-bottom:2px;color:#cbd5e1;cursor:pointer;transition:all 0.2s;font-size:14px}
+/* ========== 左侧导航优化 ========== */
+.sidebar{width:220px;background:#1e293b;color:#fff;display:flex;flex-direction:column;box-shadow:2px 0 10px rgba(0,0,0,0.1)}
+.sidebar-header{padding:20px 16px;border-bottom:1px solid #334155}
+.sidebar-header h5{margin:0;font-weight:600;color:#fff;font-size:18px;letter-spacing:0.5px}
+.sidebar-header small{color:#94a3b8;font-size:13px}
+.sidebar-nav{flex:1;padding:16px 8px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 12px;border-radius:8px;margin-bottom:4px;color:#cbd5e1;cursor:pointer;transition:all 0.2s;font-size:15px;font-weight:500}
 .nav-item:hover{background:#334155;color:#fff}
-.nav-item.active{background:#0d6efd;color:#fff;font-weight:500}
-.nav-item i{font-size:18px;width:22px;text-align:center}
-.sidebar-footer{padding:10px;border-top:1px solid #334155;font-size:12px;color:#94a3b8}
+.nav-item.active{background:#0d6efd;color:#fff;box-shadow:0 4px 10px rgba(13,110,253,0.3)}
+.nav-item i{font-size:20px;width:24px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid #334155;font-size:13px;color:#94a3b8}
 
-/* 右侧主内容区 - 完全消除间隙 */
+/* ========== 右侧主内容区 ========== */
 .main-content{
   flex:1;
   display:flex;
-  gap:0px;
-  padding:4px;
+  gap:0;
+  padding:12px;
   background:#f0f2f5;
   overflow:hidden;
   height:100vh;
 }
 
-/* 中间列 - 核心操作区 */
+/* ========== 中间列 - 核心操作区 ========== */
 .middle-column{
   flex:1;
-  min-width:300px;
+  min-width:400px;
   background:transparent;
   overflow-y:auto;
   overflow-x:hidden;
-  padding-right:0;
+  padding-right:8px;
   height:100%;
 }
 
-/* 更细的拖拽分隔条 - 确保可点击 */
-.resizer {
-  width: 4px;
-  background: transparent;
-  cursor: col-resize;
-  transition: background 0.2s;
-  margin: 0;
-  height: 100%;
-  position: relative;
-  z-index: 100;
-}
-
-.resizer:hover,
-.resizer:active {
-  background: #0d6efd;
-  opacity: 0.5;
-}
-
-/* 右侧列 - 订单列表 */
+/* ========== 右侧列 - 订单列表（固定宽度）========== */
 .right-column{
-  width: 350px;
-  min-width: 250px;
-  max-width: 600px;
-  background:#f8fafc;
-  border-radius:0 6px 6px 0;
-  padding:8px;
-  border-left:1px solid #e2e8f0;
+  width: 400px;
+  background:#fff;
+  border-radius: 16px;
+  padding: 16px;
+  border-left: 1px solid #e9ecef;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.03);
   height:100%;
   overflow-y:auto;
 }
-
 .right-column h6{
   position:sticky;
   top:0;
-  background:#f8fafc;
-  padding:6px 0;
-  margin:0 0 6px 0;
+  background:#fff;
+  padding:10px 0 12px 0;
+  margin:0 0 12px 0;
   z-index:10;
-  border-bottom:1px solid #e2e8f0;
+  border-bottom:1px solid #e9ecef;
   font-weight:600;
-  font-size:14px;
+  font-size:16px;
+  color:#1e293b;
 }
 
-/* 订单列表样式优化 */
+/* ========== 订单列表卡片优化 ========== */
 .order-grid{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:10px;
 }
 .order-card{
-  padding:8px;
-  border-radius:4px;
-  transition:0.2s;
-  font-size:12px;
+  padding:14px;
+  border-radius: 12px;
+  transition: all 0.2s;
+  font-size:14px;
+  background:#fff;
+  border:1px solid #f1f3f5;
 }
 .order-card:hover{
-  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+  box-shadow:0 8px 20px rgba(0,0,0,0.06);
+  transform:translateY(-2px);
+  border-color:#dee2e6;
 }
 .order-card:nth-child(odd){background-color:#ffffff;}
-.order-card:nth-child(even){background-color:#f8fafc;}
+.order-card:nth-child(even){background-color:#fafbfc;}
 
 /* 状态卡片左边框颜色 */
-.order-card.status-contract-executing {border-left:4px solid #6c757d;}
-.order-card.status-prepayment-pending {border-left:4px solid #ffc107;}
-.order-card.status-prepayment-paid {border-left:4px solid #0dcaf0;}
-.order-card.status-in-production {border-left:4px solid #fd7e14;}
-.order-card.status-balance-pending {border-left:4px solid #d63384;}
-.order-card.status-paid-pending-ship {border-left:4px solid #20c997;}
-.order-card.status-shipped {border-left:4px solid #0d6efd;}
-.order-card.status-received {border-left:4px solid #198754;}
+.order-card.status-contract-executing {border-left:6px solid #6c757d;}
+.order-card.status-prepayment-pending {border-left:6px solid #ffc107;}
+.order-card.status-prepayment-paid {border-left:6px solid #0dcaf0;}
+.order-card.status-in-production {border-left:6px solid #fd7e14;}
+.order-card.status-balance-pending {border-left:6px solid #d63384;}
+.order-card.status-paid-pending-ship {border-left:6px solid #20c997;}
+.order-card.status-shipped {border-left:6px solid #0d6efd;}
+.order-card.status-received {border-left:6px solid #198754;}
 
-/* 工厂分布三图布局 */
+/* ========== 工厂分布三图布局优化 ========== */
 .factory-charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 4px;
-  margin-top: 4px;
+  gap: 16px;
+  margin-top: 16px;
 }
-
 .factory-chart-card {
   background: #fff;
-  border-radius: 4px;
-  padding: 6px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: all 0.2s;
 }
-
+.factory-chart-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
 .factory-chart-title {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 4px;
-  padding-bottom: 2px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid #eef2f6;
+  color:#1e293b;
 }
-
-.factory-chart-container {
-  width: 100%;
-  height: 130px;
+.factory-chart-title .product-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-left: 8px;
+  font-weight: 500;
 }
+.product-badge.real { background: #dbeafe; color: #1e40af; }
+.product-badge.part { background: #f3e8ff; color: #6b21a8; }
+.product-badge.other { background: #e9ecef; color: #495057; }
+.factory-chart-container { width: 100%; height: 180px; }
 
-/* 库存分组样式优化 */
+/* ========== 库存分组样式优化 ========== */
 .inventory-group{
-  background-color:#f1f5f9;
-  border-radius:4px;
-  padding:6px;
-  margin-bottom:8px;
+  background-color:#f8fafc;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border:1px solid #e9ecef;
 }
 .inventory-group-title{
-  background-color:#e2e8f0;
-  margin:-6px -6px 4px -6px;
-  padding:4px 6px;
-  border-radius:4px 4px 0 0;
+  background: linear-gradient(90deg, #e9ecef 0%, #f1f3f5 100%);
+  margin:-16px -16px 12px -16px;
+  padding:12px 16px;
+  border-radius:16px 16px 0 0;
   font-weight:600;
-  font-size:13px;
+  color:#1e293b;
+  font-size:16px;
+  border-bottom:1px solid #dee2e6;
 }
-
 .inventory-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:4px;
-  margin-top:4px;
+  gap:12px;
+  margin-top:12px;
 }
 .inventory-card{
   background:#fff;
-  border-radius:4px;
-  padding:6px;
+  border-radius: 12px;
+  padding: 14px;
   border:1px solid #eef2f6;
   cursor:pointer;
   transition:0.2s;
-  font-size:11px;
+  font-size:14px;
+  position: relative;
 }
-.inventory-card:hover{box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+.inventory-card:hover{
+  box-shadow:0 8px 20px rgba(0,0,0,0.06);
+  transform:translateY(-2px);
+  border-color:#0d6efd;
+}
+.inventory-card.low-stock{
+  background:#fff3cd;
+  border-left:6px solid #ffc107;
+}
 
-/* 卡片内边距统一减小 */
-.card{margin-bottom:6px; border-radius:4px;}
-.card-header{background:transparent;border-bottom:1px solid #eef2f6;padding:6px 10px;font-weight:600;font-size:14px}
-.card-body{padding:8px;}
-.toolbar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;background:#fff;padding:4px 6px;border-radius:4px;align-items:center}
-.dashboard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:4px}
-.dashboard-card{background:#fff;padding:6px;border-radius:4px;cursor:pointer;transition:0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.02)}
-.dashboard-card:hover{background:#e3f2fd;transform:translateY(-1px)}
-.dashboard-label{color:#64748b;font-size:11px;margin-bottom:2px}
-.dashboard-value{font-size:18px;font-weight:700;color:#1e293b}
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.chart-container{width:100%;height:180px}
-.field-container{margin-bottom:4px}
-.field-label{font-size:11px;color:#64748b;margin-bottom:2px;display:block;font-weight:500}
-.status-board{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin:4px 0;background:#fff;padding:4px;border-radius:4px}
-.status-item{text-align:center;padding:3px 2px;border-radius:4px;font-size:10px;cursor:pointer}
-.status-count{font-weight:700;font-size:13px}
-.search-filter-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:4px}
-.alert-overdue{background:#fee;color:#c00;padding:4px;border-radius:4px;margin-bottom:2px;font-size:12px}
-.alert-soon{background:#fff3e0;color:#e68a00;padding:4px;border-radius:4px;margin-bottom:2px;font-size:12px}
-.alert-ok{background:#e8f5e9;color:#2e7d32;padding:4px;border-radius:4px;font-size:12px}
-.item-row{background:#f8fafc;padding:4px;border-radius:4px;margin-bottom:4px;border:1px solid #edf2f7}
-.inventory-log{font-size:11px;padding:4px 0;border-bottom:1px dashed #e2e8f0}
-.inventory-log:last-child{border-bottom:none}
-.setting-item{padding:8px;border-bottom:1px solid #eef2f6}
-.setting-item:last-child{border-bottom:none}
-.setting-label{font-weight:600;margin-bottom:2px;color:#1e293b;font-size:14px}
-.setting-desc{font-size:12px;color:#64748b;margin-bottom:4px}
-.about-info{background:#f8fafc;padding:8px;border-radius:4px;font-size:12px;line-height:1.4}
-.report-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:8px;border-radius:4px;margin-bottom:8px;font-size:12px}
-.product-type-badge{font-size:10px;padding:1px 4px;border-radius:4px;background:#e9ecef;color:#495057;display:inline-block;margin-right:2px;margin-bottom:2px}
-.factory-badge{font-size:10px;padding:1px 4px;border-radius:4px;background:#dbeafe;color:#1e40af;display:inline-block;margin-right:2px}
-.source-order-badge{font-size:9px;padding:1px 4px;border-radius:8px;background:#f3e8ff;color:#6b21a8;display:inline-block;margin-right:2px;margin-bottom:2px}
-.source-manual-badge{font-size:9px;padding:1px 4px;border-radius:8px;background:#e0e7ff;color:#3730a3;display:inline-block;margin-right:2px;margin-bottom:2px}
-.btn-sm{font-size:11px;padding:2px 6px}
-.form-control-sm,.form-select-sm{font-size:12px;padding:3px 6px}
+/* 标签样式优化 */
+.source-order-badge{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:20px;
+  background:#f3e8ff;
+  color:#6b21a8;
+  display:inline-block;
+  margin-right:4px;
+  margin-bottom:4px;
+  font-weight:500;
+}
+.source-manual-badge{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:20px;
+  background:#e0e7ff;
+  color:#3730a3;
+  display:inline-block;
+  margin-right:4px;
+  margin-bottom:4px;
+  font-weight:500;
+}
+.factory-badge{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:20px;
+  background:#dbeafe;
+  color:#1e40af;
+  display:inline-block;
+  margin-right:4px;
+  font-weight:500;
+}
+.product-type-badge{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:20px;
+  background:#e9ecef;
+  color:#495057;
+  display:inline-block;
+  margin-right:4px;
+  margin-bottom:4px;
+  font-weight:500;
+}
+
+/* ========== 卡片样式优化 ========== */
+.card{
+  border-radius: 16px;
+  border:none;
+  box-shadow:0 4px 12px rgba(0,0,0,0.03);
+  margin-bottom: 16px;
+  background:#fff;
+  transition: all 0.2s;
+}
+.card:hover{
+  box-shadow:0 8px 24px rgba(0,0,0,0.06);
+}
+.card-header{
+  background:transparent;
+  border-bottom:1px solid #eef2f6;
+  padding:16px 20px;
+  font-weight:600;
+  font-size:16px;
+  color:#1e293b;
+}
+.card-body{padding:20px;}
+
+/* ========== 仪表盘卡片优化 ========== */
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  margin-bottom:20px;
+}
+.dashboard-card{
+  background:#fff;
+  padding:20px;
+  border-radius: 16px;
+  cursor:pointer;
+  transition:0.2s;
+  box-shadow:0 4px 12px rgba(0,0,0,0.03);
+}
+.dashboard-card:hover{
+  background:#e3f2fd;
+  transform:translateY(-4px);
+  box-shadow:0 12px 24px rgba(13,110,253,0.15);
+}
+.dashboard-label{
+  color:#64748b;
+  font-size:14px;
+  margin-bottom:6px;
+  font-weight:500;
+}
+.dashboard-value{
+  font-size:28px;
+  font-weight:700;
+  color:#1e293b;
+  letter-spacing:-0.5px;
+}
+
+/* ========== 图表容器优化 ========== */
+.chart-container{
+  width:100%;
+  height:250px;
+}
+
+/* ========== 表单字段优化 ========== */
+.field-container{margin-bottom:16px;}
+.field-label{
+  font-size:13px;
+  color:#64748b;
+  margin-bottom:4px;
+  display:block;
+  font-weight:500;
+}
+.form-control, .form-select{
+  font-size:14px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #e2e8f0;
+}
+.form-control:focus, .form-select:focus{
+  border-color:#0d6efd;
+  box-shadow:0 0 0 3px rgba(13,110,253,0.1);
+}
+
+/* ========== 状态看板优化 ========== */
+.status-board{
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  gap:6px;
+  margin:16px 0;
+  background:#fff;
+  padding:16px;
+  border-radius: 16px;
+}
+.status-item{
+  text-align:center;
+  padding:10px 4px;
+  border-radius: 10px;
+  font-size:13px;
+  cursor:pointer;
+  transition:0.2s;
+}
+.status-item:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+.status-count{
+  font-weight:700;
+  font-size:18px;
+  margin-bottom:2px;
+}
+
+/* ========== 工具栏优化 ========== */
+.toolbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+  background:#fff;
+  padding:16px 20px;
+  border-radius: 16px;
+  align-items:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.03);
+}
+.btn{
+  font-size:14px;
+  padding:8px 16px;
+  border-radius: 30px;
+  font-weight:500;
+}
+.btn-sm{
+  font-size:13px;
+  padding:6px 12px;
+}
+
+/* ========== 搜索过滤优化 ========== */
+.search-filter-3col{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+/* ========== 预警卡片优化 ========== */
+.alert-overdue{
+  background:#fee;
+  color:#c00;
+  padding:12px 16px;
+  border-radius: 30px;
+  margin-bottom:8px;
+  font-size:14px;
+  font-weight:500;
+}
+.alert-soon{
+  background:#fff3e0;
+  color:#e68a00;
+  padding:12px 16px;
+  border-radius: 30px;
+  margin-bottom:8px;
+  font-size:14px;
+  font-weight:500;
+}
+.alert-ok{
+  background:#e8f5e9;
+  color:#2e7d32;
+  padding:12px 16px;
+  border-radius: 30px;
+  font-size:14px;
+  font-weight:500;
+}
+
+/* ========== 系统设置优化 ========== */
+.setting-item{
+  padding:20px;
+  border-bottom:1px solid #eef2f6;
+}
+.setting-item:last-child{border-bottom:none;}
+.setting-label{
+  font-weight:600;
+  margin-bottom:6px;
+  color:#1e293b;
+  font-size:16px;
+}
+.setting-desc{
+  font-size:14px;
+  color:#64748b;
+  margin-bottom:12px;
+}
+.about-info{
+  background:#f8fafc;
+  padding:20px;
+  border-radius: 16px;
+  font-size:14px;
+  line-height:1.8;
+  color:#334155;
+}
+
+/* ========== 报表卡片样式 ========== */
+.report-card{
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+.report-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+}
+.report-card .small{
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+.report-card .h2{
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ========== 响应式调整 ========== */
+@media (max-width: 1200px) {
+  .dashboard-grid{grid-template-columns:repeat(3,1fr);}
+  .factory-charts-grid{grid-template-columns:1fr;}
+  .inventory-grid{grid-template-columns:repeat(2,1fr);}
+  .status-board{grid-template-columns:repeat(4,1fr);}
+}
 </style>
 </head>
 <body>
@@ -223,7 +462,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
   <div class="sidebar">
     <div class="sidebar-header">
       <h5>📦 外贸ERP</h5>
-      <small>正式版 v3.5</small>
+      <small>专业版 v4.1</small>
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="switchTab('orders')">
@@ -245,7 +484,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
     </div>
     <div class="sidebar-footer">
       <div>💵 汇率: <span id="usdRateSide">7.20</span></div>
-      <div style="font-size:10px; margin-top:2px;">⚡ 数据自动保存</div>
+      <div style="font-size:12px; margin-top:6px;">⚡ 数据自动保存</div>
     </div>
   </div>
 
@@ -257,8 +496,8 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
       <div class="toolbar">
         <button class="btn btn-sm btn-outline-primary" onclick="backup()">💾 备份</button>
         <button class="btn btn-sm btn-outline-warning" onclick="restore()">🔄 恢复</button>
-        <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空</button>
-        <span class="text-muted" style="margin-left:auto;">💵 <span id="usdRateTop">7.20</span></span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="clearFilter()">🔍 清空筛选</button>
+        <span class="text-muted" style="margin-left:auto;">💵 汇率: <span id="usdRateTop">7.20</span></span>
       </div>
 
       <div id="contentArea">
@@ -292,26 +531,26 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             <!-- 订单状态分布图 -->
             <div class="card">
               <div class="card-header">📊 订单状态分布</div>
-              <div class="card-body p-1">
+              <div class="card-body">
                 <div id="chartStatus" class="chart-container"></div>
               </div>
             </div>
 
             <!-- 三个工厂分布图 -->
-            <div class="card mt-1">
+            <div class="card">
               <div class="card-header">🏭 工厂分布 <small class="text-muted">(按产品类型分类)</small></div>
               <div class="card-body">
                 <div class="factory-charts-grid">
                   <div class="factory-chart-card">
-                    <div class="factory-chart-title">实物产品</div>
+                    <div class="factory-chart-title">实物产品 <span class="product-badge real">实物</span></div>
                     <div id="chartFactoryReal" class="factory-chart-container"></div>
                   </div>
                   <div class="factory-chart-card">
-                    <div class="factory-chart-title">配件</div>
+                    <div class="factory-chart-title">配件 <span class="product-badge part">配件</span></div>
                     <div id="chartFactoryPart" class="factory-chart-container"></div>
                   </div>
                   <div class="factory-chart-card">
-                    <div class="factory-chart-title">其他</div>
+                    <div class="factory-chart-title">其他 <span class="product-badge other">其他</span></div>
                     <div id="chartFactoryOther" class="factory-chart-container"></div>
                   </div>
                 </div>
@@ -329,11 +568,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 
             <!-- 搜索过滤 -->
             <div class="search-filter-3col">
-              <input class="form-control form-control-sm" id="search" placeholder="🔎 搜索订单号/合同号/客户" oninput="refresh()">
-              <select class="form-select form-select-sm" id="factoryFilter" onchange="refresh()">
+              <input class="form-control" id="search" placeholder="🔎 搜索订单号/合同号/客户" oninput="refresh()">
+              <select class="form-select" id="factoryFilter" onchange="refresh()">
                 <option value="">全部工厂</option>
               </select>
-              <select class="form-select form-select-sm" id="productTypeFilter" onchange="refresh()">
+              <select class="form-select" id="productTypeFilter" onchange="refresh()">
                 <option value="">全部产品类型</option>
               </select>
             </div>
@@ -343,66 +582,102 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
               <div class="card-header" id="formTitle">➕ 新增订单</div>
               <div class="card-body">
                 <input type="hidden" id="editIdx">
-                <div class="row g-1">
-                  <div class="col-6">
-                    <input class="form-control form-control-sm" id="orderNo" placeholder="订单号 *">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📋 订单号 *</span>
+                      <input class="form-control" id="orderNo" placeholder="例如: ORD-001">
+                    </div>
                   </div>
-                  <div class="col-6">
-                    <input class="form-control form-control-sm" id="contractNo" placeholder="合同号 *">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📄 合同号 *</span>
+                      <input class="form-control" id="contractNo" placeholder="例如: CT-001">
+                    </div>
                   </div>
-                  <div class="col-6">
-                    <input class="form-control form-control-sm" id="customer" placeholder="客户名称">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">👥 客户名称</span>
+                      <input class="form-control" id="customer" placeholder="输入客户名称">
+                    </div>
                   </div>
-                  <div class="col-6">
-                    <input type="date" class="form-control form-control-sm" id="delivery" placeholder="交付日期">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📅 交付日期</span>
+                      <input type="date" class="form-control" id="delivery">
+                    </div>
                   </div>
-                  <div class="col-4">
-                    <input type="date" class="form-control form-control-sm" id="prepaymentDate" placeholder="预付款日期">
+                  <div class="col-md-4">
+                    <div class="field-container">
+                      <span class="field-label">💰 预付款日期</span>
+                      <input type="date" class="form-control" id="prepaymentDate">
+                    </div>
                   </div>
-                  <div class="col-4">
-                    <input type="date" class="form-control form-control-sm" id="contractSignDate" placeholder="合同签署日期">
+                  <div class="col-md-4">
+                    <div class="field-container">
+                      <span class="field-label">📝 合同签署日期</span>
+                      <input type="date" class="form-control" id="contractSignDate">
+                    </div>
                   </div>
-                  <div class="col-4">
-                    <input class="form-control form-control-sm" id="taxRate" type="number" value="13" placeholder="退税率 %">
+                  <div class="col-md-4">
+                    <div class="field-container">
+                      <span class="field-label">📊 退税率 %</span>
+                      <input class="form-control" id="taxRate" type="number" value="13" step="0.1">
+                    </div>
                   </div>
                 </div>
 
-                <div class="mt-2">
-                  <h6 class="small">📦 产品明细</h6>
+                <div class="mt-4">
+                  <h6>📦 产品明细 <small class="text-muted">(每个产品可选择产品类型和工厂)</small></h6>
                   <div id="itemsList"></div>
-                  <button class="btn btn-sm btn-outline-primary w-100 mt-1" onclick="addItem()">+ 添加产品</button>
+                  <button class="btn btn-outline-primary w-100 mt-3" onclick="addItem()">+ 添加产品</button>
                 </div>
 
-                <div class="row g-1 mt-2">
-                  <div class="col-6">
-                    <input class="form-control form-control-sm" id="costRmb" readonly placeholder="采购成本(RMB)">
+                <div class="row g-3 mt-3">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">💰 采购成本(RMB)</span>
+                      <input class="form-control" id="costRmb" readonly placeholder="自动计算">
+                    </div>
                   </div>
-                  <div class="col-6">
-                    <input class="form-control form-control-sm" id="saleUsd" type="number" step="0.01" placeholder="销售金额(USD)">
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">💵 销售金额(USD)</span>
+                      <input class="form-control" id="saleUsd" type="number" step="0.01" placeholder="例如: 1000">
+                    </div>
                   </div>
-                  <div class="col-6">
-                    <select class="form-select form-select-sm" id="status" onchange="toggleShipDateField()">
-                      <option>合同执行中</option>
-                      <option>待支付预付款</option>
-                      <option>已支付预付款，启动生产</option>
-                      <option>生产中</option>
-                      <option>待支付尾款</option>
-                      <option>已支付，待发货</option>
-                      <option>已发货</option>
-                      <option>已签收</option>
-                    </select>
+                  <div class="col-md-6">
+                    <div class="field-container">
+                      <span class="field-label">📌 订单状态</span>
+                      <select class="form-select" id="status" onchange="toggleShipDateField()">
+                        <option>合同执行中</option>
+                        <option>待支付预付款</option>
+                        <option>已支付预付款，启动生产</option>
+                        <option>生产中</option>
+                        <option>待支付尾款</option>
+                        <option>已支付，待发货</option>
+                        <option>已发货</option>
+                        <option>已签收</option>
+                      </select>
+                    </div>
                   </div>
-                  <div class="col-6" id="shipDateField" style="display:none">
-                    <input type="date" class="form-control form-control-sm" id="shipDate" placeholder="发货日期">
+                  <div class="col-md-6" id="shipDateField" style="display: none;">
+                    <div class="field-container">
+                      <span class="field-label">📆 发货日期</span>
+                      <input type="date" class="form-control" id="shipDate">
+                    </div>
                   </div>
-                  <div class="col-6" id="logisticsField" style="display:none">
-                    <input class="form-control form-control-sm" id="logistics" placeholder="物流单号">
+                  <div class="col-md-6" id="logisticsField" style="display: none;">
+                    <div class="field-container">
+                      <span class="field-label">📦 物流单号</span>
+                      <input class="form-control" id="logistics" placeholder="输入物流单号">
+                    </div>
                   </div>
                 </div>
 
-                <div class="d-flex gap-1 mt-2">
-                  <button class="btn btn-sm btn-primary flex-grow-1" onclick="saveOrder()">💾 保存订单</button>
-                  <button class="btn btn-sm btn-outline-secondary" id="cancelBtn" onclick="cancelOrder()" style="display:none">↩️ 取消</button>
+                <div class="d-flex gap-3 mt-4">
+                  <button class="btn btn-primary flex-grow-1 py-2" onclick="saveOrder()">💾 保存订单</button>
+                  <button class="btn btn-outline-secondary px-4" id="cancelBtn" onclick="cancelOrder()" style="display:none">↩️ 取消</button>
                 </div>
               </div>
             </div>
@@ -438,21 +713,21 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 
             <!-- 库存工具栏 -->
             <div class="toolbar">
-              <button class="btn btn-sm btn-success" onclick="showManualInventoryModal()">➕ 手动录入</button>
-              <button class="btn btn-sm btn-warning" onclick="showOutboundModal()">📤 手动出库</button>
-              <button class="btn btn-sm btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
-              <button class="btn btn-sm btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
-              <button class="btn btn-sm btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
-              <button class="btn btn-sm btn-outline-warning" onclick="rebuildInventoryFromOrders()">🔄 从订单重建</button>
+              <button class="btn btn-success" onclick="showManualInventoryModal()">➕ 手动录入</button>
+              <button class="btn btn-warning" onclick="showOutboundModal()">📤 手动出库</button>
+              <button class="btn btn-outline-primary" onclick="exportInventory()">📊 导出库存</button>
+              <button class="btn btn-outline-secondary" onclick="renderInventory()">🔄 刷新</button>
+              <button class="btn btn-outline-danger" onclick="deduplicateInventory()">🔄 去重库存</button>
+              <button class="btn btn-outline-warning" onclick="rebuildInventoryFromOrders()">🔄 从订单重建</button>
             </div>
 
             <!-- 库存搜索 -->
             <div class="search-filter-3col">
-              <input class="form-control form-control-sm" id="invSearch" placeholder="🔎 搜索产品名称/工厂" oninput="renderInventory()">
-              <select class="form-select form-select-sm" id="invFactoryFilter" onchange="renderInventory()">
+              <input class="form-control" id="invSearch" placeholder="🔎 搜索产品名称/工厂" oninput="renderInventory()">
+              <select class="form-select" id="invFactoryFilter" onchange="renderInventory()">
                 <option value="">全部工厂</option>
               </select>
-              <select class="form-select form-select-sm" id="invProductTypeFilter" onchange="renderInventory()">
+              <select class="form-select" id="invProductTypeFilter" onchange="renderInventory()">
                 <option value="">全部产品类型</option>
               </select>
             </div>
@@ -466,131 +741,139 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
             </div>
 
             <!-- 库存变动日志 -->
-            <div class="card mt-2">
+            <div class="card mt-3">
               <div class="card-header">📋 最近变动</div>
-              <div class="card-body" style="max-height:160px; overflow-y:auto" id="invLogs"></div>
+              <div class="card-body" style="max-height:200px; overflow-y:auto" id="invLogs"></div>
             </div>
           </div>
         </div>
 
-        <!-- 数据报表页面 -->
+        <!-- ========== 数据报表页面 - 优化版 ========== -->
         <div id="reportsPage" style="display:none">
           <div class="content-container">
             <div class="card">
               <div class="card-header">📊 报表生成器</div>
               <div class="card-body">
-                <div class="row g-2 mb-3">
+                <!-- 报表控制栏 -->
+                <div class="row g-2 mb-4">
                   <div class="col-md-3">
-                    <select class="form-select form-select-sm" id="reportType">
+                    <select class="form-select" id="reportType">
                       <option value="month">📅 月度报表</option>
                       <option value="quarter">📆 季度报表</option>
                       <option value="year">🗓️ 年度报表</option>
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <input type="month" class="form-control form-control-sm" id="reportMonth" value="2025-03">
+                    <input type="month" class="form-control" id="reportMonth" value="2025-03">
                   </div>
                   <div class="col-md-3">
-                    <select class="form-select form-select-sm" id="reportGroupBy">
+                    <select class="form-select" id="reportGroupBy">
                       <option value="all">全部</option>
                       <option value="factory">按工厂</option>
                       <option value="productType">按产品类型</option>
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <button class="btn btn-sm btn-primary" onclick="generateReport()">📊 生成报表</button>
+                    <button class="btn btn-primary w-100" onclick="generateReport()">📊 生成报表</button>
                   </div>
                 </div>
 
-                <div class="row g-2 mb-3">
+                <!-- 报表摘要卡片 - 优化颜色 -->
+                <div class="row g-3 mb-4">
                   <div class="col-md-3">
-                    <div class="report-card">
-                      <div class="small opacity-75">总订单数</div>
-                      <div class="h4 mb-0" id="repTotalOrders">0</div>
+                    <div class="report-card" style="background:linear-gradient(135deg,#2c3e50 0%,#3498db 100%)">
+                      <div class="small opacity-75">📋 总订单数</div>
+                      <div class="h2 mb-0 fw-bold" id="repTotalOrders">0</div>
                     </div>
                   </div>
                   <div class="col-md-3">
                     <div class="report-card" style="background:linear-gradient(135deg,#11998e 0%,#38ef7d 100%)">
-                      <div class="small opacity-75">总销售额</div>
-                      <div class="h4 mb-0" id="repTotalSales">0$</div>
+                      <div class="small opacity-75">💰 总销售额</div>
+                      <div class="h2 mb-0 fw-bold" id="repTotalSales">0$</div>
                     </div>
                   </div>
                   <div class="col-md-3">
                     <div class="report-card" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)">
-                      <div class="small opacity-75">总成本</div>
-                      <div class="h4 mb-0" id="repTotalCosts">0¥</div>
+                      <div class="small opacity-75">📦 总成本</div>
+                      <div class="h2 mb-0 fw-bold" id="repTotalCosts">0¥</div>
                     </div>
                   </div>
                   <div class="col-md-3">
                     <div class="report-card" style="background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)">
-                      <div class="small opacity-75">总利润</div>
-                      <div class="h4 mb-0" id="repTotalProfits">0¥</div>
+                      <div class="small opacity-75">💵 总利润</div>
+                      <div class="h2 mb-0 fw-bold" id="repTotalProfits">0¥</div>
                     </div>
                   </div>
                 </div>
 
-                <div class="row">
+                <!-- 图表区域 -->
+                <div class="row g-3">
                   <div class="col-md-6">
                     <div class="card">
-                      <div class="card-header">📈 订单趋势</div>
-                      <div class="card-body p-1">
-                        <div id="repChartTrend" style="height:180px;"></div>
+                      <div class="card-header py-2">📈 订单趋势</div>
+                      <div class="card-body p-2">
+                        <div id="repChartTrend" style="height:280px;"></div>
                       </div>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="card">
-                      <div class="card-header">🥧 利润构成</div>
-                      <div class="card-body p-1">
-                        <div id="repChartPie" style="height:180px;"></div>
+                      <div class="card-header py-2">🥧 利润构成</div>
+                      <div class="card-body p-2">
+                        <div id="repChartPie" style="height:280px;"></div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="card mt-2">
-                  <div class="card-header">📋 分组明细</div>
-                  <div class="card-body" style="max-height:200px; overflow-y:auto" id="reportGroupTable"></div>
+                <!-- 分组明细表格 -->
+                <div class="card mt-3">
+                  <div class="card-header py-2">📋 分组明细</div>
+                  <div class="card-body p-0">
+                    <div style="max-height:300px; overflow-y:auto" id="reportGroupTable" class="p-3"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 系统设置页面 -->
+        <!-- ========== 系统设置页面 - 优化布局 ========== -->
         <div id="settingsPage" style="display:none">
           <div class="content-container">
             <div class="card">
               <div class="card-header">⚙️ 系统设置</div>
               <div class="card-body">
-                <!-- 汇率设置 -->
+                <!-- 汇率设置 - 压缩输入框长度 -->
                 <div class="setting-item">
                   <div class="setting-label">🌐 默认汇率</div>
                   <div class="setting-desc">设置USD兑CNY的默认汇率</div>
-                  <div class="row g-1">
-                    <div class="col-md-3">
-                      <input type="number" class="form-control form-control-sm" id="settingsUsdRate" value="7.20" step="0.01">
+                  <div class="row g-2">
+                    <div class="col-md-2">
+                      <input type="number" class="form-control" id="settingsUsdRate" value="7.20" step="0.01">
                     </div>
-                    <div class="col-md-3">
-                      <button class="btn btn-sm btn-primary" onclick="saveSettingsRate()">保存</button>
+                    <div class="col-md-2">
+                      <button class="btn btn-primary" onclick="saveSettingsRate()">保存</button>
                     </div>
+                    <div class="col-md-8"></div>
                   </div>
                 </div>
 
-                <!-- 预警阈值 -->
+                <!-- 预警阈值 - 优化布局，删除留白 -->
                 <div class="setting-item">
                   <div class="setting-label">⚠️ 预警阈值</div>
-                  <div class="setting-desc">设置低库存预警数量</div>
-                  <div class="row g-1">
+                  <div class="setting-desc">设置低库存预警数量，低于此值显示黄色背景</div>
+                  <div class="row g-2">
                     <div class="col-md-2">
-                      <input type="number" class="form-control form-control-sm" id="settingsLowStock" value="10" min="1">
+                      <input type="number" class="form-control" id="settingsLowStock" value="10" min="1">
                     </div>
                     <div class="col-md-2">
-                      <button class="btn btn-sm btn-primary" onclick="saveSettingsThreshold()">保存</button>
+                      <button class="btn btn-primary" onclick="saveSettingsThreshold()">保存</button>
                     </div>
                     <div class="col-md-3">
-                      <span class="text-muted small">低于此值显示预警</span>
+                      <span class="text-muted">低于此值显示预警</span>
                     </div>
+                    <div class="col-md-5"></div>
                   </div>
                 </div>
 
@@ -598,11 +881,11 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">💾 数据管理</div>
                   <div class="setting-desc">备份、恢复或初始化数据</div>
-                  <div class="d-flex gap-1 flex-wrap">
-                    <button class="btn btn-sm btn-outline-primary" onclick="backup()">📤 备份</button>
-                    <button class="btn btn-sm btn-outline-warning" onclick="restore()">📥 恢复</button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="clearAllData()">⚠️ 清空数据</button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="resetToSample()">📋 恢复示例</button>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-outline-primary" onclick="backup()">📤 备份</button>
+                    <button class="btn btn-outline-warning" onclick="restore()">📥 恢复</button>
+                    <button class="btn btn-outline-danger" onclick="clearAllData()">⚠️ 清空数据</button>
+                    <button class="btn btn-outline-secondary" onclick="resetToSample()">📋 恢复示例</button>
                   </div>
                 </div>
 
@@ -610,13 +893,14 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
                 <div class="setting-item">
                   <div class="setting-label">ℹ️ 关于系统</div>
                   <div class="about-info">
-                    <div><strong>版本：</strong>v3.5 完美紧凑版</div>
+                    <div><strong>版本：</strong>v4.1 UI优化版</div>
                     <div><strong>更新内容：</strong></div>
-                    <div>✅ 消除所有界面留白</div>
-                    <div>✅ 左侧导航选中状态明显</div>
-                    <div>✅ 订单列表可拖拽调整宽度</div>
-                    <div>✅ 所有功能完整保留</div>
-                    <div><strong>最后更新：</strong>2025-03-19</div>
+                    <div>✅ 删除订单列表拖拽功能，界面更稳定</div>
+                    <div>✅ 库存卡片不显示具体单价，仅用于统计</div>
+                    <div>✅ 报表卡片增加颜色背景，更美观</div>
+                    <div>✅ 优化图表布局和间距</div>
+                    <div>✅ 调整输入框长度一致，删除留白</div>
+                    <div><strong>最后更新：</strong>2025-03-20</div>
                   </div>
                 </div>
               </div>
@@ -626,12 +910,9 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
       </div>
     </div>
 
-    <!-- 拖拽分隔条 -->
-    <div class="resizer" id="resizer"></div>
-
-    <!-- 右侧列 - 订单列表 -->
+    <!-- 右侧列 - 订单列表（固定宽度） -->
     <div class="right-column" id="rightColumn">
-      <h6>📋 订单列表 <small class="text-muted">(拖动左边条调整宽度)</small></h6>
+      <h6>📋 订单列表 <small class="text-muted">(点击状态可更新)</small></h6>
       <div class="order-grid" id="orderList"></div>
     </div>
   </div>
@@ -639,52 +920,65 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 
 <!-- 手动录入库存模态框 -->
 <div class="modal fade" id="manualInventoryModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">➕ 手动录入库存</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div class="field-container">
-          <span class="field-label">📝 产品名称 *</span>
-          <input class="form-control form-control-sm" id="manualProductName" placeholder="例如: VULCO160-GBT*2">
-        </div>
-        <div class="field-container">
-          <span class="field-label">📊 产品类型 *</span>
-          <select class="form-select form-select-sm" id="manualProductType" required>
-            <option value="" disabled selected>请选择产品类型</option>
-            <option>一体式直流充电桩</option>
-            <option>壁挂小直流</option>
-            <option>分体式直流充电堆</option>
-            <option>交流立柱式充电桩</option>
-            <option>交流壁挂充电桩</option>
-            <option>便携式交流充电桩</option>
-            <option>便携式直流充电桩</option>
-            <option>移动储能充电设备</option>
-            <option>储能设备</option>
-            <option>光伏类设备</option>
-            <option>配件</option>
-            <option>定制费</option>
-            <option>其他</option>
-          </select>
-        </div>
-        <div class="field-container">
-          <span class="field-label">🔢 数量 *</span>
-          <input class="form-control form-control-sm" id="manualQuantity" type="number" min="1" value="10">
-        </div>
-        <div class="field-container">
-          <span class="field-label">🏭 工厂 *</span>
-          <input class="form-control form-control-sm" id="manualFactory" placeholder="例如: TH">
-        </div>
-        <div class="field-container">
-          <span class="field-label">💰 采购成本(单价) *</span>
-          <input class="form-control form-control-sm" id="manualPrice" type="number" min="0" step="0.01" value="100" placeholder="例如: 3500">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">📝 产品名称 *</span>
+              <input class="form-control" id="manualProductName" placeholder="例如: VULCO160-GBT*2">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">📊 产品类型 *</span>
+              <select class="form-select" id="manualProductType" required>
+                <option value="" disabled selected>请选择产品类型</option>
+                <option>一体式直流充电桩</option>
+                <option>壁挂小直流</option>
+                <option>分体式直流充电堆</option>
+                <option>交流立柱式充电桩</option>
+                <option>交流壁挂充电桩</option>
+                <option>便携式交流充电桩</option>
+                <option>便携式直流充电桩</option>
+                <option>移动储能充电设备</option>
+                <option>储能设备</option>
+                <option>光伏类设备</option>
+                <option>配件</option>
+                <option>定制费</option>
+                <option>其他</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">🔢 数量 *</span>
+              <input class="form-control" id="manualQuantity" type="number" min="1" value="10">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">🏭 工厂 *</span>
+              <input class="form-control" id="manualFactory" placeholder="例如: TH">
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="field-container">
+              <span class="field-label">💰 采购成本(单价) *</span>
+              <input class="form-control" id="manualPrice" type="number" min="0" step="0.01" value="100" placeholder="例如: 3500">
+              <small class="text-muted">单位：人民币(¥)</small>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button class="btn btn-sm btn-primary" onclick="addManualInventory()">保存</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button class="btn btn-primary" onclick="addManualInventory()">保存</button>
       </div>
     </div>
   </div>
@@ -692,7 +986,7 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
 
 <!-- 编辑库存模态框 -->
 <div class="modal fade" id="editInventoryModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">✏️ 编辑库存</h5>
@@ -700,49 +994,64 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
       </div>
       <div class="modal-body">
         <input type="hidden" id="editInventoryId">
-        <div class="field-container">
-          <span class="field-label">📝 产品名称</span>
-          <input class="form-control form-control-sm" id="editProductName" readonly>
-        </div>
-        <div class="field-container">
-          <span class="field-label">📊 产品类型</span>
-          <select class="form-select form-select-sm" id="editProductType">
-            <option>一体式直流充电桩</option>
-            <option>壁挂小直流</option>
-            <option>分体式直流充电堆</option>
-            <option>交流立柱式充电桩</option>
-            <option>交流壁挂充电桩</option>
-            <option>便携式交流充电桩</option>
-            <option>便携式直流充电桩</option>
-            <option>移动储能充电设备</option>
-            <option>储能设备</option>
-            <option>光伏类设备</option>
-            <option>配件</option>
-            <option>定制费</option>
-            <option>其他</option>
-          </select>
-        </div>
-        <div class="field-container">
-          <span class="field-label">🏭 工厂</span>
-          <input class="form-control form-control-sm" id="editFactory" placeholder="工厂">
-        </div>
-        <div class="field-container">
-          <span class="field-label">🔢 数量</span>
-          <input class="form-control form-control-sm" id="editQuantity" type="number" min="0" step="1">
-        </div>
-        <div class="field-container">
-          <span class="field-label">💰 采购成本(单价)</span>
-          <input class="form-control form-control-sm" id="editPrice" type="number" min="0" step="0.01">
-        </div>
-        <div class="field-container">
-          <span class="field-label">📦 来源</span>
-          <input class="form-control form-control-sm" id="editSource" readonly>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">📝 产品名称</span>
+              <input class="form-control" id="editProductName" readonly>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">📊 产品类型</span>
+              <select class="form-select" id="editProductType">
+                <option>一体式直流充电桩</option>
+                <option>壁挂小直流</option>
+                <option>分体式直流充电堆</option>
+                <option>交流立柱式充电桩</option>
+                <option>交流壁挂充电桩</option>
+                <option>便携式交流充电桩</option>
+                <option>便携式直流充电桩</option>
+                <option>移动储能充电设备</option>
+                <option>储能设备</option>
+                <option>光伏类设备</option>
+                <option>配件</option>
+                <option>定制费</option>
+                <option>其他</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">🏭 工厂</span>
+              <input class="form-control" id="editFactory" placeholder="工厂">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">🔢 数量</span>
+              <input class="form-control" id="editQuantity" type="number" min="0" step="1">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">💰 采购成本(单价)</span>
+              <input class="form-control" id="editPrice" type="number" min="0" step="0.01">
+              <small class="text-muted">单位：人民币(¥)</small>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-container">
+              <span class="field-label">📦 来源</span>
+              <input class="form-control" id="editSource" readonly>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button class="btn btn-sm btn-primary" onclick="saveInventoryEdit()">保存修改</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteInventoryItem()">删除</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button class="btn btn-primary" onclick="saveInventoryEdit()">保存修改</button>
+        <button class="btn btn-danger" onclick="deleteInventoryItem()">删除</button>
       </div>
     </div>
   </div>
@@ -759,26 +1068,26 @@ body{background:#f0f2f5;margin:0;font-family:system-ui;font-size:14px;overflow:h
       <div class="modal-body">
         <div class="field-container">
           <span class="field-label">📝 选择产品</span>
-          <select class="form-select form-select-sm" id="outboundProductSelect">
+          <select class="form-select" id="outboundProductSelect">
             <option value="">请选择产品</option>
           </select>
         </div>
         <div class="field-container">
           <span class="field-label">🔢 当前库存</span>
-          <input type="text" class="form-control form-control-sm" id="outboundCurrentStock" readonly>
+          <input type="text" class="form-control" id="outboundCurrentStock" readonly>
         </div>
         <div class="field-container">
           <span class="field-label">🔢 出库数量</span>
-          <input type="number" class="form-control form-control-sm" id="outboundQuantity" min="1" value="1">
+          <input class="form-control" id="outboundQuantity" type="number" min="1" value="1">
         </div>
         <div class="field-container">
           <span class="field-label">📝 出库原因</span>
-          <input class="form-control form-control-sm" id="outboundReason" placeholder="例如: 线下发货、损耗等">
+          <input class="form-control" id="outboundReason" placeholder="例如: 线下发货、损耗等">
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button class="btn btn-sm btn-warning" onclick="confirmOutbound()">确认出库</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button class="btn btn-warning" onclick="confirmOutbound()">确认出库</button>
       </div>
     </div>
   </div>
@@ -848,11 +1157,10 @@ const STATUS_CARD_CLASS = {
 }
 
 // ========== 数据层 ==========
-const ORDER_STORAGE = 'ERP_ORDER_FINAL'
-const INVENTORY_STORAGE = 'ERP_INVENTORY'
-const LOG_STORAGE = 'ERP_INVENTORY_LOGS'
-const SETTINGS_STORAGE = 'ERP_SETTINGS'
-const WIDTH_STORAGE = 'ORDER_LIST_WIDTH'
+const ORDER_STORAGE = 'ERP_ORDER_FINAL_V8'
+const INVENTORY_STORAGE = 'ERP_INVENTORY_V8'
+const LOG_STORAGE = 'ERP_INVENTORY_LOGS_V8'
+const SETTINGS_STORAGE = 'ERP_SETTINGS_V8'
 
 let orders = []
 let inventory = []
@@ -866,17 +1174,6 @@ function loadData() {
   console.log('加载数据...')
   
   let savedOrders = localStorage.getItem(ORDER_STORAGE)
-  if (!savedOrders) {
-    const oldKeys = ['ERP_ORDER_FINAL_V6', 'ERP_ORDER_FINAL_V5', 'ERP_ORDER_FINAL_V4']
-    for (let key of oldKeys) {
-      savedOrders = localStorage.getItem(key)
-      if (savedOrders) {
-        console.log('从旧版本迁移订单数据:', key)
-        break
-      }
-    }
-  }
-  
   if (savedOrders) {
     try {
       orders = JSON.parse(savedOrders)
@@ -886,19 +1183,10 @@ function loadData() {
       orders = []
     }
   } else {
-    console.log('无订单数据')
     orders = []
   }
   
   let savedInventory = localStorage.getItem(INVENTORY_STORAGE)
-  if (!savedInventory) {
-    const oldKeys = ['ERP_INVENTORY_V6', 'ERP_INVENTORY_V5', 'ERP_INVENTORY_V4']
-    for (let key of oldKeys) {
-      savedInventory = localStorage.getItem(key)
-      if (savedInventory) break
-    }
-  }
-  
   if (savedInventory) {
     try {
       inventory = JSON.parse(savedInventory)
@@ -914,14 +1202,6 @@ function loadData() {
   }
   
   let savedLogs = localStorage.getItem(LOG_STORAGE)
-  if (!savedLogs) {
-    const oldKeys = ['ERP_INVENTORY_LOGS_V6', 'ERP_INVENTORY_LOGS_V5', 'ERP_INVENTORY_LOGS_V4']
-    for (let key of oldKeys) {
-      savedLogs = localStorage.getItem(key)
-      if (savedLogs) break
-    }
-  }
-  
   if (savedLogs) {
     try {
       inventoryLogs = JSON.parse(savedLogs)
@@ -933,14 +1213,6 @@ function loadData() {
   }
   
   let savedSettings = localStorage.getItem(SETTINGS_STORAGE)
-  if (!savedSettings) {
-    const oldKeys = ['ERP_SETTINGS_V6', 'ERP_SETTINGS_V5', 'ERP_SETTINGS_V4']
-    for (let key of oldKeys) {
-      savedSettings = localStorage.getItem(key)
-      if (savedSettings) break
-    }
-  }
-  
   if (savedSettings) {
     try {
       settings = JSON.parse(savedSettings)
@@ -1198,7 +1470,7 @@ function addItem() {
   const div = document.createElement('div')
   div.className = 'item-row'
   div.innerHTML = `
-    <div class="row g-1 align-items-center">
+    <div class="row g-2 align-items-center">
       <div class="col-2">
         <select class="form-select form-select-sm itemType">
           <option>实物产品</option>
@@ -1441,7 +1713,7 @@ function editOrder(i) {
       const row = document.createElement('div')
       row.className = 'item-row'
       row.innerHTML = `
-        <div class="row g-1 align-items-center">
+        <div class="row g-2 align-items-center">
           <div class="col-2">
             <select class="form-select form-select-sm itemType">
               <option ${it.type=='实物产品'?'selected':''}>实物产品</option>
@@ -1767,7 +2039,7 @@ function confirmOutbound() {
   alert('✅ 出库成功')
 }
 
-// ========== 核心：合并显示库存，支持编辑 ==========
+// ========== 核心：合并显示库存，支持编辑（不显示单价）==========
 function renderInventory() {
   const kw = document.getElementById('invSearch')?.value.toLowerCase() || ''
   const facFilter = document.getElementById('invFactoryFilter')?.value || ''
@@ -1807,7 +2079,7 @@ function renderInventory() {
     record.totalValue += item.qty * item.price
   })
   
-  // 计算平均价格
+  // 计算平均价格（仅用于后台统计，不显示）
   mergedMap.forEach(record => {
     const totalQty = record.orderQty + record.manualQty
     record.avgPrice = totalQty > 0 ? Math.round(record.totalValue / totalQty) : 0
@@ -1845,7 +2117,7 @@ function renderInventory() {
   
   const groupedList = document.getElementById('inventoryGroupedList')
   if (Object.keys(grouped).length === 0) {
-    groupedList.innerHTML = '<div class="text-center p-3">暂无库存记录</div>'
+    groupedList.innerHTML = '<div class="text-center p-5">暂无库存记录</div>'
   } else {
     let html = ''
     Object.keys(grouped).sort().forEach(type => {
@@ -1876,17 +2148,14 @@ function renderInventory() {
               <div><strong>${item.name}</strong></div>
               <span class="badge ${totalQty < lowStockThreshold ? 'bg-warning' : 'bg-info'}">${totalQty}</span>
             </div>
-            <div class="small">
+            <div class="small mt-2">
               <span class="factory-badge">🏭 ${item.factory}</span>
             </div>
-            <div class="small mt-1">
+            <div class="small mt-2">
               ${sourceDisplay.join(' ')}
             </div>
-            <div class="small text-primary">
-              💰 ¥${item.avgPrice}/件
-            </div>
             ${item.sourceOrders.length > 0 ? 
-              `<div class="small text-muted mt-1">📋 ${item.sourceOrders.slice(0,2).join(', ')}${item.sourceOrders.length > 2 ? '...' : ''}</div>` : 
+              `<div class="small text-muted mt-2">📋 ${item.sourceOrders.slice(0,2).join(', ')}${item.sourceOrders.length > 2 ? '...' : ''}</div>` : 
               ''}
           </div>
         `
@@ -1905,7 +2174,7 @@ function renderInventory() {
     return `<div class="inventory-log ${l.type === 'in' ? 'text-success' : l.type === 'out' ? 'text-danger' : 'text-info'}">
       ${l.type === 'in' ? '📥 +' : l.type === 'out' ? '📤 -' : '✏️'}${l.qty}${valueText} | ${l.name} | ${l.reason} | ${l.time}
     </div>`
-  }).join('') || '<div class="text-center p-2">暂无变动记录</div>'
+  }).join('') || '<div class="text-center p-3">暂无变动记录</div>'
 }
 
 function filterLowStock() { 
@@ -1913,6 +2182,7 @@ function filterLowStock() {
   document.getElementById('invFactoryFilter').value = ''
   document.getElementById('invProductTypeFilter').value = ''
   renderInventory()
+  alert('低库存产品已高亮显示（黄色背景）')
 }
 
 function exportInventory() {
@@ -2211,7 +2481,7 @@ function refresh() {
     boardHtml += `
       <div class="status-item bg-${color} bg-opacity-10" onclick="filterByStatus('${s}')">
         <div class="status-count">${count}</div>
-        <div style="font-size:12px">${s}</div>
+        <div class="small">${s}</div>
       </div>
     `
   })
@@ -2259,7 +2529,7 @@ function refresh() {
       
       if (realData.length === 0) {
         chartReal.setOption({
-          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 12, color: '#999' } },
+          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 14, color: '#999' } },
           series: []
         })
       } else {
@@ -2269,7 +2539,7 @@ function refresh() {
             type: 'pie',
             radius: ['40%', '70%'],
             data: realData,
-            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
+            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 12 },
             emphasis: { scale: true }
           }]
         })
@@ -2286,7 +2556,7 @@ function refresh() {
       
       if (partData.length === 0) {
         chartPart.setOption({
-          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 12, color: '#999' } },
+          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 14, color: '#999' } },
           series: []
         })
       } else {
@@ -2296,7 +2566,7 @@ function refresh() {
             type: 'pie',
             radius: ['40%', '70%'],
             data: partData,
-            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
+            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 12 },
             emphasis: { scale: true }
           }]
         })
@@ -2313,7 +2583,7 @@ function refresh() {
       
       if (otherData.length === 0) {
         chartOther.setOption({
-          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 12, color: '#999' } },
+          title: { text: '暂无数据', left: 'center', top: 'center', textStyle: { fontSize: 14, color: '#999' } },
           series: []
         })
       } else {
@@ -2323,7 +2593,7 @@ function refresh() {
             type: 'pie',
             radius: ['40%', '70%'],
             data: otherData,
-            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 11 },
+            label: { show: true, position: 'outside', formatter: '{b}: {c}件', fontSize: 12 },
             emphasis: { scale: true }
           }]
         })
@@ -2344,13 +2614,13 @@ function refresh() {
     const days = (deliveryDate - now) / 86400000
     
     if (days < 0) {
-      alertHtml += `<div class="alert-overdue p-1 small">🔴 ${o.no} 已延期 ${Math.abs(Math.floor(days))}天</div>`
+      alertHtml += `<div class="alert-overdue">🔴 ${o.no} 已延期 ${Math.abs(Math.floor(days))}天</div>`
     } else if (days <= 7) {
-      alertHtml += `<div class="alert-soon p-1 small">🟡 ${o.no} ${Math.floor(days)}天后到期</div>`
+      alertHtml += `<div class="alert-soon">🟡 ${o.no} ${Math.floor(days)}天后到期</div>`
     }
   })
   
-  document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok p-2">✅ 无交期预警</div>'
+  document.getElementById('alertBox').innerHTML = alertHtml || '<div class="alert-ok">✅ 无交期预警</div>'
 
   const allFactories = new Set([
     ...Object.keys(factoryMapReal),
@@ -2386,16 +2656,20 @@ function refresh() {
     
     const cardClass = STATUS_CARD_CLASS[o.status] || ''
     
-    const shipDateDisplay = o.shipDate ? ` | 发货:${o.shipDate}` : ''
+    const shipDateDisplay = o.shipDate ? ` · 发货:${o.shipDate}` : ''
     
     listHtml += `
       <div class="order-card ${cardClass}">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-start">
           <div>
-            <strong>${o.no || '未知'}</strong> | ${o.contract || '未知'}
+            <div class="fw-bold">${o.no || '未知'} | ${o.contract || '未知'}</div>
+            <div class="small text-secondary mt-1">
+              <span class="factory-badge">🏭 ${uniqueFactories}</span>
+              <span class="ms-2">👥 ${o.customer || '-'}</span>
+            </div>
           </div>
           <div class="dropdown">
-            <span class="badge bg-${STATUS_COLOR[o.status] || 'secondary'}" data-bs-toggle="dropdown" style="cursor:pointer; font-size:12px; padding:6px 10px">
+            <span class="badge bg-${STATUS_COLOR[o.status] || 'secondary'} px-3 py-2" data-bs-toggle="dropdown" style="cursor:pointer; font-size:12px">
               ${o.status || '未知'} ▼
             </span>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -2404,12 +2678,7 @@ function refresh() {
           </div>
         </div>
         
-        <div class="small mt-1" style="font-size:12px">
-          <span class="factory-badge">🏭 ${uniqueFactories}</span>
-          <span class="ms-2">👥 ${o.customer || '-'}</span>
-        </div>
-        
-        <div class="small mt-1" style="font-size:12px">
+        <div class="small mt-2">
           ${o.items?.map(item => `
             <span class="product-type-badge" title="${item.productType || '无类型'}">
               ${item.name || '未知'} (${item.qty || 0}×${item.price || 0})
@@ -2417,19 +2686,22 @@ function refresh() {
           `).join(' ') || '无产品'}
         </div>
         
-        <div class="small mt-1" style="font-size:12px">
-          📅 交付:${o.delivery || '-'}${shipDateDisplay} | 成本:¥${o.cost || 0} | 销售:$${o.sale || 0}
+        <div class="small text-secondary mt-2">
+          📅 交付:${o.delivery || '-'}${shipDateDisplay}
+        </div>
+        <div class="small fw-bold mt-1">
+          成本:¥${o.cost || 0} · 销售:$${o.sale || 0}
         </div>
         
-        <div class="d-flex gap-1 mt-2">
-          <button class="btn btn-sm btn-outline-secondary" style="font-size:11px" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
-          <button class="btn btn-sm btn-outline-danger" style="font-size:11px" onclick="deleteOrder(${originalIndex})">🗑️ 删除</button>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-sm btn-outline-secondary" onclick="editOrder(${originalIndex})">✏️ 编辑</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${originalIndex})">🗑️ 删除</button>
         </div>
       </div>
     `
   })
   
-  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-3" style="font-size:13px">暂无订单，请点击"新增订单"创建</div>'
+  document.getElementById('orderList').innerHTML = listHtml || '<div class="text-center p-5 text-secondary">暂无订单，请点击"新增订单"创建</div>'
 }
 
 function switchTab(tab) {
@@ -2530,118 +2802,36 @@ function resetToSample() {
   if (confirm('恢复示例数据？当前数据将被覆盖。')) {
     orders = [
       {
-        no:'ANS-20260316-0047', contract:'N20260120304-DR01', customer:'Green24', delivery:'2026-04-10',
-        prepaymentDate:'2026-03-02', contractSignDate:'2026-03-04', taxRate:13,
-        cost:207590, sale:105395, logistics:'', status:'生产中',
+        no:'ORD-001', contract:'CT-001', customer:'客户A', delivery:'2026-04-10',
+        prepaymentDate:'2026-03-01', contractSignDate:'2026-02-28', taxRate:13,
+        cost:1000, sale:200, logistics:'', status:'合同执行中',
         items:[
-          { type:'实物产品', name:'VULCO-120kW-CCS2*2', productType:'一体式直流充电桩', factory:'DR', qty:11, price:4100 },
-          { type:'实物产品', name:'VULCO-180kW-CCS2*2', productType:'一体式直流充电桩', factory:'DR', qty:1, price:49800 },
-          { type:'实物产品', name:'收枪装置', productType:'配件', factory:'DR', qty:12, price:2500 },
-          { type:'实物产品', name:'A22W1-SC', productType:'交流壁挂充电桩', factory:'CW', qty:10, price:1450 },
-          { type:'实物产品', name:'CCS2枪线', productType:'配件', factory:'WR', qty:5, price:2300 },
-          { type:'实物产品', name:'30kw模块', productType:'配件', factory:'UU', qty:5, price:2100 },
-          { type:'实物产品', name:'急停按钮', productType:'配件', factory:'DR', qty:5, price:38 },
-          { type:'实物产品', name:'直流电表', productType:'配件', factory:'DR', qty:5, price:200 },
-          { type:'实物产品', name:'10寸屏', productType:'配件', factory:'DR', qty:5, price:400 },
-          { type:'实物产品', name:'A44', productType:'交流立柱式充电桩', factory:'YD', qty:10, price:4300 }
+          { type:'实物产品', name:'产品A', productType:'一体式直流充电桩', factory:'TH', qty:10, price:100 },
+          { type:'实物产品', name:'产品B', productType:'壁挂小直流', factory:'NT', qty:5, price:200 }
         ],
         createdAt: new Date().toISOString()
       },
       {
-        no:'ANS-20260317-0049', contract:'AN20260317-TH01', customer:'G88', delivery:'2026-04-20',
-        prepaymentDate:'2026-03-24', contractSignDate:'2026-03-18', taxRate:13,
-        cost:71600, sale:14575, logistics:'', status:'合同执行中',
+        no:'ORD-002', contract:'CT-002', customer:'客户B', delivery:'2026-04-20',
+        prepaymentDate:'2026-03-05', contractSignDate:'2026-03-01', taxRate:13,
+        cost:2000, sale:400, logistics:'', status:'生产中',
         items:[
-          { type:'实物产品', name:'VULCO160-GBT*2', productType:'一体式直流充电桩', factory:'TH', qty:2, price:35800 }
-        ],
-        createdAt: new Date().toISOString()
-      },
-      {
-        no:'ANS-20260317-0048', contract:'AN20260317-TH02', customer:'MartEV', delivery:'2026-04-20',
-        prepaymentDate:'2026-03-23', contractSignDate:'2026-03-18', taxRate:13,
-        cost:59800, sale:12580, logistics:'', status:'合同执行中',
-        items:[
-          { type:'实物产品', name:'VULCO300kW-GBT+CCS2', productType:'一体式直流充电桩', factory:'TH', qty:1, price:59800 }
+          { type:'实物产品', name:'产品C', productType:'分体式直流充电堆', factory:'SH', qty:20, price:100 }
         ],
         createdAt: new Date().toISOString()
       }
     ]
-    inventory = []
-    inventoryLogs = []
-    
-    orders.forEach(order => {
-      order.items.forEach(item => {
-        if (item.type === '实物产品' && item.qty > 0 && item.factory) {
-          inventory.push({
-            id: 'INV-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-            name: item.name,
-            productType: item.productType,
-            qty: item.qty,
-            price: item.price,
-            factory: item.factory,
-            source: 'order',
-            sourceOrderNo: order.no,
-            createdAt: new Date().toISOString(),
-            lastUpdated: new Date().toISOString()
-          })
-        }
-      })
-    })
-    
-    inventoryLogs = [
-      {id:'LOG-001', type:'in', name:'系统', reason:'初始化示例数据', time:new Date().toLocaleString()}
+    inventory = [
+      {id:'INV-001', name:'产品A', productType:'一体式直流充电桩', qty:50, factory:'TH', price:100, source:'order', sourceOrderNo:'ORD-001', createdAt:new Date().toISOString()},
+      {id:'INV-002', name:'产品B', productType:'壁挂小直流', qty:30, factory:'NT', price:200, source:'order', sourceOrderNo:'ORD-001', createdAt:new Date().toISOString()},
+      {id:'INV-003', name:'配件X', productType:'配件', qty:100, factory:'CW', price:50, source:'manual', createdAt:new Date().toISOString()}
     ]
-    
+    inventoryLogs = [
+      {id:'LOG-001', type:'in', name:'产品A', qty:50, factory:'TH', reason:'订单同步', time:new Date().toLocaleString()}
+    ]
     saveOrders(); saveInventory(); saveLogs()
     refresh(); renderInventory()
     alert('✅ 已恢复示例数据')
-  }
-}
-
-// ========== 核心：拖拽调整宽度（修复版）==========
-function initResizableColumn() {
-  const resizer = document.getElementById('resizer')
-  const rightColumn = document.getElementById('rightColumn')
-  
-  if (!resizer || !rightColumn) {
-    console.error('找不到拖拽元素')
-    return
-  }
-  
-  let startX, startWidth
-  
-  // 读取保存的宽度
-  const savedWidth = localStorage.getItem(WIDTH_STORAGE)
-  if (savedWidth) {
-    rightColumn.style.width = savedWidth + 'px'
-  }
-  
-  // 鼠标按下事件
-  resizer.addEventListener('mousedown', function(e) {
-    startX = e.clientX
-    startWidth = rightColumn.offsetWidth
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-    e.preventDefault()
-  })
-  
-  function onMouseMove(e) {
-    const diff = e.clientX - startX
-    let newWidth = startWidth - diff // 向左拖动减小宽度
-    
-    // 限制宽度范围
-    newWidth = Math.min(Math.max(newWidth, 250), 600)
-    rightColumn.style.width = newWidth + 'px'
-  }
-  
-  function onMouseUp() {
-    document.removeEventListener('mousemove', onMouseMove)
-    document.removeEventListener('mouseup', onMouseUp)
-    
-    // 保存当前宽度
-    const currentWidth = rightColumn.offsetWidth
-    localStorage.setItem(WIDTH_STORAGE, currentWidth)
-    console.log('保存列宽:', currentWidth)
   }
 }
 
@@ -2664,7 +2854,6 @@ document.addEventListener('DOMContentLoaded', function() {
     cancelOrder()
     refresh()
     renderInventory()
-    initResizableColumn()
     
     console.log('初始化完成')
   }, 100)
