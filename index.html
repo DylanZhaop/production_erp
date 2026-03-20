@@ -94,14 +94,14 @@ body{background:#f0f2f5;margin:0;font-family:system-ui, -apple-system, 'Segoe UI
 .order-card:nth-child(even){background-color:#fafbfc;}
 
 /* 状态卡片左边框颜色 */
-.order-card.status-contract-executing {border-left:6px solid #c93493;}  /* 粉色 */
-.order-card.status-prepayment-pending {border-left:6px solid #ffc107;}  /* 黄色 */
-.order-card.status-prepayment-paid {border-left:6px solid #0dcaf0;}     /* 青色 */
-.order-card.status-in-production {border-left:6px solid #fd7e14;}       /* 橙色 */
-.order-card.status-balance-pending {border-left:6px solid #8344c2;}     /* 紫色 */
-.order-card.status-paid-pending-ship {border-left:6px solid #20c997;}   /* 绿色 */
-.order-card.status-shipped {border-left:6px solid #0d6efd;}             /* 蓝色 */
-.order-card.status-received {border-left:6px solid #198754;}            /* 深绿 */
+.order-card.status-contract-executing {border-left:6px solid #c93493 !important;}
+.order-card.status-prepayment-pending {border-left:6px solid #ffc107 !important;}
+.order-card.status-prepayment-paid {border-left:6px solid #0dcaf0 !important;}
+.order-card.status-in-production {border-left:6px solid #fd7e14 !important;}
+.order-card.status-balance-pending {border-left:6px solid #8344c2 !important;}  /* 改成紫色 */
+.order-card.status-paid-pending-ship {border-left:6px solid #20c997 !important;}
+.order-card.status-shipped {border-left:6px solid #0d6efd !important;}
+.order-card.status-received {border-left:6px solid #198754 !important;}
 
 /* ========== 工厂分布三图布局优化 ========== */
 .factory-charts-grid {
@@ -1123,32 +1123,36 @@ const ORDER_STATUS = [
   '已签收'
 ]
 
+// 同时修改 STATUS_CHART_COLOR 和 STATUS_COLOR
 const STATUS_CHART_COLOR = {
-    '合同执行中': '#c93493',  // 粉色
-    '待支付预付款': '#ffc107',
-    '已支付预付款，启动生产': '#0dcaf0',
-    '生产中': '#fd7e14',
-    '待支付尾款': '#8344c2',  // 紫色
-    '已支付，待发货': '#20c997',
-    '已发货': '#0d6efd',
-    '已签收': '#198754'
+  '合消执行中': '#c93493',        // 粉色
+  '待支付预付款': '#ffc107',
+  '已支付预付款，启动生产': '#0dcaf0',
+  '已支付，完成销': '#20c997',     // 绿色
+  '生产中': '#fd7e14',
+  '待支付尾款': '#8344c2',        // 紫色
+  '已支付，待发货': '#20c997',
+  '已发货': '#0d6efd',
+  '已签收': '#198754'
 }
 
 const STATUS_COLOR = {
-    '合同执行中': 'danger',      // 粉色对应danger
-    '待支付预付款': 'warning',
-    '已支付预付款，启动生产': 'info',
-    '生产中': 'warning',
-    '待支付尾款': 'purple',      // 紫色需要自定义类
-    '已支付，待发货': 'info',
-    '已发货': 'primary',
-    '已签收': 'success'
+  '合消执行中': 'danger',
+  '待支付预付款': 'warning',
+  '已支付预付款，启动生产': 'info',
+  '已支付，完成销': 'info',
+  '生产中': 'warning',
+  '待支付尾款': 'danger',
+  '已支付，待发货': 'info',
+  '已发货': 'primary',
+  '已签收': 'success'
 }
 
 const STATUS_CARD_CLASS = {
-  '合同执行中': 'status-contract-executing',
+  '合消执行中': 'status-contract-executing',           // 实际状态 → CSS类
   '待支付预付款': 'status-prepayment-pending',
   '已支付预付款，启动生产': 'status-prepayment-paid',
+  '已支付，完成销': 'status-paid-pending-ship',        // 根据实际调整
   '生产中': 'status-in-production',
   '待支付尾款': 'status-balance-pending',
   '已支付，待发货': 'status-paid-pending-ship',
