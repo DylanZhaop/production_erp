@@ -93,15 +93,25 @@ body{background:#f0f2f5;margin:0;font-family:system-ui, -apple-system, 'Segoe UI
 .order-card:nth-child(odd){background-color:#ffffff;}
 .order-card:nth-child(even){background-color:#fafbfc;}
 
-/* 状态卡片左边框颜色 */
-.order-card.status-contract-executing {border-left:6px solid #c93493 !important;}
-.order-card.status-prepayment-pending {border-left:6px solid #ffc107 !important;}
-.order-card.status-prepayment-paid {border-left:6px solid #0dcaf0 !important;}
-.order-card.status-in-production {border-left:6px solid #fd7e14 !important;}
-.order-card.status-balance-pending {border-left:6px solid #8344c2 !important;}  /* 改成紫色 */
-.order-card.status-paid-pending-ship {border-left:6px solid #20c997 !important;}
-.order-card.status-shipped {border-left:6px solid #0d6efd !important;}
-.order-card.status-received {border-left:6px solid #198754 !important;}
+/* 订单卡片左边框颜色 - 与柱状图颜色完全一致 */
+.order-card.status-contract-executing {border-left:6px solid #c93493 !important;}  /* 紫红 */
+.order-card.status-prepayment-pending {border-left:6px solid #ffc107 !important;}  /* 黄色 */
+.order-card.status-prepayment-paid {border-left:6px solid #0dcaf0 !important;}     /* 青蓝 */
+.order-card.status-in-production {border-left:6px solid #fd7e14 !important;}       /* 橙色 */
+.order-card.status-balance-pending {border-left:6px solid #8344c2 !important;}     /* 紫色 */
+.order-card.status-paid-pending-ship {border-left:6px solid #20c997 !important;}   /* 浅绿 */
+.order-card.status-shipped {border-left:6px solid #0d6efd !important;}             /* 蓝色 */
+.order-card.status-received {border-left:6px solid #198754 !important;}            /* 深绿 */
+
+/* 自定义状态标签背景色 */
+.bg-contract-executing { background-color: #c93493 !important; color: white; }
+.bg-prepayment-pending { background-color: #ffc107 !important; color: black; }
+.bg-prepayment-paid { background-color: #0dcaf0 !important; color: black; }
+.bg-in-production { background-color: #fd7e14 !important; color: white; }
+.bg-balance-pending { background-color: #8344c2 !important; color: white; }
+.bg-paid-pending-ship { background-color: #20c997 !important; color: black; }
+.bg-shipped { background-color: #0d6efd !important; color: white; }
+.bg-received { background-color: #198754 !important; color: white; }
 
 /* ========== 工厂分布三图布局优化 ========== */
 .factory-charts-grid {
@@ -1123,42 +1133,41 @@ const ORDER_STATUS = [
   '已签收'
 ]
 
-// 同时修改 STATUS_CHART_COLOR 和 STATUS_COLOR
+// ========== 状态颜色映射表（完全统一）==========
 const STATUS_CHART_COLOR = {
-  '合同执行中': '#c93493',        // 粉色
-  '待支付预付款': '#ffc107',
-  '已支付预付款，启动生产': '#0dcaf0',
-  '生产中': '#fd7e14',
-  '待支付尾款': '#8344c2',        // 紫色
-  '已支付，待发货': '#20c997',
-  '已发货': '#0d6efd',
-  '已签收': '#198754'
+    '合同执行中': '#c93493',      // 粉色
+    '待支付预付款': '#ffc107',     // 黄色
+    '已支付预付款，启动生产': '#0dcaf0', // 青色
+    '生产中': '#fd7e14',          // 橙色
+    '待支付尾款': '#8344c2',       // 紫色
+    '已支付，待发货': '#20c997',    // 绿色
+    '已发货': '#0d6efd',           // 蓝色
+    '已签收': '#198754'            // 深绿
 }
 
+// 状态标签背景色（使用自定义类，与左边框颜色一致）
 const STATUS_COLOR = {
-  '合消执行中': 'danger',
-  '待支付预付款': 'warning',
-  '已支付预付款，启动生产': 'info',
-  '已支付，完成销': 'info',
-  '生产中': 'warning',
-  '待支付尾款': 'danger',
-  '已支付，待发货': 'info',
-  '已发货': 'primary',
-  '已签收': 'success'
+    '合同执行中': 'contract-executing',
+    '待支付预付款': 'prepayment-pending',
+    '已支付预付款，启动生产': 'prepayment-paid',
+    '生产中': 'in-production',
+    '待支付尾款': 'balance-pending',
+    '已支付，待发货': 'paid-pending-ship',
+    '已发货': 'shipped',
+    '已签收': 'received'
 }
 
+// 卡片左边框类名映射
 const STATUS_CARD_CLASS = {
-  '合消执行中': 'status-contract-executing',           // 实际状态 → CSS类
-  '待支付预付款': 'status-prepayment-pending',
-  '已支付预付款，启动生产': 'status-prepayment-paid',
-  '已支付，完成销': 'status-paid-pending-ship',        // 根据实际调整
-  '生产中': 'status-in-production',
-  '待支付尾款': 'status-balance-pending',
-  '已支付，待发货': 'status-paid-pending-ship',
-  '已发货': 'status-shipped',
-  '已签收': 'status-received'
+    '合同执行中': 'status-contract-executing',
+    '待支付预付款': 'status-prepayment-pending',
+    '已支付预付款，启动生产': 'status-prepayment-paid',
+    '生产中': 'status-in-production',
+    '待支付尾款': 'status-balance-pending',
+    '已支付，待发货': 'status-paid-pending-ship',
+    '已发货': 'status-shipped',
+    '已签收': 'status-received'
 }
-
 // ========== 数据层 ==========
 const ORDER_STORAGE = 'ERP_ORDER_FINAL_V8'
 const INVENTORY_STORAGE = 'ERP_INVENTORY_V8'
@@ -2672,7 +2681,7 @@ function refresh() {
             </div>
           </div>
           <div class="dropdown">
-            <span class="badge bg-${STATUS_COLOR[o.status] || 'secondary'} px-3 py-2" data-bs-toggle="dropdown" style="cursor:pointer; font-size:12px">
+            <span class="badge bg-${STATUS_COLOR[o.status]} px-3 py-2" data-bs-toggle="dropdown" style="cursor:pointer; font-size:12px">
               ${o.status || '未知'} ▼
             </span>
             <ul class="dropdown-menu dropdown-menu-end">
